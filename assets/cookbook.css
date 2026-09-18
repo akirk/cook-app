@@ -93,6 +93,14 @@ h2 { margin: 1.5rem 0 0.5rem; font-size: 1.3rem; border-bottom: 1px solid var(--
 .variation-list a,
 .variation-list strong { min-width: 0; overflow-wrap: anywhere; }
 .grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+.variation-details { margin: 0.75rem 0 1rem; }
+.variation-details summary { cursor: pointer; font-weight: 600; }
+.variation-details summary:hover { color: var(--accent); }
+.variation-source-control { display: flex; gap: 0.5rem; align-items: center; }
+.variation-source-control select { flex: 1; min-width: 0; }
+.variation-source-control .btn { flex-shrink: 0; }
+.variation-source-control .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 480px) { .variation-source-control { flex-wrap: wrap; } }
 @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
 label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; }
 input[type="text"], input[type="number"], input[type="url"], input[type="date"], input[type="file"], textarea, select {

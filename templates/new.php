@@ -27,7 +27,7 @@ if ( $requested_variation_source ) {
         $post = $source;
         $variation_source_id = (int) $source->ID;
         $variation_parent_id = (int) $source->ID;
-        $title_override = sprintf(
+        $title_override = $requested_title !== '' ? $requested_title : sprintf(
             /* translators: %s: source recipe title */
             __( '%s variation', 'cookbook' ),
             get_the_title( $source )
@@ -39,6 +39,13 @@ if ( $requested_variation_source ) {
 }
 
 $page_title = $variation_source_id ? __( 'New variation', 'cookbook' ) : __( 'New recipe', 'cookbook' );
+$variation_parent_options = get_posts( [
+    'post_type'      => App::POST_TYPE,
+    'post_status'    => 'publish',
+    'posts_per_page' => -1,
+    'orderby'        => 'title',
+    'order'          => 'ASC',
+] );
 include __DIR__ . '/_header.php';
 ?>
 <h1><?php echo $variation_source_id ? esc_html__( 'New variation', 'cookbook' ) : esc_html__( 'New recipe', 'cookbook' ); ?></h1>
@@ -50,6 +57,25 @@ include __DIR__ . '/_header.php';
             __( 'Prefilled from %s.', 'cookbook' ),
             '<a href="' . esc_url( $cancel_url ) . '">' . esc_html( get_the_title( $post ) ) . '</a>'
         ) );
+        ?>
+    </p>
+<?php endif; ?>
+<?php if ( ! $variation_source_id ) : ?>
+    <p class="subtitle">
+        <?php
+        if ( $variation_parent_options ) {
+            echo wp_kses_post( sprintf(
+                /* translators: %s: link to recipe import */
+                __( 'Enter a recipe below, choose and load an existing recipe as a variation, or <a href="%s">import a URL or pasted text</a>.', 'cookbook' ),
+                esc_url( home_url( '/cookbook/import' ) )
+            ) );
+        } else {
+            echo wp_kses_post( sprintf(
+                /* translators: %s: link to recipe import */
+                __( 'Enter a recipe below, or <a href="%s">import a URL or pasted text</a>.', 'cookbook' ),
+                esc_url( home_url( '/cookbook/import' ) )
+            ) );
+        }
         ?>
     </p>
 <?php endif; ?>
