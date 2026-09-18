@@ -16,6 +16,10 @@ class TermAbilitiesService {
     ];
 
     public function register_abilities(): void {
+        if ( ! function_exists( 'wp_register_ability' ) ) {
+            return;
+        }
+
         $type = [
             'type'        => 'string',
             'enum'        => array_keys( self::TYPES ),
@@ -174,13 +178,9 @@ class TermAbilitiesService {
     }
 
     private function merge_one( int $source_id, int $target_id, string $taxonomy ) {
-        global $wpdb;
-        $source = get_term( $source_id, $taxonomy );
-        // Query relationships directly so draft/private posts and shopping items are included.
-        $object_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id = %d",
-            $source->term_taxonomy_id
-        ) );
+        // Includes draft/private recipes and shopping items as well as published posts.
+        $object_ids = get_objects_in_term( $source_id, $taxonomy );
+        if ( is_wp_error( $object_ids ) ) return $object_ids;
         if ( $taxonomy === App::TAX_INGREDIENT ) {
             foreach ( $this->ingredient_reference_post_ids( $source_id ) as $post_id ) {
                 $this->replace_ingredient_references( $post_id, $source_id, $target_id );
@@ -239,6 +239,9 @@ class TermAbilitiesService {
 
     private function ingredient_reference_post_ids( int $id ): array {
         global $wpdb;
+        // Serialized ingredient rows cannot be searched reliably with a meta query.
+        // This one-time scan is needed to catch references without taxonomy assignments.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time scan of serialized ingredient metadata.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key IN (%s, %s, %s)",
             App::META_INGREDIENTS,
@@ -264,7 +267,6 @@ class TermAbilitiesService {
     }
 
     public function delete_terms( $input = [] ) {
-        global $wpdb;
         $taxonomy = $this->taxonomy( $input );
         if ( is_wp_error( $taxonomy ) ) return $taxonomy;
         $ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $input['ids'] ?? [] ) ) ) ) );
@@ -273,12 +275,18 @@ class TermAbilitiesService {
         foreach ( $ids as $id ) {
             $term = $this->entry( $id, $taxonomy );
             if ( is_wp_error( $term ) ) return $term;
-            $assigned = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->term_relationships} WHERE term_taxonomy_id = %d", $term->term_taxonomy_id ) );
-            if ( $assigned ) return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Entry %d is assigned and cannot be deleted.', 'cookbook' ), $id ) );
+            $assigned = get_objects_in_term( $id, $taxonomy );
+            if ( is_wp_error( $assigned ) ) return $assigned;
+            if ( $assigned ) {
+                /* translators: %d: Cookbook entry ID. */
+                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Entry %d is assigned and cannot be deleted.', 'cookbook' ), $id ) );
+            }
             if ( $taxonomy === App::TAX_INGREDIENT && $this->ingredient_reference_post_ids( $id ) ) {
+                /* translators: %d: Ingredient term ID. */
                 return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is referenced by saved items.', 'cookbook' ), $id ) );
             }
             if ( $taxonomy === App::TAX_INGREDIENT && $this->ingredient_id_in_preferences( $id ) ) {
+                /* translators: %d: Ingredient term ID. */
                 return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is saved in household preferences.', 'cookbook' ), $id ) );
             }
         }
@@ -290,27 +298,26 @@ class TermAbilitiesService {
     }
 
     private function ingredient_id_in_preferences( int $id ): bool {
-        global $wpdb;
-        $values = $wpdb->get_col( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key = %s", App::USER_HOUSEHOLD_INGREDIENTS ) );
-        foreach ( $values as $value ) {
-            if ( in_array( $id, array_map( 'absint', (array) maybe_unserialize( $value ) ), true ) ) return true;
+        // User meta has an index on meta_key; narrow the lookup before reading each user's IDs.
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Indexed meta key for a small set of household preferences.
+        $user_ids = get_users( [ 'meta_key' => App::USER_HOUSEHOLD_INGREDIENTS, 'fields' => 'ID' ] );
+        foreach ( $user_ids as $user_id ) {
+            $ids = get_user_meta( (int) $user_id, App::USER_HOUSEHOLD_INGREDIENTS, true );
+            if ( in_array( $id, array_map( 'absint', (array) $ids ), true ) ) return true;
         }
         return false;
     }
 
     private function replace_household_ingredient_ids( int $source_id, int $target_id ): void {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT user_id, meta_value FROM {$wpdb->usermeta} WHERE meta_key = %s",
-            App::USER_HOUSEHOLD_INGREDIENTS
-        ) );
-        foreach ( $rows as $row ) {
-            $ids = (array) maybe_unserialize( $row->meta_value );
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Indexed meta key for a small set of household preferences.
+        $user_ids = get_users( [ 'meta_key' => App::USER_HOUSEHOLD_INGREDIENTS, 'fields' => 'ID' ] );
+        foreach ( $user_ids as $user_id ) {
+            $ids = (array) get_user_meta( (int) $user_id, App::USER_HOUSEHOLD_INGREDIENTS, true );
             if ( ! in_array( $source_id, array_map( 'absint', $ids ), true ) ) continue;
             $ids = array_values( array_unique( array_map( function( $id ) use ( $source_id, $target_id ) {
                 return (int) $id === $source_id ? $target_id : absint( $id );
             }, $ids ) ) );
-            update_user_meta( (int) $row->user_id, App::USER_HOUSEHOLD_INGREDIENTS, $ids );
+            update_user_meta( (int) $user_id, App::USER_HOUSEHOLD_INGREDIENTS, $ids );
         }
     }
 }
