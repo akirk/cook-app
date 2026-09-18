@@ -3,6 +3,13 @@
     const instructionRoot = document.getElementById('instruction-sections');
     const config = document.getElementById('cookbook-form-config');
     const strings = JSON.parse(config ? config.getAttribute('data-strings') || '{}' : '{}');
+    const variationSelect = document.getElementById('parent_id');
+    const loadVariation = document.getElementById('load-variation');
+    if (variationSelect && loadVariation) {
+        const updateLoadButton = () => { loadVariation.disabled = !variationSelect.value || variationSelect.value === '0'; };
+        variationSelect.addEventListener('change', updateLoadButton);
+        updateLoadButton();
+    }
 
     function initSectionCounters(root, sectionSelector) {
         if (!root) return;
@@ -355,6 +362,27 @@
 
     initSectionCounters(ingredientRoot, '[data-ingredient-section]');
     initSectionCounters(instructionRoot, '[data-instruction-section]');
+
+    if (variationSelect && loadVariation) {
+        const recipeForm = document.getElementById('recipe-form');
+        const titleInput = document.getElementById('title');
+        const initialTitle = titleInput.value;
+        const formSnapshot = () => JSON.stringify(Array.from(new FormData(recipeForm).entries())
+            .filter(([name]) => name !== 'parent_id' && name !== 'title')
+            .map(([name, value]) => [name, typeof value === 'string' ? value : (value.name ? [value.name, value.size, value.lastModified] : '')]));
+        const initialForm = formSnapshot();
+        loadVariation.addEventListener('click', () => {
+            if (loadVariation.disabled) return;
+            if (formSnapshot() !== initialForm && !window.confirm(strings.replaceWarning)) return;
+            const url = new URL(loadVariation.dataset.loadUrl, window.location.href);
+            url.searchParams.set('variation_of', variationSelect.value);
+            const title = titleInput.value.trim();
+            if (title && (titleInput.dataset.generatedTitle !== '1' || title !== initialTitle)) {
+                url.searchParams.set('title', title);
+            }
+            window.location.assign(url.toString());
+        });
+    }
     syncIngredientSectionState();
 
     document.addEventListener('click', (e) => {

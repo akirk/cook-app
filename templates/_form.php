@@ -94,13 +94,16 @@ $current_categories = $post ? wp_get_object_terms( $data_id, App::TAX_CATEGORY, 
 $current_cuisines   = $post ? wp_get_object_terms( $data_id, App::TAX_CUISINE,  [ 'fields' => 'ids' ] ) : [];
 $current_tags = $post ? wp_get_object_terms( $data_id, App::TAX_TAG, [ 'fields' => 'names' ] ) : [];
 $tags_string = is_wp_error( $current_tags ) ? '' : implode( ', ', $current_tags );
-$variation_parent_options = get_posts( [
+$variation_parent_options = isset( $variation_parent_options ) ? $variation_parent_options : get_posts( [
     'post_type'      => App::POST_TYPE,
     'post_status'    => 'publish',
     'posts_per_page' => -1,
     'orderby'        => 'title',
     'order'          => 'ASC',
 ] );
+$variation_parent_options = array_values( array_filter( $variation_parent_options, static function ( $candidate ) use ( $save_id ) {
+    return ! $save_id || ( (int) $candidate->ID !== $save_id && ! App::recipe_is_descendant_of( (int) $candidate->ID, $save_id ) );
+} ) );
 
 $pref = App::get_user_unit_preference();
 $unit_options = Units::COMMON_UNITS[ $pref ];
@@ -114,7 +117,28 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
     <?php endif; ?>
 
     <label for="title"><?php esc_html_e( 'Title', 'cookbook' ); ?></label>
-    <input id="title" type="text" name="title" value="<?php echo esc_attr( $title ); ?>" required autofocus>
+    <input id="title" type="text" name="title" value="<?php echo esc_attr( $title ); ?>" data-generated-title="<?php echo $source_id && ( ! isset( $requested_title ) || $requested_title === '' ) ? '1' : '0'; ?>" required <?php echo ( ! $is_new || $source_id ) ? 'autofocus' : ''; ?>>
+
+    <?php if ( $variation_parent_options ) : ?>
+        <details class="variation-details" <?php echo $parent_id ? 'open' : ''; ?>>
+            <summary><?php esc_html_e( 'Is this a variant of an existing recipe?', 'cookbook' ); ?></summary>
+            <label for="parent_id"><?php esc_html_e( 'Variation of', 'cookbook' ); ?></label>
+            <div class="variation-source-control">
+                <select id="parent_id" name="parent_id">
+                    <option value="0"><?php esc_html_e( 'Standalone recipe', 'cookbook' ); ?></option>
+                    <?php foreach ( $variation_parent_options as $candidate ) : ?>
+                        <option value="<?php echo (int) $candidate->ID; ?>" <?php selected( $parent_id, (int) $candidate->ID ); ?>>
+                            <?php echo esc_html( get_the_title( $candidate ) ); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ( $is_new ) : ?>
+                    <button class="btn secondary" id="load-variation" type="button" data-load-url="<?php echo esc_url( home_url( '/cookbook/new' ) ); ?>" <?php disabled( ! $parent_id ); ?>><?php esc_html_e( 'Load recipe', 'cookbook' ); ?></button>
+                <?php endif; ?>
+            </div>
+            <p class="help"><?php echo $is_new ? esc_html__( 'Select a recipe and load it to copy its details into a new variation.', 'cookbook' ) : esc_html__( 'Choose a parent recipe to make this recipe a variation.', 'cookbook' ); ?></p>
+        </details>
+    <?php endif; ?>
 
     <label><?php esc_html_e( 'Photo', 'cookbook' ); ?></label>
     <?php $thumb_url = $post && has_post_thumbnail( $data_id ) ? get_the_post_thumbnail_url( $data_id, 'medium' ) : ''; ?>
@@ -149,22 +173,6 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
 
     <label for="description"><?php esc_html_e( 'Short description', 'cookbook' ); ?></label>
     <textarea id="description" name="description" style="min-height:4rem"><?php echo esc_textarea( $content ); ?></textarea>
-
-    <label for="parent_id"><?php esc_html_e( 'Variation of', 'cookbook' ); ?></label>
-    <select id="parent_id" name="parent_id">
-        <option value="0"><?php esc_html_e( 'Standalone recipe', 'cookbook' ); ?></option>
-        <?php foreach ( $variation_parent_options as $candidate ) : ?>
-            <?php
-            if ( $save_id && ( (int) $candidate->ID === $save_id || App::recipe_is_descendant_of( (int) $candidate->ID, $save_id ) ) ) {
-                continue;
-            }
-            ?>
-            <option value="<?php echo (int) $candidate->ID; ?>" <?php selected( $parent_id, (int) $candidate->ID ); ?>>
-                <?php echo esc_html( get_the_title( $candidate ) ); ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-    <p class="help"><?php esc_html_e( 'Choose a parent recipe to make this recipe a variation.', 'cookbook' ); ?></p>
 
     <div class="grid">
         <div>
@@ -301,6 +309,7 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
                         'ingredientShort'           => __( 'Ingredient', 'cookbook' ),
                         'sectionShort'              => __( 'Section', 'cookbook' ),
                         'step'                      => __( 'Step', 'cookbook' ),
+                        'replaceWarning'            => __( 'Loading this recipe will replace the details you have entered. Continue?', 'cookbook' ),
                     ),
                     JSON_HEX_TAG | JSON_HEX_AMP
                 )

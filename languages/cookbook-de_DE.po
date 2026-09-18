@@ -2040,3 +2040,27 @@ msgstr "Planer"
 #: templates/_header.php:51
 msgid "Cookbook sections"
 msgstr "Kochbuchbereiche"
+
+#: templates/new.php
+msgid "Enter a recipe below, choose and load an existing recipe as a variation, or <a href=\"%s\">import a URL or pasted text</a>."
+msgstr "Unten ein Rezept eingeben, ein vorhandenes Rezept als Variante auswählen und laden oder <a href=\"%s\">eine URL oder eingefügten Text importieren</a>."
+
+#: templates/_form.php
+msgid "Load recipe"
+msgstr "Rezept laden"
+
+#: templates/_form.php
+msgid "Select a recipe and load it to copy its details into a new variation."
+msgstr "Ein Rezept auswählen und laden, um seine Details in eine neue Variante zu übernehmen."
+
+#: templates/new.php
+msgid "Enter a recipe below, or <a href=\"%s\">import a URL or pasted text</a>."
+msgstr "Unten ein Rezept eingeben oder <a href=\"%s\">eine URL oder eingefügten Text importieren</a>."
+
+#: templates/_form.php
+msgid "Is this a variant of an existing recipe?"
+msgstr "Ist das eine Variante eines vorhandenen Rezepts?"
+
+#: templates/_form.php
+msgid "Loading this recipe will replace the details you have entered. Continue?"
+msgstr "Beim Laden dieses Rezepts werden Ihre bisherigen Eingaben ersetzt. Fortfahren?"

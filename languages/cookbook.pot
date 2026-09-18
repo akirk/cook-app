@@ -1949,3 +1949,27 @@ msgstr ""
 #: templates/_header.php:51
 msgid "Cookbook sections"
 msgstr ""
+
+#: templates/new.php
+msgid "Enter a recipe below, choose and load an existing recipe as a variation, or <a href=\"%s\">import a URL or pasted text</a>."
+msgstr ""
+
+#: templates/_form.php
+msgid "Load recipe"
+msgstr ""
+
+#: templates/_form.php
+msgid "Select a recipe and load it to copy its details into a new variation."
+msgstr ""
+
+#: templates/new.php
+msgid "Enter a recipe below, or <a href=\"%s\">import a URL or pasted text</a>."
+msgstr ""
+
+#: templates/_form.php
+msgid "Is this a variant of an existing recipe?"
+msgstr ""
+
+#: templates/_form.php
+msgid "Loading this recipe will replace the details you have entered. Continue?"
+msgstr ""
