@@ -99,6 +99,8 @@ const group   = document.getElementById('mi-group');
 const counter = document.getElementById('mi-count');
 const toolbar = document.getElementById('mi-toolbar');
 
+if (!form || !list) return;
+
 function refresh() {
     const checked = list.querySelectorAll('.mi-check:checked');
     const n = checked.length;
