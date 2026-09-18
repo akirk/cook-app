@@ -53,7 +53,7 @@ Cookbook integrates with the [Friends browser extension](https://github.com/akir
 
 ### AI and automation
 
-When the WordPress Abilities API is available, Cookbook registers abilities for recipe search, recipe reading, recipe creation, recipe import, variation creation, and week-plan reading and saving. This allows compatible AI assistants and automations to work with your saved recipes in a structured way.
+When the WordPress Abilities API is available, Cookbook registers abilities for recipes, week plans, and managing ingredients, categories, cuisines, and tags. This allows compatible AI assistants and automations to work with your saved recipes in a structured way.
 
 ### Features
 
@@ -149,6 +149,12 @@ When available, Cookbook registers these abilities:
 - `cookbook/create-recipe-variation`
 - `cookbook/get-week-plan`
 - `cookbook/save-week-plan`
+- `cookbook/list-recipe-terms`
+- `cookbook/merge-recipe-terms`
+- `cookbook/update-recipe-term`
+- `cookbook/delete-recipe-terms`
+
+The four term abilities take `type` as `ingredients`, `categories`, `cuisines`, or `tags`. Merging ingredients updates saved ingredient IDs while keeping each recipe's original wording. Deletion accepts only unused entries.
 
 ### Static Archive Integration
 
