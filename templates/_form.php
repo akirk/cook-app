@@ -320,10 +320,10 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
 
 <?php
 wp_app_enqueue_script(
-    'cookbook-form',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook-form.js',
+    'cook-app-form',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app-form.js',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook-form.js' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app-form.js' ),
     true,
     'cook-app'
 );

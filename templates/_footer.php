@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 wp_app_enqueue_script(
     'cook-app',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook.js',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app.js',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook.js' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app.js' ),
     true,
     'cook-app'
 );

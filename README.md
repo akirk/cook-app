@@ -13,7 +13,7 @@ A personal cookbook for WordPress: store, import, categorize, scale, plan and sh
 
 ## Description
 
-[Try Cook App in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint.json) · [Try it with demo data](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/demo.json) · [Try it in OpenStation](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint-openstation.json), the same app opened in desktop mode with the [OpenStation](https://github.com/WordPress/openstation) plugin.
+[Try Cook App in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cook-app/main/blueprint.json) · [Try it with demo data](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cook-app/main/demo.json) · [Try it in OpenStation](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cook-app/main/blueprint-openstation.json), the same app opened in desktop mode with the [OpenStation](https://github.com/WordPress/openstation) plugin.
 
 Cook App gives your WordPress site a private recipe app at `/cook-app/`. Recipes are stored as WordPress content, with structured ingredients, instructions, categories, cuisines, tags, photos, serving sizes, prep and cook times, source URLs, and notes.
 
@@ -73,11 +73,11 @@ When the WordPress Abilities API is available, Cook App registers abilities for 
 - Create and browse recipe variations
 - Import from the Friends browser extension
 - Integrate with Static Archive for portable recipe exports
-- Translatable with the `cookbook` text domain
+- Translatable with the `cook-app` text domain
 
 ## Installation
 
-1. Upload the `cookbook` directory to `wp-content/plugins/`
+1. Upload the `cook-app` directory to `wp-content/plugins/`
 2. Activate the plugin
 3. Visit `/cook-app/` on your site
 4. Add a recipe manually or open `/cook-app/import` to import one from the web
@@ -110,7 +110,7 @@ Yes. If the Static Archive plugin is active, Cook App can opt recipes into the a
 
 ### Is Cook App translatable?
 
-Yes. The text domain is `cookbook`, and a German translation is included.
+Yes. The text domain is `cook-app`, and a German translation is included.
 
 ## Screenshots
 

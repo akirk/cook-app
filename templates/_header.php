@@ -104,9 +104,9 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
  */
 wp_app_enqueue_style(
     'cook-app',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook.css',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app.css',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook.css' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app.css' ),
     'cook-app'
 );
 ?>
