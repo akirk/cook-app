@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -56,8 +56,8 @@ class App extends BaseApp {
         $this->services = $services ?: ServiceContainer::default();
         $this->app = new WpApp( $this->get_template_dir(), $this->get_url_path(), [
             'require_login'       => true,
-            'app_name'            => 'Cookbook',
-            'app_name_textdomain' => 'cookbook',
+            'app_name'            => 'Cook App',
+            'app_name_textdomain' => 'cook-app',
             'app_icon'            => 'dashicons-food',
             'app_icon_background' => 'linear-gradient(135deg, #f7971e, #ffd200)',
             'app_icon_color'      => '#fff',
@@ -80,7 +80,7 @@ class App extends BaseApp {
     }
 
     protected function get_url_path(): string {
-        return 'cookbook';
+        return 'cook-app';
     }
 
     protected function get_template_dir(): string {
@@ -98,7 +98,7 @@ class App extends BaseApp {
         $shopping_list    = $this->services->shoppingList();
         $static_archive   = $this->services->staticArchive();
 
-        // cookbook.php hooks this method on init priority 10. We're already in init,
+        // cook-app.php hooks this method on init priority 10. We're already in init,
         // so register the CPT and taxonomies directly rather than via nested
         // add_action('init', …) — those don't fire reliably when added during the
         // priority-10 iteration.
@@ -175,15 +175,15 @@ class App extends BaseApp {
         $home = home_url( '/' . $this->get_url_path() . '/' );
         // The sections come first, in the order cookbook_page_head() lists them,
         // so the admin bar and the in-page section nav read the same way.
-        $this->app->add_menu_item( 'all', __( 'Recipes', 'cookbook' ), $home );
-        $this->app->add_menu_item( 'shopping-list', __( 'Shopping list', 'cookbook' ), $home . 'shopping-list' );
-        $this->app->add_menu_item( 'planner', __( 'Week planner', 'cookbook' ), $home . 'planner' );
-        $this->app->add_menu_item( 'cooked', __( 'Cooking history', 'cookbook' ), $home . 'cooked' );
-        $this->app->add_menu_item( 'by-ingredients', __( 'By ingredients', 'cookbook' ), $home . 'by-ingredients' );
-        $this->app->add_menu_item( 'manage-ingredients', __( 'Manage ingredients', 'cookbook' ), $home . 'manage-ingredients' );
-        $this->app->add_menu_item( 'new', __( 'New recipe', 'cookbook' ), $home . 'new' );
-        $this->app->add_menu_item( 'import', __( 'Import from web', 'cookbook' ), $home . 'import' );
-        $this->app->add_menu_item( 'settings', __( 'Settings', 'cookbook' ), $home . 'settings' );
+        $this->app->add_menu_item( 'all', __( 'Recipes', 'cook-app' ), $home );
+        $this->app->add_menu_item( 'shopping-list', __( 'Shopping list', 'cook-app' ), $home . 'shopping-list' );
+        $this->app->add_menu_item( 'planner', __( 'Week planner', 'cook-app' ), $home . 'planner' );
+        $this->app->add_menu_item( 'cooked', __( 'Cooking history', 'cook-app' ), $home . 'cooked' );
+        $this->app->add_menu_item( 'by-ingredients', __( 'By ingredients', 'cook-app' ), $home . 'by-ingredients' );
+        $this->app->add_menu_item( 'manage-ingredients', __( 'Manage ingredients', 'cook-app' ), $home . 'manage-ingredients' );
+        $this->app->add_menu_item( 'new', __( 'New recipe', 'cook-app' ), $home . 'new' );
+        $this->app->add_menu_item( 'import', __( 'Import from web', 'cook-app' ), $home . 'import' );
+        $this->app->add_menu_item( 'settings', __( 'Settings', 'cook-app' ), $home . 'settings' );
     }
 
     public function activate(): void {

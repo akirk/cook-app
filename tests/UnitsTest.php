@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Cookbook\Units;
+use CookApp\Units;
 
 class UnitsTest extends TestCase {
 

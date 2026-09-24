@@ -1,12 +1,12 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-/** Manage the four Cookbook vocabularies through a small shared ability API. */
+/** Manage the four Cook App vocabularies through a small shared ability API. */
 class TermAbilitiesService {
     private const TYPES = [
         'ingredients' => App::TAX_INGREDIENT,
@@ -23,50 +23,50 @@ class TermAbilitiesService {
         $type = [
             'type'        => 'string',
             'enum'        => array_keys( self::TYPES ),
-            'description' => __( 'Cookbook vocabulary to manage.', 'cookbook' ),
+            'description' => __( 'Cook App vocabulary to manage.', 'cook-app' ),
         ];
         $id = [ 'type' => 'integer', 'minimum' => 1 ];
         $ids = [ 'type' => 'array', 'items' => $id, 'minItems' => 1 ];
         $definitions = [
             'list-recipe-terms' => [
-                'label'       => __( 'List Cookbook Ingredients, Categories, Cuisines or Tags', 'cookbook' ),
-                'description' => __( 'Lists Cookbook vocabulary entries with IDs, usage counts and parent IDs.', 'cookbook' ),
+                'label'       => __( 'List Cook App Ingredients, Categories, Cuisines or Tags', 'cook-app' ),
+                'description' => __( 'Lists Cook App vocabulary entries with IDs, usage counts and parent IDs.', 'cook-app' ),
                 'properties'  => [ 'type' => $type, 'search' => [ 'type' => 'string' ], 'include_unused' => [ 'type' => 'boolean' ], 'limit' => [ 'type' => 'integer', 'minimum' => 1, 'maximum' => 500 ], 'offset' => [ 'type' => 'integer', 'minimum' => 0 ] ],
                 'required'    => [ 'type' ],
                 'callback'    => 'list_terms',
                 'readonly'    => true,
                 'destructive' => false,
-                'instructions' => __( 'Use to inspect Cookbook ingredients, categories, cuisines, or tags before changing them. Results include IDs needed for merge, update, and delete. Paginate with limit and offset.', 'cookbook' ),
+                'instructions' => __( 'Use to inspect Cook App ingredients, categories, cuisines, or tags before changing them. Results include IDs needed for merge, update, and delete. Paginate with limit and offset.', 'cook-app' ),
             ],
             'merge-recipe-terms' => [
-                'label'       => __( 'Merge Cookbook Ingredients, Categories, Cuisines or Tags', 'cookbook' ),
-                'description' => __( 'Moves assignments from source entries to an existing target, then deletes the sources.', 'cookbook' ),
+                'label'       => __( 'Merge Cook App Ingredients, Categories, Cuisines or Tags', 'cook-app' ),
+                'description' => __( 'Moves assignments from source entries to an existing target, then deletes the sources.', 'cook-app' ),
                 'properties'  => [ 'type' => $type, 'source_ids' => $ids, 'target_id' => $id ],
                 'required'    => [ 'type', 'source_ids', 'target_id' ],
                 'callback'    => 'merge_terms',
                 'readonly'    => false,
                 'destructive' => true,
-                'instructions' => __( 'Use only after identifying the exact source and target IDs. Ingredient merges preserve the wording, amounts, and notes in recipes while updating stored ingredient IDs. The source entries are deleted.', 'cookbook' ),
+                'instructions' => __( 'Use only after identifying the exact source and target IDs. Ingredient merges preserve the wording, amounts, and notes in recipes while updating stored ingredient IDs. The source entries are deleted.', 'cook-app' ),
             ],
             'update-recipe-term' => [
-                'label'       => __( 'Update Cookbook Ingredient, Category, Cuisine or Tag', 'cookbook' ),
-                'description' => __( 'Renames a Cookbook vocabulary entry and optionally changes its slug.', 'cookbook' ),
+                'label'       => __( 'Update Cook App Ingredient, Category, Cuisine or Tag', 'cook-app' ),
+                'description' => __( 'Renames a Cook App vocabulary entry and optionally changes its slug.', 'cook-app' ),
                 'properties'  => [ 'type' => $type, 'id' => $id, 'name' => [ 'type' => 'string', 'minLength' => 1 ], 'slug' => [ 'type' => 'string', 'minLength' => 1 ] ],
                 'required'    => [ 'type', 'id', 'name' ],
                 'callback'    => 'update_term',
                 'readonly'    => false,
                 'destructive' => false,
-                'instructions' => __( 'Use to rename one Cookbook ingredient, category, cuisine, or tag. Omit slug to preserve existing links. This does not rewrite recipe ingredient wording.', 'cookbook' ),
+                'instructions' => __( 'Use to rename one Cook App ingredient, category, cuisine, or tag. Omit slug to preserve existing links. This does not rewrite recipe ingredient wording.', 'cook-app' ),
             ],
             'delete-recipe-terms' => [
-                'label'       => __( 'Delete Unused Cookbook Ingredients, Categories, Cuisines or Tags', 'cookbook' ),
-                'description' => __( 'Deletes only entries with no object assignments or stored ingredient references.', 'cookbook' ),
+                'label'       => __( 'Delete Unused Cook App Ingredients, Categories, Cuisines or Tags', 'cook-app' ),
+                'description' => __( 'Deletes only entries with no object assignments or stored ingredient references.', 'cook-app' ),
                 'properties'  => [ 'type' => $type, 'ids' => $ids ],
                 'required'    => [ 'type', 'ids' ],
                 'callback'    => 'delete_terms',
                 'readonly'    => false,
                 'destructive' => true,
-                'instructions' => __( 'Use to remove confirmed unused Cookbook entries. Assigned entries are refused; merge them first. This permanently deletes the listed entries.', 'cookbook' ),
+                'instructions' => __( 'Use to remove confirmed unused Cook App entries. Assigned entries are refused; merge them first. This permanently deletes the listed entries.', 'cook-app' ),
             ],
         ];
 
@@ -74,7 +74,7 @@ class TermAbilitiesService {
             wp_register_ability( 'cookbook/' . $name, [
                 'label'               => $definition['label'],
                 'description'         => $definition['description'],
-                'category'            => 'cookbook',
+                'category'            => 'cook-app',
                 'input_schema'        => [ 'type' => 'object', 'properties' => $definition['properties'], 'required' => $definition['required'], 'additionalProperties' => false ],
                 'output_schema'       => [ 'type' => 'object', 'additionalProperties' => true ],
                 'execute_callback'    => [ $this, $definition['callback'] ],
@@ -102,12 +102,12 @@ class TermAbilitiesService {
 
     private function taxonomy( $input ) {
         $type = is_array( $input ) ? ( $input['type'] ?? '' ) : '';
-        return self::TYPES[ $type ] ?? new \WP_Error( 'cookbook_invalid_type', __( 'Unknown Cookbook vocabulary.', 'cookbook' ) );
+        return self::TYPES[ $type ] ?? new \WP_Error( 'cookbook_invalid_type', __( 'Unknown Cook App vocabulary.', 'cook-app' ) );
     }
 
     private function entry( $id, string $taxonomy ) {
         $term = get_term( absint( $id ), $taxonomy );
-        return $term instanceof \WP_Term ? $term : new \WP_Error( 'cookbook_term_missing', __( 'Cookbook entry not found.', 'cookbook' ) );
+        return $term instanceof \WP_Term ? $term : new \WP_Error( 'cookbook_term_missing', __( 'Cook App entry not found.', 'cook-app' ) );
     }
 
     private function payload( \WP_Term $term ): array {
@@ -139,11 +139,11 @@ class TermAbilitiesService {
         $term = $this->entry( $input['id'] ?? 0, $taxonomy );
         if ( is_wp_error( $term ) ) return $term;
         $name = sanitize_text_field( $input['name'] ?? '' );
-        if ( $name === '' ) return new \WP_Error( 'cookbook_empty_name', __( 'Name is required.', 'cookbook' ) );
+        if ( $name === '' ) return new \WP_Error( 'cookbook_empty_name', __( 'Name is required.', 'cook-app' ) );
         $args = [ 'name' => $name ];
         if ( isset( $input['slug'] ) ) {
             $args['slug'] = sanitize_title( $input['slug'] );
-            if ( $args['slug'] === '' ) return new \WP_Error( 'cookbook_empty_slug', __( 'Slug cannot be empty.', 'cookbook' ) );
+            if ( $args['slug'] === '' ) return new \WP_Error( 'cookbook_empty_slug', __( 'Slug cannot be empty.', 'cook-app' ) );
         }
         $result = wp_update_term( $term->term_id, $taxonomy, $args );
         if ( is_wp_error( $result ) ) return $result;
@@ -157,7 +157,7 @@ class TermAbilitiesService {
         if ( is_wp_error( $target ) ) return $target;
         $source_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $input['source_ids'] ?? [] ) ) ) ) );
         if ( ! $source_ids || in_array( (int) $target->term_id, $source_ids, true ) ) {
-            return new \WP_Error( 'cookbook_invalid_merge', __( 'Choose source entries different from the target.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_invalid_merge', __( 'Choose source entries different from the target.', 'cook-app' ) );
         }
         foreach ( $source_ids as $source_id ) {
             $source = $this->entry( $source_id, $taxonomy );
@@ -165,7 +165,7 @@ class TermAbilitiesService {
             if ( $source->parent === $target->term_id ) continue;
             // A target below a source would create a hierarchy cycle when children move.
             if ( is_taxonomy_hierarchical( $taxonomy ) && term_is_ancestor_of( $source_id, $target->term_id, $taxonomy ) ) {
-                return new \WP_Error( 'cookbook_merge_cycle', __( 'The target cannot be a descendant of a source.', 'cookbook' ) );
+                return new \WP_Error( 'cookbook_merge_cycle', __( 'The target cannot be a descendant of a source.', 'cook-app' ) );
             }
         }
         $merged = [];
@@ -204,7 +204,7 @@ class TermAbilitiesService {
             }
         }
         $deleted = wp_delete_term( $source_id, $taxonomy );
-        if ( $deleted !== true ) return is_wp_error( $deleted ) ? $deleted : new \WP_Error( 'cookbook_delete_failed', __( 'Could not delete source entry.', 'cookbook' ) );
+        if ( $deleted !== true ) return is_wp_error( $deleted ) ? $deleted : new \WP_Error( 'cookbook_delete_failed', __( 'Could not delete source entry.', 'cook-app' ) );
         return true;
     }
 
@@ -270,7 +270,7 @@ class TermAbilitiesService {
         $taxonomy = $this->taxonomy( $input );
         if ( is_wp_error( $taxonomy ) ) return $taxonomy;
         $ids = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $input['ids'] ?? [] ) ) ) ) );
-        if ( ! $ids ) return new \WP_Error( 'cookbook_empty_ids', __( 'Choose entries to delete.', 'cookbook' ) );
+        if ( ! $ids ) return new \WP_Error( 'cookbook_empty_ids', __( 'Choose entries to delete.', 'cook-app' ) );
         // Validate the entire batch before deleting anything. Counts alone omit drafts.
         foreach ( $ids as $id ) {
             $term = $this->entry( $id, $taxonomy );
@@ -278,21 +278,21 @@ class TermAbilitiesService {
             $assigned = get_objects_in_term( $id, $taxonomy );
             if ( is_wp_error( $assigned ) ) return $assigned;
             if ( $assigned ) {
-                /* translators: %d: Cookbook entry ID. */
-                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Entry %d is assigned and cannot be deleted.', 'cookbook' ), $id ) );
+                /* translators: %d: Cook App entry ID. */
+                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Entry %d is assigned and cannot be deleted.', 'cook-app' ), $id ) );
             }
             if ( $taxonomy === App::TAX_INGREDIENT && $this->ingredient_reference_post_ids( $id ) ) {
                 /* translators: %d: Ingredient term ID. */
-                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is referenced by saved items.', 'cookbook' ), $id ) );
+                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is referenced by saved items.', 'cook-app' ), $id ) );
             }
             if ( $taxonomy === App::TAX_INGREDIENT && $this->ingredient_id_in_preferences( $id ) ) {
                 /* translators: %d: Ingredient term ID. */
-                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is saved in household preferences.', 'cookbook' ), $id ) );
+                return new \WP_Error( 'cookbook_term_in_use', sprintf( __( 'Ingredient %d is saved in household preferences.', 'cook-app' ), $id ) );
             }
         }
         foreach ( $ids as $id ) {
             $deleted = wp_delete_term( $id, $taxonomy );
-            if ( $deleted !== true ) return is_wp_error( $deleted ) ? $deleted : new \WP_Error( 'cookbook_delete_failed', __( 'Could not delete entry.', 'cookbook' ) );
+            if ( $deleted !== true ) return is_wp_error( $deleted ) ? $deleted : new \WP_Error( 'cookbook_delete_failed', __( 'Could not delete entry.', 'cook-app' ) );
         }
         return [ 'type' => $input['type'], 'deleted_ids' => $ids ];
     }

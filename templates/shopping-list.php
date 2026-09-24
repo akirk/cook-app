@@ -3,10 +3,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 if ( ! is_user_logged_in() ) {
-    wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+    wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
 }
 
 $list_id = App::get_current_user_shopping_list_id( false );
@@ -25,7 +25,7 @@ $saved = isset( $_GET['saved'] );
 $mode = isset( $_GET['mode'] ) ? sanitize_key( wp_unslash( $_GET['mode'] ) ) : 'shop';
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 $is_shop_mode = $mode !== 'edit';
-$multiple_recipes_label = __( 'Multiple recipes', 'cookbook' );
+$multiple_recipes_label = __( 'Multiple recipes', 'cook-app' );
 $multiple_recipes_labels = array_unique( [ 'Multiple recipes', $multiple_recipes_label ] );
 $is_multiple_recipes_label = function( string $title ) use ( $multiple_recipes_labels ): bool {
     $title = trim( $title );
@@ -51,9 +51,9 @@ $shopping_item_detail = function( array $item ): string {
     return trim( $quantity . ( $quantity && ! empty( $item['notes'] ) ? ' - ' : '' ) . ( $item['notes'] ?? '' ) );
 };
 
-$page_title = __( 'Shopping list', 'cookbook' );
+$page_title = __( 'Shopping list', 'cook-app' );
 $has_shopping_list_content = ! empty( $items ) || ! empty( $household_reminders );
-$clear_list_confirm = __( 'Clear the whole shopping list?', 'cookbook' );
+$clear_list_confirm = __( 'Clear the whole shopping list?', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="shopping-list-form">
@@ -66,19 +66,19 @@ include __DIR__ . '/_header.php';
     ob_start();
     ?>
     <?php if ( $is_shop_mode ) : ?>
-        <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'mode', 'edit', home_url( '/cookbook/shopping-list' ) ) ); ?>"><?php esc_html_e( 'Edit list', 'cookbook' ); ?></a>
+        <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'mode', 'edit', home_url( '/cook-app/shopping-list' ) ) ); ?>"><?php esc_html_e( 'Edit list', 'cook-app' ); ?></a>
     <?php else : ?>
-        <a class="btn fresh" href="<?php echo esc_url( home_url( '/cookbook/shopping-list' ) ); ?>"><?php esc_html_e( 'Shop mode', 'cookbook' ); ?></a>
-        <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save list', 'cookbook' ); ?></button>
-        <button class="btn secondary" type="submit" name="list_command" value="clear_checked"><?php esc_html_e( 'Clear checked', 'cookbook' ); ?></button>
+        <a class="btn fresh" href="<?php echo esc_url( home_url( '/cook-app/shopping-list' ) ); ?>"><?php esc_html_e( 'Shop mode', 'cook-app' ); ?></a>
+        <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save list', 'cook-app' ); ?></button>
+        <button class="btn secondary" type="submit" name="list_command" value="clear_checked"><?php esc_html_e( 'Clear checked', 'cook-app' ); ?></button>
     <?php endif; ?>
     <?php
     $shopping_actions = ob_get_clean();
-    cookbook_page_head( __( 'Shopping list', 'cookbook' ), [
+    cookbook_page_head( __( 'Shopping list', 'cook-app' ), [
         'current_section' => 'shopping',
         'subtitle'        => sprintf(
             /* translators: 1: total items, 2: checked items */
-            __( '%1$d items, %2$d checked off.', 'cookbook' ),
+            __( '%1$d items, %2$d checked off.', 'cook-app' ),
             count( $items ),
             $checked_count
         ),
@@ -87,14 +87,14 @@ include __DIR__ . '/_header.php';
     ?>
 
     <?php if ( $saved ) : ?>
-        <div class="notice success"><?php esc_html_e( 'Shopping list saved.', 'cookbook' ); ?></div>
+        <div class="notice success"><?php esc_html_e( 'Shopping list saved.', 'cook-app' ); ?></div>
     <?php endif; ?>
 
     <?php if ( ! $items && ! $household_reminders ) : ?>
-        <div class="notice"><?php esc_html_e( 'Your shopping list is empty. Add a recipe from its recipe page, build it from the week planner, or add items manually below.', 'cookbook' ); ?></div>
+        <div class="notice"><?php esc_html_e( 'Your shopping list is empty. Add a recipe from its recipe page, build it from the week planner, or add items manually below.', 'cook-app' ); ?></div>
         <div class="shop-add soft-panel">
-            <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'Add item', 'cookbook' ); ?>">
-            <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Add', 'cookbook' ); ?></button>
+            <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'Add item', 'cook-app' ); ?>">
+            <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Add', 'cook-app' ); ?></button>
         </div>
     <?php elseif ( $is_shop_mode ) : ?>
         <?php if ( $items ) : ?>
@@ -102,14 +102,14 @@ include __DIR__ . '/_header.php';
                 <div class="shop-bar-main">
                     <strong>
                         <span id="shop-remaining-count"><?php echo (int) $remaining_count; ?></span>
-                        <?php esc_html_e( 'remaining', 'cookbook' ); ?>
+                        <?php esc_html_e( 'remaining', 'cook-app' ); ?>
                     </strong>
                     <?php if ( $household_reminders ) : ?>
                         <span class="shop-household-summary">
                             <?php
                             echo esc_html( sprintf(
                                 /* translators: %s: comma-separated household shopping items */
-                                __( 'At home: %s', 'cookbook' ),
+                                __( 'At home: %s', 'cook-app' ),
                                 implode( ', ', array_map( function( array $reminder ): string {
                                     return (string) ( $reminder['name'] ?? '' );
                                 }, $household_reminders ) )
@@ -118,9 +118,9 @@ include __DIR__ . '/_header.php';
                         </span>
                     <?php endif; ?>
                 </div>
-                <button class="btn secondary" type="button" id="undo-shop-check" hidden><?php esc_html_e( 'Undo', 'cookbook' ); ?></button>
-                <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save', 'cookbook' ); ?></button>
-                <button class="btn secondary" type="submit" name="list_command" value="clear_checked"><?php esc_html_e( 'Clear checked', 'cookbook' ); ?></button>
+                <button class="btn secondary" type="button" id="undo-shop-check" hidden><?php esc_html_e( 'Undo', 'cook-app' ); ?></button>
+                <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save', 'cook-app' ); ?></button>
+                <button class="btn secondary" type="submit" name="list_command" value="clear_checked"><?php esc_html_e( 'Clear checked', 'cook-app' ); ?></button>
             </div>
 
             <ul class="shop-list" id="shop-list">
@@ -160,7 +160,7 @@ include __DIR__ . '/_header.php';
                                 <small class="shop-source"><?php
                                 echo esc_html( sprintf(
                                     /* translators: %s: comma-separated recipe titles */
-                                    __( 'For %s', 'cookbook' ),
+                                    __( 'For %s', 'cook-app' ),
                                     implode( ', ', $source_titles )
                                 ) );
                                 ?></small>
@@ -174,7 +174,7 @@ include __DIR__ . '/_header.php';
 
         <?php if ( $household_reminders ) : ?>
             <section class="household-reminders soft-panel">
-                <h2><?php esc_html_e( 'At home', 'cookbook' ); ?></h2>
+                <h2><?php esc_html_e( 'At home', 'cook-app' ); ?></h2>
                 <ul class="household-list">
                     <?php foreach ( $household_reminders as $reminder ) :
                         $detail = $shopping_item_detail( $reminder );
@@ -190,7 +190,7 @@ include __DIR__ . '/_header.php';
                                 <small class="shop-source"><?php
                                 echo esc_html( sprintf(
                                     /* translators: %s: comma-separated recipe titles */
-                                    __( 'For %s', 'cookbook' ),
+                                    __( 'For %s', 'cook-app' ),
                                     implode( ', ', $source_titles )
                                 ) );
                                 ?></small>
@@ -203,16 +203,16 @@ include __DIR__ . '/_header.php';
         <?php endif; ?>
 
         <div class="shop-add soft-panel">
-            <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'Add item', 'cookbook' ); ?>">
-            <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Add', 'cookbook' ); ?></button>
+            <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'Add item', 'cook-app' ); ?>">
+            <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Add', 'cook-app' ); ?></button>
         </div>
     <?php else : ?>
         <div class="shopping-bulk-bar" id="shopping-bulk-bar" hidden>
-            <strong><span id="shopping-selected-count">0</span> <?php esc_html_e( 'selected', 'cookbook' ); ?></strong>
-            <input type="text" id="bulk-item-name" placeholder="<?php esc_attr_e( 'Item name', 'cookbook' ); ?>">
-            <button class="btn" type="button" id="bulk-merge-selected"><?php esc_html_e( 'Merge selected', 'cookbook' ); ?></button>
-            <button class="btn household" type="submit" name="list_command" value="mark_household"><?php esc_html_e( 'Move to At home', 'cookbook' ); ?></button>
-            <button class="btn danger" type="button" id="bulk-remove-selected"><?php esc_html_e( 'Remove selected', 'cookbook' ); ?></button>
+            <strong><span id="shopping-selected-count">0</span> <?php esc_html_e( 'selected', 'cook-app' ); ?></strong>
+            <input type="text" id="bulk-item-name" placeholder="<?php esc_attr_e( 'Item name', 'cook-app' ); ?>">
+            <button class="btn" type="button" id="bulk-merge-selected"><?php esc_html_e( 'Merge selected', 'cook-app' ); ?></button>
+            <button class="btn household" type="submit" name="list_command" value="mark_household"><?php esc_html_e( 'Move to At home', 'cook-app' ); ?></button>
+            <button class="btn danger" type="button" id="bulk-remove-selected"><?php esc_html_e( 'Remove selected', 'cook-app' ); ?></button>
         </div>
 
         <?php if ( $items ) : ?>
@@ -237,18 +237,18 @@ include __DIR__ . '/_header.php';
                     <?php foreach ( $item['term_ids'] ?? [] as $term_index => $term_id ) : ?>
                         <input type="hidden" name="items[<?php echo esc_attr( $item_id ); ?>][term_ids][<?php echo (int) $term_index; ?>]" value="<?php echo (int) $term_id; ?>">
                     <?php endforeach; ?>
-                    <input class="shopping-row-select" type="checkbox" name="selected_items[]" value="<?php echo esc_attr( $item_id ); ?>" aria-label="<?php esc_attr_e( 'Select item', 'cookbook' ); ?>">
+                    <input class="shopping-row-select" type="checkbox" name="selected_items[]" value="<?php echo esc_attr( $item_id ); ?>" aria-label="<?php esc_attr_e( 'Select item', 'cook-app' ); ?>">
                     <div>
                         <div class="shopping-fields">
-                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][amount]" value="<?php echo esc_attr( $item['amount'] ); ?>" placeholder="<?php esc_attr_e( '2', 'cookbook' ); ?>">
-                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][unit]" value="<?php echo esc_attr( $item['unit'] ); ?>" placeholder="<?php esc_attr_e( 'g', 'cookbook' ); ?>">
-                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][name]" value="<?php echo esc_attr( $item['name'] ); ?>" placeholder="<?php esc_attr_e( 'ingredient', 'cookbook' ); ?>" required>
-                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][notes]" value="<?php echo esc_attr( $item['notes'] ); ?>" placeholder="<?php esc_attr_e( 'notes', 'cookbook' ); ?>">
-                            <button type="button" class="remove" aria-label="<?php esc_attr_e( 'Remove', 'cookbook' ); ?>">×</button>
+                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][amount]" value="<?php echo esc_attr( $item['amount'] ); ?>" placeholder="<?php esc_attr_e( '2', 'cook-app' ); ?>">
+                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][unit]" value="<?php echo esc_attr( $item['unit'] ); ?>" placeholder="<?php esc_attr_e( 'g', 'cook-app' ); ?>">
+                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][name]" value="<?php echo esc_attr( $item['name'] ); ?>" placeholder="<?php esc_attr_e( 'ingredient', 'cook-app' ); ?>" required>
+                            <input type="text" name="items[<?php echo esc_attr( $item_id ); ?>][notes]" value="<?php echo esc_attr( $item['notes'] ); ?>" placeholder="<?php esc_attr_e( 'notes', 'cook-app' ); ?>">
+                            <button type="button" class="remove" aria-label="<?php esc_attr_e( 'Remove', 'cook-app' ); ?>">×</button>
                         </div>
                         <?php if ( $source_titles && $source_recipes ) : ?>
                             <div class="shopping-source">
-                                <?php esc_html_e( 'From', 'cookbook' ); ?>
+                                <?php esc_html_e( 'From', 'cook-app' ); ?>
                                 <?php $rendered_source_count = 0; ?>
                                 <?php foreach ( $source_recipes as $source_index => $source_recipe ) :
                                     $source_recipe_id = isset( $source_recipe['id'] ) ? (int) $source_recipe['id'] : 0;
@@ -262,7 +262,7 @@ include __DIR__ . '/_header.php';
                                     }
                                     $rendered_source_count++;
                                     if ( $source_recipe_post && $source_recipe_post->post_type === App::POST_TYPE ) : ?>
-                                        <a href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $source_recipe_id ) ); ?>"><?php echo esc_html( get_the_title( $source_recipe_post ) ); ?></a>
+                                        <a href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $source_recipe_id ) ); ?>"><?php echo esc_html( get_the_title( $source_recipe_post ) ); ?></a>
                                     <?php else : ?>
                                         <?php echo esc_html( $source_recipe_title ); ?>
                                     <?php endif; ?>
@@ -270,8 +270,8 @@ include __DIR__ . '/_header.php';
                             </div>
                         <?php elseif ( $recipe && $recipe->post_type === App::POST_TYPE ) : ?>
                             <div class="shopping-source">
-                                <?php esc_html_e( 'From', 'cookbook' ); ?>
-                                <a href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $recipe_id ) ); ?>"><?php echo esc_html( get_the_title( $recipe ) ); ?></a>
+                                <?php esc_html_e( 'From', 'cook-app' ); ?>
+                                <a href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $recipe_id ) ); ?>"><?php echo esc_html( get_the_title( $recipe ) ); ?></a>
                             </div>
                         <?php elseif ( ! empty( $item['source_recipe_title'] ) && ! $is_multiple_recipes_label( (string) $item['source_recipe_title'] ) ) : ?>
                             <div class="shopping-source"><?php echo esc_html( $item['source_recipe_title'] ); ?></div>
@@ -284,7 +284,7 @@ include __DIR__ . '/_header.php';
 
         <?php if ( $household_reminders ) : ?>
             <section class="household-reminders soft-panel">
-                <h2><?php esc_html_e( 'At home', 'cookbook' ); ?></h2>
+                <h2><?php esc_html_e( 'At home', 'cook-app' ); ?></h2>
                 <ul class="household-list">
                     <?php foreach ( $household_reminders as $reminder_index => $reminder ) :
                         $detail = $shopping_item_detail( $reminder );
@@ -300,34 +300,34 @@ include __DIR__ . '/_header.php';
                                     <small class="shop-source"><?php
                                     echo esc_html( sprintf(
                                         /* translators: %s: comma-separated recipe titles */
-                                        __( 'For %s', 'cookbook' ),
+                                        __( 'For %s', 'cook-app' ),
                                         implode( ', ', $source_titles )
                                     ) );
                                     ?></small>
                                 <?php endif; ?>
                             </span>
-                            <button class="btn secondary" type="submit" name="list_command" value="restore_household:<?php echo (int) $reminder_index; ?>"><?php esc_html_e( 'Need to buy', 'cookbook' ); ?></button>
+                            <button class="btn secondary" type="submit" name="list_command" value="restore_household:<?php echo (int) $reminder_index; ?>"><?php esc_html_e( 'Need to buy', 'cook-app' ); ?></button>
                         </li>
                     <?php endforeach; ?>
                 </ul>
             </section>
         <?php endif; ?>
 
-        <h2><?php esc_html_e( 'Add items', 'cookbook' ); ?></h2>
+        <h2><?php esc_html_e( 'Add items', 'cook-app' ); ?></h2>
         <div class="soft-panel">
             <div id="manual-items">
                 <div class="manual-item-row">
-                    <input type="text" name="new_items[0][amount]" placeholder="<?php esc_attr_e( '2', 'cookbook' ); ?>">
-                    <input type="text" name="new_items[0][unit]" placeholder="<?php esc_attr_e( 'g', 'cookbook' ); ?>">
-                    <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'ingredient', 'cookbook' ); ?>">
-                    <input type="text" name="new_items[0][notes]" placeholder="<?php esc_attr_e( 'notes', 'cookbook' ); ?>">
-                    <button type="button" class="remove" aria-label="<?php esc_attr_e( 'Remove', 'cookbook' ); ?>">×</button>
+                    <input type="text" name="new_items[0][amount]" placeholder="<?php esc_attr_e( '2', 'cook-app' ); ?>">
+                    <input type="text" name="new_items[0][unit]" placeholder="<?php esc_attr_e( 'g', 'cook-app' ); ?>">
+                    <input type="text" name="new_items[0][name]" placeholder="<?php esc_attr_e( 'ingredient', 'cook-app' ); ?>">
+                    <input type="text" name="new_items[0][notes]" placeholder="<?php esc_attr_e( 'notes', 'cook-app' ); ?>">
+                    <button type="button" class="remove" aria-label="<?php esc_attr_e( 'Remove', 'cook-app' ); ?>">×</button>
                 </div>
             </div>
             <div class="toolbar" style="margin-bottom:0">
-                <button type="button" class="btn secondary" id="add-manual-item"><?php esc_html_e( '+ Add item', 'cookbook' ); ?></button>
+                <button type="button" class="btn secondary" id="add-manual-item"><?php esc_html_e( '+ Add item', 'cook-app' ); ?></button>
                 <span class="spacer"></span>
-                <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save list', 'cookbook' ); ?></button>
+                <button class="btn fresh" type="submit" name="list_command" value="save"><?php esc_html_e( 'Save list', 'cook-app' ); ?></button>
             </div>
         </div>
     <?php endif; ?>
@@ -342,7 +342,7 @@ include __DIR__ . '/_header.php';
         <input type="hidden" name="return_mode" value="<?php echo $is_shop_mode ? 'shop' : 'edit'; ?>">
         <input type="hidden" name="list_command" value="clear_all">
         <span class="spacer"></span>
-        <button class="btn danger" type="submit" data-cookbook-confirm="<?php echo esc_attr( $clear_list_confirm ); ?>"><?php esc_html_e( 'Clear list', 'cookbook' ); ?></button>
+        <button class="btn danger" type="submit" data-cookbook-confirm="<?php echo esc_attr( $clear_list_confirm ); ?>"><?php esc_html_e( 'Clear list', 'cook-app' ); ?></button>
     </form>
 <?php endif; ?>
 

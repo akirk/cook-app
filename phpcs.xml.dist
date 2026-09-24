@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<ruleset name="Cookbook">
-	<description>PHPCS rules for Cookbook's shipped plugin code.</description>
+<ruleset name="Cook App">
+	<description>PHPCS rules for Cook App's shipped plugin code.</description>
 
-	<file>cookbook.php</file>
+	<file>cook-app.php</file>
 	<file>src</file>
 	<file>templates</file>
 
@@ -22,7 +22,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="cookbook"/>
+				<element value="cook-app"/>
 			</property>
 		</properties>
 	</rule>

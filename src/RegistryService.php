@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -22,7 +22,7 @@ class RegistryService extends AbstractService {
 
         $wp_admin_bar->add_node( [
             'id'    => 'edit',
-            'title' => __( 'Edit recipe', 'cookbook' ),
+            'title' => __( 'Edit recipe', 'cook-app' ),
             'href'  => home_url( '/' . $this->get_url_path() . '/recipe/' . $id . '/edit' ),
             'meta'  => [
                 'class' => 'cookbook-edit-recipe',
@@ -56,7 +56,7 @@ class RegistryService extends AbstractService {
             if ( 0 === strpos( $route, '/wp/v2/' . $base ) ) {
                 return new \WP_Error(
                     'rest_login_required',
-                    __( 'Authentication is required to read this data.', 'cookbook' ),
+                    __( 'Authentication is required to read this data.', 'cook-app' ),
                     [ 'status' => rest_authorization_required_code() ]
                 );
             }
@@ -75,15 +75,15 @@ class RegistryService extends AbstractService {
 
         register_post_type( App::POST_TYPE, [
             'labels' => [
-                'name'               => __( 'Recipes', 'cookbook' ),
-                'singular_name'      => __( 'Recipe', 'cookbook' ),
-                'add_new'            => __( 'New recipe', 'cookbook' ),
-                'add_new_item'       => __( 'Add new recipe', 'cookbook' ),
-                'edit_item'          => __( 'Edit recipe', 'cookbook' ),
-                'view_item'          => __( 'View recipe', 'cookbook' ),
-                'search_items'       => __( 'Search recipes', 'cookbook' ),
-                'not_found'          => __( 'No recipes yet', 'cookbook' ),
-                'not_found_in_trash' => __( 'No recipes in trash', 'cookbook' ),
+                'name'               => __( 'Recipes', 'cook-app' ),
+                'singular_name'      => __( 'Recipe', 'cook-app' ),
+                'add_new'            => __( 'New recipe', 'cook-app' ),
+                'add_new_item'       => __( 'Add new recipe', 'cook-app' ),
+                'edit_item'          => __( 'Edit recipe', 'cook-app' ),
+                'view_item'          => __( 'View recipe', 'cook-app' ),
+                'search_items'       => __( 'Search recipes', 'cook-app' ),
+                'not_found'          => __( 'No recipes yet', 'cook-app' ),
+                'not_found_in_trash' => __( 'No recipes in trash', 'cook-app' ),
             ],
             'public'             => false,
             'publicly_queryable' => false,
@@ -165,23 +165,23 @@ class RegistryService extends AbstractService {
         ] );
 
         register_post_status( App::SHOPPING_ITEM_STATUS_CHECKED, [
-            'label'                     => __( 'Checked', 'cookbook' ),
+            'label'                     => __( 'Checked', 'cook-app' ),
             'public'                    => false,
             'internal'                  => false,
             'exclude_from_search'       => true,
             'show_in_admin_all_list'    => true,
             'show_in_admin_status_list' => true,
             /* translators: %s: number of checked shopping-list items */
-            'label_count'               => _n_noop( 'Checked <span class="count">(%s)</span>', 'Checked <span class="count">(%s)</span>', 'cookbook' ),
+            'label_count'               => _n_noop( 'Checked <span class="count">(%s)</span>', 'Checked <span class="count">(%s)</span>', 'cook-app' ),
         ] );
 
         register_post_type( App::SHOPPING_LIST_POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Shopping lists', 'cookbook' ),
-                'singular_name' => __( 'Shopping list', 'cookbook' ),
-                'edit_item'     => __( 'Edit shopping list', 'cookbook' ),
-                'view_item'     => __( 'View shopping list', 'cookbook' ),
-                'not_found'     => __( 'No shopping lists yet', 'cookbook' ),
+                'name'          => __( 'Shopping lists', 'cook-app' ),
+                'singular_name' => __( 'Shopping list', 'cook-app' ),
+                'edit_item'     => __( 'Edit shopping list', 'cook-app' ),
+                'view_item'     => __( 'View shopping list', 'cook-app' ),
+                'not_found'     => __( 'No shopping lists yet', 'cook-app' ),
             ],
             'public'             => false,
             'publicly_queryable' => false,
@@ -233,11 +233,11 @@ class RegistryService extends AbstractService {
 
         register_post_type( App::WEEK_PLAN_POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Week plans', 'cookbook' ),
-                'singular_name' => __( 'Week plan', 'cookbook' ),
-                'edit_item'     => __( 'Edit week plan', 'cookbook' ),
-                'view_item'     => __( 'View week plan', 'cookbook' ),
-                'not_found'     => __( 'No week plans yet', 'cookbook' ),
+                'name'          => __( 'Week plans', 'cook-app' ),
+                'singular_name' => __( 'Week plan', 'cook-app' ),
+                'edit_item'     => __( 'Edit week plan', 'cook-app' ),
+                'view_item'     => __( 'View week plan', 'cook-app' ),
+                'not_found'     => __( 'No week plans yet', 'cook-app' ),
             ],
             'public'             => false,
             'publicly_queryable' => false,
@@ -272,11 +272,11 @@ class RegistryService extends AbstractService {
 
         register_post_type( App::COOKED_ENTRY_POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Cooking history entries', 'cookbook' ),
-                'singular_name' => __( 'Cooking history entry', 'cookbook' ),
-                'edit_item'     => __( 'Edit cooking history entry', 'cookbook' ),
-                'view_item'     => __( 'View cooking history entry', 'cookbook' ),
-                'not_found'     => __( 'No cooking history entries yet', 'cookbook' ),
+                'name'          => __( 'Cooking history entries', 'cook-app' ),
+                'singular_name' => __( 'Cooking history entry', 'cook-app' ),
+                'edit_item'     => __( 'Edit cooking history entry', 'cook-app' ),
+                'view_item'     => __( 'View cooking history entry', 'cook-app' ),
+                'not_found'     => __( 'No cooking history entries yet', 'cook-app' ),
             ],
             'public'             => false,
             'publicly_queryable' => false,
@@ -305,8 +305,8 @@ class RegistryService extends AbstractService {
     public function register_taxonomies(): void {
         register_taxonomy( App::TAX_CATEGORY, App::POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Categories', 'cookbook' ),
-                'singular_name' => __( 'Category', 'cookbook' ),
+                'name'          => __( 'Categories', 'cook-app' ),
+                'singular_name' => __( 'Category', 'cook-app' ),
             ],
             'hierarchical'      => true,
             'show_ui'           => true,
@@ -316,8 +316,8 @@ class RegistryService extends AbstractService {
         ] );
         register_taxonomy( App::TAX_CUISINE, App::POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Cuisines', 'cookbook' ),
-                'singular_name' => __( 'Cuisine', 'cookbook' ),
+                'name'          => __( 'Cuisines', 'cook-app' ),
+                'singular_name' => __( 'Cuisine', 'cook-app' ),
             ],
             'hierarchical'      => true,
             'show_ui'           => true,
@@ -327,8 +327,8 @@ class RegistryService extends AbstractService {
         ] );
         register_taxonomy( App::TAX_TAG, App::POST_TYPE, [
             'labels' => [
-                'name'          => __( 'Tags', 'cookbook' ),
-                'singular_name' => __( 'Tag', 'cookbook' ),
+                'name'          => __( 'Tags', 'cook-app' ),
+                'singular_name' => __( 'Tag', 'cook-app' ),
             ],
             'hierarchical'      => false,
             'show_ui'           => true,
@@ -338,8 +338,8 @@ class RegistryService extends AbstractService {
         ] );
         register_taxonomy( App::TAX_INGREDIENT, [ App::POST_TYPE, App::SHOPPING_LIST_POST_TYPE ], [
             'labels' => [
-                'name'          => __( 'Ingredients', 'cookbook' ),
-                'singular_name' => __( 'Ingredient', 'cookbook' ),
+                'name'          => __( 'Ingredients', 'cook-app' ),
+                'singular_name' => __( 'Ingredient', 'cook-app' ),
             ],
             // Hierarchical so users can manually group similar ingredients
             // ("cherry tomato" as a child of "tomato") via the standard WP UI.
@@ -368,12 +368,12 @@ class RegistryService extends AbstractService {
             'count'       => (int) $stats['count'],
             'count_label' => sprintf(
                 /* translators: %d: number of ingredients */
-                _n( '%d ingredient', '%d ingredients', (int) $stats['count'], 'cookbook' ),
+                _n( '%d ingredient', '%d ingredients', (int) $stats['count'], 'cook-app' ),
                 (int) $stats['count']
             ),
             'terms'       => $stats['top_terms'],
-            'all_url'     => home_url( '/cookbook/by-ingredients' ),
-            'all_label'   => __( 'all ingredients →', 'cookbook' ),
+            'all_url'     => home_url( '/cook-app/by-ingredients' ),
+            'all_label'   => __( 'all ingredients →', 'cook-app' ),
         ];
     }
 
@@ -416,7 +416,7 @@ class RegistryService extends AbstractService {
                 'slug'      => (string) $term->slug,
                 'count'     => (int) $term->count,
                 'font_size' => number_format( 0.85 + $weight * 0.6, 2, '.', '' ),
-                'url'       => add_query_arg( [ 'have' => [ (int) $term->term_id ] ], home_url( '/cookbook/by-ingredients' ) ),
+                'url'       => add_query_arg( [ 'have' => [ (int) $term->term_id ] ], home_url( '/cook-app/by-ingredients' ) ),
             ];
         }, $top_terms );
 

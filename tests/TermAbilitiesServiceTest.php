@@ -1,6 +1,6 @@
 <?php
 
-use Cookbook\TermAbilitiesService;
+use CookApp\TermAbilitiesService;
 use PHPUnit\Framework\TestCase;
 
 class TermAbilitiesServiceTest extends TestCase {

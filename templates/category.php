@@ -3,15 +3,15 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 $slug = (string) get_query_var( 'slug' );
 $term = $slug ? get_term_by( 'slug', $slug, App::TAX_CATEGORY ) : null;
 if ( ! $term ) {
     status_header( 404 );
-    $page_title = __( 'Category not found', 'cookbook' );
+    $page_title = __( 'Category not found', 'cook-app' );
     include __DIR__ . '/_header.php';
-    echo '<h1>' . esc_html__( 'Category not found', 'cookbook' ) . '</h1>';
+    echo '<h1>' . esc_html__( 'Category not found', 'cook-app' ) . '</h1>';
     include __DIR__ . '/_footer.php';
     return;
 }
@@ -33,16 +33,16 @@ include __DIR__ . '/_header.php';
 <p class="subtitle">
     <?php
     /* translators: %d: number of recipes */
-    echo esc_html( sprintf( _n( '%d recipe.', '%d recipes.', count( $recipes ), 'cookbook' ), count( $recipes ) ) );
+    echo esc_html( sprintf( _n( '%d recipe.', '%d recipes.', count( $recipes ), 'cook-app' ), count( $recipes ) ) );
     ?>
 </p>
 
 <?php if ( ! $recipes ) : ?>
-    <div class="notice"><?php esc_html_e( 'No recipes in this category yet.', 'cookbook' ); ?></div>
+    <div class="notice"><?php esc_html_e( 'No recipes in this category yet.', 'cook-app' ); ?></div>
 <?php else : ?>
     <div class="grid">
     <?php foreach ( $recipes as $r ) : ?>
-        <a class="recipe-card" href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $r->ID ) ); ?>">
+        <a class="recipe-card" href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $r->ID ) ); ?>">
             <h3><?php echo esc_html( get_the_title( $r ) ); ?></h3>
             <?php if ( $r->post_excerpt ) : ?>
                 <p style="margin:0.5rem 0 0;color:var(--muted)"><?php echo esc_html( $r->post_excerpt ); ?></p>

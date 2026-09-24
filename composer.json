@@ -1,6 +1,6 @@
 {
-    "name": "akirk/cookbook",
-    "description": "Cookbook - A WordPress app powered by WpApp",
+    "name": "akirk/cook-app",
+    "description": "Cook App - A WordPress app powered by WpApp",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "require": {
@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Cookbook\\": "src/"
+            "CookApp\\": "src/"
         }
     },
     "authors": [
@@ -27,7 +27,7 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
-        "autoloader-suffix": "Cookbook"
+        "autoloader-suffix": "CookApp"
     },
     "scripts": {
         "lint": "phpcs -n",

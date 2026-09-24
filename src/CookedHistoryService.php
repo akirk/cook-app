@@ -1,6 +1,6 @@
 <?php
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Cooked history is intentionally ordered and filtered by post meta.
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -82,7 +82,7 @@ class CookedHistoryService extends AbstractService {
 
     public function handle_log_cooked(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_log_cooked' );
 
@@ -114,14 +114,14 @@ class CookedHistoryService extends AbstractService {
 
     public function handle_update_cooked(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_update_cooked' );
 
         $entry_id = isset( $_POST['entry_id'] ) ? absint( $_POST['entry_id'] ) : 0;
         $entry    = $entry_id ? get_post( $entry_id ) : null;
         if ( ! $entry || $entry->post_type !== App::COOKED_ENTRY_POST_TYPE || (int) $entry->post_author !== get_current_user_id() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
 
         $recipe_id = (int) get_post_meta( $entry_id, App::META_COOKED_RECIPE_ID, true );
@@ -135,7 +135,7 @@ class CookedHistoryService extends AbstractService {
 
         $existing_id = $this->find_cooked_entry_id( (int) $recipe->ID, $date, get_current_user_id() );
         if ( $existing_id && $existing_id !== $entry_id ) {
-            wp_die( esc_html__( 'You already have a cooked entry for this recipe on that date.', 'cookbook' ) );
+            wp_die( esc_html__( 'You already have a cooked entry for this recipe on that date.', 'cook-app' ) );
         }
 
         update_post_meta( $entry_id, App::META_COOKED_DATE, $date );
@@ -144,7 +144,7 @@ class CookedHistoryService extends AbstractService {
             'ID'         => $entry_id,
             'post_title' => sprintf(
                 /* translators: 1: recipe title, 2: cooked date */
-                __( '%1$s on %2$s', 'cookbook' ),
+                __( '%1$s on %2$s', 'cook-app' ),
                 get_the_title( $recipe ),
                 $this->format_cooked_date( $date )
             ),
@@ -164,12 +164,12 @@ class CookedHistoryService extends AbstractService {
 
     private function record_cooked_recipe( \WP_Post $recipe, string $date, int $user_id = 0, string $note = '' ) {
         if ( $recipe->post_type !== App::POST_TYPE ) {
-            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
 
         $user_id = $user_id ?: get_current_user_id();
         if ( ! $user_id ) {
-            return new \WP_Error( 'cookbook_not_allowed', __( 'Not allowed.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_not_allowed', __( 'Not allowed.', 'cook-app' ) );
         }
 
         $date        = $this->sanitize_cooked_date( $date );
@@ -191,7 +191,7 @@ class CookedHistoryService extends AbstractService {
             'post_status' => 'publish',
             'post_title'  => sprintf(
                 /* translators: 1: recipe title, 2: cooked date */
-                __( '%1$s on %2$s', 'cookbook' ),
+                __( '%1$s on %2$s', 'cook-app' ),
                 get_the_title( $recipe ),
                 $this->format_cooked_date( $date )
             ),

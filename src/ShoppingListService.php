@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -34,10 +34,10 @@ class ShoppingListService extends AbstractService {
         $title = $user
             ? sprintf(
                 /* translators: %s: user display name */
-                __( "%s's shopping list", 'cookbook' ),
+                __( "%s's shopping list", 'cook-app' ),
                 $user->display_name
             )
-            : __( 'Shopping list', 'cookbook' );
+            : __( 'Shopping list', 'cook-app' );
         $post_id = wp_insert_post( [
             'post_type'   => App::SHOPPING_LIST_POST_TYPE,
             'post_status' => 'publish',
@@ -161,7 +161,7 @@ class ShoppingListService extends AbstractService {
 
     public function handle_add_to_shopping_list(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_add_to_shopping_list' );
 
@@ -182,7 +182,7 @@ class ShoppingListService extends AbstractService {
 
     public function handle_update_shopping_list(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_update_shopping_list' );
 
@@ -256,7 +256,7 @@ class ShoppingListService extends AbstractService {
 
     public function handle_add_planner_to_shopping_list(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_add_planner_to_shopping_list' );
 
@@ -568,7 +568,7 @@ class ShoppingListService extends AbstractService {
         if ( count( $source_recipes ) > 1 ) {
             return [
                 'id'    => 0,
-                'title' => __( 'Multiple recipes', 'cookbook' ),
+                'title' => __( 'Multiple recipes', 'cook-app' ),
             ];
         }
 
@@ -591,7 +591,7 @@ class ShoppingListService extends AbstractService {
 
         return in_array( $title, array_unique( [
             'Multiple recipes',
-            __( 'Multiple recipes', 'cookbook' ),
+            __( 'Multiple recipes', 'cook-app' ),
         ] ), true );
     }
 

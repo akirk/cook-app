@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -19,7 +19,7 @@ class IngredientAdminService extends AbstractService {
      */
     public function handle_merge_ingredients(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'manage_categories' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_manage_ingredients' );
 
@@ -101,7 +101,7 @@ class IngredientAdminService extends AbstractService {
      */
     public function handle_group_ingredients(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'manage_categories' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_manage_ingredients' );
 
@@ -130,7 +130,7 @@ class IngredientAdminService extends AbstractService {
      */
     public function handle_rename_ingredient(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'manage_categories' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_manage_ingredients' );
 

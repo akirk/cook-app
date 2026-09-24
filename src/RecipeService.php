@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -137,7 +137,7 @@ class RecipeService extends AbstractService {
     public function get_recipe_payload( int $id, bool $include_details ) {
         $post = $id ? get_post( $id ) : null;
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
-            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
 
         return $this->recipe_payload( $post, $include_details );
@@ -153,10 +153,10 @@ class RecipeService extends AbstractService {
             $source
                 ? sprintf(
                     /* translators: %s: source recipe title */
-                    __( '%s variation', 'cookbook' ),
+                    __( '%s variation', 'cook-app' ),
                     get_the_title( $source )
                 )
-                : __( 'Untitled recipe', 'cookbook' )
+                : __( 'Untitled recipe', 'cook-app' )
         );
         $description = $this->ability_html_input( $input, 'description', $source ? $source->post_content : '' );
         $servings    = $this->ability_positive_int_input( $input, 'servings', $source_id ? (int) get_post_meta( $source_id, App::META_SERVINGS, true ) : 4, 1 );
@@ -173,7 +173,7 @@ class RecipeService extends AbstractService {
                 $notes = trim( $notes );
                 $notes .= ( $notes === '' ? '' : "\n\n" ) . sprintf(
                     /* translators: %s: generated variation summary */
-                    __( 'Variation notes: %s', 'cookbook' ),
+                    __( 'Variation notes: %s', 'cook-app' ),
                     $change_summary
                 );
             }
@@ -214,7 +214,7 @@ class RecipeService extends AbstractService {
         $post_id = wp_insert_post( [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => $title !== '' ? $title : __( 'Untitled recipe', 'cookbook' ),
+            'post_title'   => $title !== '' ? $title : __( 'Untitled recipe', 'cook-app' ),
             'post_content' => $description,
             'post_author'  => get_current_user_id(),
             'post_parent'  => $parent_id,
@@ -254,10 +254,10 @@ class RecipeService extends AbstractService {
     public function update_recipe_from_ability_input( int $id, array $input ) {
         $post = get_post( $id );
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
-            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
         if ( ! current_user_can( 'edit_post', $id ) ) {
-            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to edit this recipe.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to edit this recipe.', 'cook-app' ) );
         }
 
         $postarr = [
@@ -266,7 +266,7 @@ class RecipeService extends AbstractService {
         ];
         if ( array_key_exists( 'title', $input ) ) {
             $title = $this->ability_text_input( $input, 'title', get_the_title( $post ) );
-            $postarr['post_title'] = $title !== '' ? $title : __( 'Untitled recipe', 'cookbook' );
+            $postarr['post_title'] = $title !== '' ? $title : __( 'Untitled recipe', 'cook-app' );
         }
         if ( array_key_exists( 'description', $input ) ) {
             $postarr['post_content'] = $this->ability_html_input( $input, 'description', $post->post_content );
@@ -801,7 +801,7 @@ class RecipeService extends AbstractService {
 
     public function handle_save(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_save' );
 
@@ -851,7 +851,7 @@ class RecipeService extends AbstractService {
         $postarr = [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => $title !== '' ? $title : __( 'Untitled recipe', 'cookbook' ),
+            'post_title'   => $title !== '' ? $title : __( 'Untitled recipe', 'cook-app' ),
             'post_content' => $description,
             'post_author'  => get_current_user_id(),
             'post_parent'  => $parent_id,
@@ -859,7 +859,7 @@ class RecipeService extends AbstractService {
         if ( $id ) {
             $existing = get_post( $id );
             if ( ! $existing || $existing->post_type !== App::POST_TYPE ) {
-                wp_die( esc_html__( 'Recipe not found.', 'cookbook' ), 404 );
+                wp_die( esc_html__( 'Recipe not found.', 'cook-app' ), 404 );
             }
             $postarr['ID'] = $id;
             $post_id = wp_update_post( $postarr, true );
@@ -1148,13 +1148,13 @@ class RecipeService extends AbstractService {
 
     public function handle_delete(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'delete_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_delete' );
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         $post = $id ? get_post( $id ) : null;
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
-            wp_die( esc_html__( 'Recipe not found.', 'cookbook' ), 404 );
+            wp_die( esc_html__( 'Recipe not found.', 'cook-app' ), 404 );
         }
         wp_trash_post( $id );
         wp_safe_redirect( home_url( '/' . $this->get_url_path() . '/' ) );
@@ -1163,7 +1163,7 @@ class RecipeService extends AbstractService {
 
     public function handle_settings(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_settings' );
         $pref = isset( $_POST['unit_preference'] ) ? sanitize_text_field( wp_unslash( $_POST['unit_preference'] ) ) : 'metric';
@@ -1177,7 +1177,7 @@ class RecipeService extends AbstractService {
 
     public function handle_replace_ingredient(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
 
         $id    = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -1186,20 +1186,20 @@ class RecipeService extends AbstractService {
 
         $post = $id ? get_post( $id ) : null;
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
-            wp_die( esc_html__( 'Recipe not found.', 'cookbook' ), 404 );
+            wp_die( esc_html__( 'Recipe not found.', 'cook-app' ), 404 );
         }
         if ( ! current_user_can( 'edit_post', $id ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
 
         $ingredients = (array) get_post_meta( $id, App::META_INGREDIENTS, true );
         if ( ! isset( $ingredients[ $index ] ) || ! is_array( $ingredients[ $index ] ) ) {
-            wp_die( esc_html__( 'Ingredient not found.', 'cookbook' ), 404 );
+            wp_die( esc_html__( 'Ingredient not found.', 'cook-app' ), 404 );
         }
 
         $name = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
         if ( $name === '' ) {
-            wp_die( esc_html__( 'Replacement ingredient is required.', 'cookbook' ), 400 );
+            wp_die( esc_html__( 'Replacement ingredient is required.', 'cook-app' ), 400 );
         }
 
         $replacement = [

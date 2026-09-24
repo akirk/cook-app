@@ -5,12 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 wp_app_enqueue_script(
-    'cookbook',
-    plugins_url( 'assets/cookbook.js', dirname( __DIR__ ) . '/cookbook.php' ),
+    'cook-app',
+    COOK_APP_PLUGIN_URL . 'assets/cookbook.js',
     array(),
     filemtime( dirname( __DIR__ ) . '/assets/cookbook.js' ),
     true,
-    'cookbook'
+    'cook-app'
 );
 ?>
     </main>

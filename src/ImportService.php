@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -32,7 +32,7 @@ class ImportService extends AbstractService {
      */
     private function parse_recipe_input( string $url = '', string $paste = '', string $html = '' ) {
         if ( $url === '' && trim( $paste ) === '' && trim( $html ) === '' ) {
-            return new \WP_Error( 'cookbook_import_empty', __( 'Provide a source URL or pasted recipe text.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_import_empty', __( 'Provide a source URL or pasted recipe text.', 'cook-app' ) );
         }
 
         $parsed = null;
@@ -46,7 +46,7 @@ class ImportService extends AbstractService {
             $parsed = Importer::from_text( $paste );
         }
         if ( ! $parsed ) {
-            return new \WP_Error( 'cookbook_import_parse_failed', __( 'Could not parse a recipe from that input.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_import_parse_failed', __( 'Could not parse a recipe from that input.', 'cook-app' ) );
         }
 
         return $parsed;
@@ -61,7 +61,7 @@ class ImportService extends AbstractService {
         $post_id = wp_insert_post( [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => $parsed['title'] ?: __( 'Imported recipe', 'cookbook' ),
+            'post_title'   => $parsed['title'] ?: __( 'Imported recipe', 'cook-app' ),
             'post_content' => $parsed['description'] ?? '',
             'post_author'  => get_current_user_id(),
         ], true );
@@ -75,7 +75,7 @@ class ImportService extends AbstractService {
 
     public function handle_import(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_import' );
 
@@ -111,14 +111,14 @@ class ImportService extends AbstractService {
      */
     public function handle_refetch(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_refetch' );
 
         $id   = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         $post = $id ? get_post( $id ) : null;
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
-            wp_die( esc_html__( 'Recipe not found.', 'cookbook' ), 404 );
+            wp_die( esc_html__( 'Recipe not found.', 'cook-app' ), 404 );
         }
         $url = (string) get_post_meta( $id, App::META_SOURCE_URL, true );
         if ( $url === '' || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
@@ -162,11 +162,11 @@ class ImportService extends AbstractService {
     public function register_browser_extension_action( $actions ) {
         if ( ! is_array( $actions ) ) $actions = [];
         $actions[] = [
-            'name'     => __( 'Save as Recipe', 'cookbook' ),
+            'name'     => __( 'Save as Recipe', 'cook-app' ),
             'url'      => home_url( '/?cookbook-collect={current_url}' ),
             'method'   => 'POST',
             'fields'   => [ 'body' => '{page_html}' ],
-            'category' => __( 'Recipes', 'cookbook' ),
+            'category' => __( 'Recipes', 'cook-app' ),
         ];
         return $actions;
     }
@@ -187,7 +187,7 @@ class ImportService extends AbstractService {
             auth_redirect();
         }
         if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
 
         $url = esc_url_raw( wp_unslash( $_REQUEST['cookbook-collect'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -213,7 +213,7 @@ class ImportService extends AbstractService {
 
     public function ajax_lookup_source_url(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cookbook' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cook-app' ) ], 403 );
         }
         check_ajax_referer( 'cookbook_import' );
         $url = isset( $_POST['source_url'] ) ? esc_url_raw( wp_unslash( $_POST['source_url'] ) ) : '';
@@ -238,32 +238,32 @@ class ImportService extends AbstractService {
 
     public function ajax_parse_url(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cookbook' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cook-app' ) ], 403 );
         }
         check_ajax_referer( 'cookbook_import' );
         $url = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : '';
         if ( $url === '' ) {
-            wp_send_json_error( [ 'message' => __( 'Missing URL.', 'cookbook' ) ] );
+            wp_send_json_error( [ 'message' => __( 'Missing URL.', 'cook-app' ) ] );
         }
         $parsed = $this->parse_recipe_input( $url );
         if ( is_wp_error( $parsed ) ) {
-            wp_send_json_error( [ 'message' => __( 'Could not parse a recipe from that URL.', 'cookbook' ) ] );
+            wp_send_json_error( [ 'message' => __( 'Could not parse a recipe from that URL.', 'cook-app' ) ] );
         }
         wp_send_json_success( $parsed );
     }
 
     public function ajax_parse_text(): void {
         if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cookbook' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'Not allowed.', 'cook-app' ) ], 403 );
         }
         check_ajax_referer( 'cookbook_import' );
         $paste = isset( $_POST['paste'] ) ? wp_kses_post( wp_unslash( $_POST['paste'] ) ) : '';
         if ( trim( $paste ) === '' ) {
-            wp_send_json_error( [ 'message' => __( 'Paste recipe text to preview it.', 'cookbook' ) ] );
+            wp_send_json_error( [ 'message' => __( 'Paste recipe text to preview it.', 'cook-app' ) ] );
         }
         $parsed = $this->parse_recipe_input( '', $paste );
         if ( is_wp_error( $parsed ) ) {
-            wp_send_json_error( [ 'message' => __( 'No ingredients or instructions detected yet.', 'cookbook' ) ] );
+            wp_send_json_error( [ 'message' => __( 'No ingredients or instructions detected yet.', 'cook-app' ) ] );
         }
         wp_send_json_success( $parsed );
     }

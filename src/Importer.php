@@ -1,6 +1,6 @@
 <?php
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -38,7 +38,7 @@ class Importer {
         for ( $redirects = 0; $redirects <= self::MAX_IMPORT_REDIRECTS; $redirects++ ) {
             $response = wp_remote_get( $url, [
                 'timeout'             => 12,
-                'user-agent'          => 'Mozilla/5.0 (compatible; WP-Cookbook/1.0)',
+                'user-agent'          => 'Mozilla/5.0 (compatible; WP-Cook-App/1.0)',
                 'redirection'         => 0,
                 'reject_unsafe_urls'  => true,
                 'limit_response_size' => self::MAX_IMPORT_BODY_BYTES,

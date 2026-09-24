@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 $entries = App::get_user_cooked_entries();
 $entries_by_date = [];
@@ -30,17 +30,17 @@ foreach ( $entries as $entry ) {
     ];
 }
 
-$page_title = __( 'Cooking history', 'cookbook' );
+$page_title = __( 'Cooking history', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
-<?php cookbook_page_head( __( 'Cooking history', 'cookbook' ), [ 'current_section' => 'cooked' ] ); ?>
+<?php cookbook_page_head( __( 'Cooking history', 'cook-app' ), [ 'current_section' => 'cooked' ] ); ?>
 
 <?php if ( $cooked_status === 'updated' && $cooked_flash_date ) : ?>
     <div class="notice success">
         <?php
         echo esc_html( sprintf(
             /* translators: %s: cooked date */
-            __( 'Updated your cooked entry for %s.', 'cookbook' ),
+            __( 'Updated your cooked entry for %s.', 'cook-app' ),
             App::format_cooked_date( $cooked_flash_date )
         ) );
         ?>
@@ -48,7 +48,7 @@ include __DIR__ . '/_header.php';
 <?php endif; ?>
 
 <?php if ( ! $entries_by_date ) : ?>
-    <div class="notice"><?php esc_html_e( 'No cooking history yet. Save a cooked date from any recipe page.', 'cookbook' ); ?></div>
+    <div class="notice"><?php esc_html_e( 'No cooking history yet. Save a cooked date from any recipe page.', 'cook-app' ); ?></div>
 <?php else : ?>
     <?php foreach ( $entries_by_date as $date => $date_entries ) : ?>
         <section class="recipe-alpha-section">
@@ -58,7 +58,7 @@ include __DIR__ . '/_header.php';
                     <?php
                     echo esc_html( sprintf(
                         /* translators: %d: cooked-history entries on this date */
-                        _n( '%d recipe', '%d recipes', count( $date_entries ), 'cookbook' ),
+                        _n( '%d recipe', '%d recipes', count( $date_entries ), 'cook-app' ),
                         count( $date_entries )
                     ) );
                     ?>
@@ -72,14 +72,14 @@ include __DIR__ . '/_header.php';
                     <li>
                         <span class="cooked-history-entry">
                             <?php if ( $recipe ) : ?>
-                                <a href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $recipe->ID ) ); ?>"><?php echo esc_html( get_the_title( $recipe ) ); ?></a>
+                                <a href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $recipe->ID ) ); ?>"><?php echo esc_html( get_the_title( $recipe ) ); ?></a>
                             <?php else : ?>
                                 <span><?php echo esc_html( get_the_title( $item['entry'] ) ); ?></span>
                             <?php endif; ?>
                             <?php if ( $item['note'] !== '' ) : ?>
                                 <span class="cooked-note">- <?php echo esc_html( $item['note'] ); ?></span>
                             <?php endif; ?>
-                            <button class="cooked-edit-toggle" type="button" aria-expanded="false" aria-controls="cooked-edit-<?php echo (int) $item['entry']->ID; ?>"><?php esc_html_e( 'Edit', 'cookbook' ); ?></button>
+                            <button class="cooked-edit-toggle" type="button" aria-expanded="false" aria-controls="cooked-edit-<?php echo (int) $item['entry']->ID; ?>"><?php esc_html_e( 'Edit', 'cook-app' ); ?></button>
                         </span>
                         <time datetime="<?php echo esc_attr( $date ); ?>"><?php echo esc_html( App::format_cooked_date( $date ) ); ?></time>
                         <div class="cooked-edit" id="cooked-edit-<?php echo (int) $item['entry']->ID; ?>" hidden>
@@ -87,11 +87,11 @@ include __DIR__ . '/_header.php';
                                 <?php wp_nonce_field( 'cookbook_update_cooked' ); ?>
                                 <input type="hidden" name="action" value="cookbook_update_cooked">
                                 <input type="hidden" name="entry_id" value="<?php echo (int) $item['entry']->ID; ?>">
-                                <input type="hidden" name="redirect_to" value="<?php echo esc_url( home_url( '/cookbook/cooked' ) ); ?>">
-                                <textarea name="cooked_note" rows="1" aria-label="<?php esc_attr_e( 'Notes', 'cookbook' ); ?>"><?php echo esc_textarea( $item['note'] ); ?></textarea>
-                                <input type="date" name="cooked_date" value="<?php echo esc_attr( $entry_date ); ?>" max="<?php echo esc_attr( $today_date ); ?>" aria-label="<?php esc_attr_e( 'Cooked on', 'cookbook' ); ?>">
-                                <button class="btn secondary" type="submit"><?php esc_html_e( 'Save', 'cookbook' ); ?></button>
-                                <button class="btn secondary cooked-edit-cancel" type="button"><?php esc_html_e( 'Cancel', 'cookbook' ); ?></button>
+                                <input type="hidden" name="redirect_to" value="<?php echo esc_url( home_url( '/cook-app/cooked' ) ); ?>">
+                                <textarea name="cooked_note" rows="1" aria-label="<?php esc_attr_e( 'Notes', 'cook-app' ); ?>"><?php echo esc_textarea( $item['note'] ); ?></textarea>
+                                <input type="date" name="cooked_date" value="<?php echo esc_attr( $entry_date ); ?>" max="<?php echo esc_attr( $today_date ); ?>" aria-label="<?php esc_attr_e( 'Cooked on', 'cook-app' ); ?>">
+                                <button class="btn secondary" type="submit"><?php esc_html_e( 'Save', 'cook-app' ); ?></button>
+                                <button class="btn secondary cooked-edit-cancel" type="button"><?php esc_html_e( 'Cancel', 'cook-app' ); ?></button>
                             </form>
                         </div>
                     </li>
