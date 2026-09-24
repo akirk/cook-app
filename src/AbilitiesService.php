@@ -21,6 +21,7 @@ class AbilitiesService extends AbstractService {
             'weekly meal planner',
             'shopping-list builder',
             'serving scaling and variations',
+            'ingredient, category, cuisine, and tag cleanup',
         ] );
 
         return $domains;
@@ -37,6 +38,7 @@ class AbilitiesService extends AbstractService {
         $cookbook_tips = [
             __( 'Ask me to find saved recipes by title, ingredient, category, or tag.', 'cookbook' ),
             __( 'Ask me to import a recipe from a URL, create a recipe variation, or help plan meals for the week.', 'cookbook' ),
+            __( 'Ask me to review and tidy Cookbook ingredients, categories, cuisines, or tags.', 'cookbook' ),
         ];
 
         $existing = isset( $tips[ $this->get_url_path() ] ) ? $tips[ $this->get_url_path() ] : [];
@@ -281,6 +283,8 @@ class AbilitiesService extends AbstractService {
                 ],
             ]
         );
+
+        ( new TermAbilitiesService() )->register_abilities();
     }
 
     /**
