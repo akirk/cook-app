@@ -170,10 +170,10 @@ include __DIR__ . '/_header.php';
 
 <?php
 wp_app_enqueue_script(
-    'cookbook-import',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook-import.js',
+    'cook-app-import',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app-import.js',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook-import.js' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app-import.js' ),
     true,
     'cook-app'
 );

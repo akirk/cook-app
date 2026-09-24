@@ -331,10 +331,10 @@ cookbook_page_head( __( 'Week planner', 'cook-app' ), [
 
 <?php
 wp_app_enqueue_script(
-    'cookbook-planner',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook-planner.js',
+    'cook-app-planner',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app-planner.js',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook-planner.js' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app-planner.js' ),
     true,
     'cook-app'
 );

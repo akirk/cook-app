@@ -719,10 +719,10 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id )
 
 <?php
 wp_app_enqueue_script(
-    'cookbook-recipe',
-    COOK_APP_PLUGIN_URL . 'assets/cookbook-recipe.js',
+    'cook-app-recipe',
+    COOK_APP_PLUGIN_URL . 'assets/cook-app-recipe.js',
     array(),
-    filemtime( dirname( __DIR__ ) . '/assets/cookbook-recipe.js' ),
+    filemtime( dirname( __DIR__ ) . '/assets/cook-app-recipe.js' ),
     true,
     'cook-app'
 );
