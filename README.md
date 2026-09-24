@@ -1,4 +1,4 @@
-# Cookbook
+# Cook App
 
 - Contributors: akirk
 - Tags: recipes, cooking, meal-planner, shopping-list, wp-app
@@ -13,9 +13,9 @@ A personal cookbook for WordPress: store, import, categorize, scale, plan and sh
 
 ## Description
 
-[Try Cookbook in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint.json) · [Try it with demo data](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/demo.json) · [Try it in OpenStation](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint-openstation.json), the same app opened in desktop mode with the [OpenStation](https://github.com/WordPress/openstation) plugin.
+[Try Cook App in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint.json) · [Try it with demo data](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/demo.json) · [Try it in OpenStation](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/akirk/cookbook/main/blueprint-openstation.json), the same app opened in desktop mode with the [OpenStation](https://github.com/WordPress/openstation) plugin.
 
-Cookbook gives your WordPress site a private recipe app at `/cookbook/`. Recipes are stored as WordPress content, with structured ingredients, instructions, categories, cuisines, tags, photos, serving sizes, prep and cook times, source URLs, and notes.
+Cook App gives your WordPress site a private recipe app at `/cook-app/`. Recipes are stored as WordPress content, with structured ingredients, instructions, categories, cuisines, tags, photos, serving sizes, prep and cook times, source URLs, and notes.
 
 It is built for day-to-day cooking rather than public recipe blogging: save recipes from the web, scale portions while you cook, convert between metric and imperial units, track what you have cooked, plan meals for the week, and build a shopping list from the recipes you choose.
 
@@ -25,17 +25,17 @@ Each recipe is stored as a `cb-recipes` custom post type with recipe taxonomies 
 
 ### Import recipes from the web
 
-Paste a recipe URL and Cookbook looks for schema.org `Recipe` data and HTML recipe metadata. It supports recipe sections, ingredient groups, instruction sections, and recipe images where the source page exposes them. If automatic parsing is not enough, paste recipe text and preview the detected title, ingredients, and instructions before saving.
+Paste a recipe URL and Cook App looks for schema.org `Recipe` data and HTML recipe metadata. It supports recipe sections, ingredient groups, instruction sections, and recipe images where the source page exposes them. If automatic parsing is not enough, paste recipe text and preview the detected title, ingredients, and instructions before saving.
 
 Photos can be sideloaded into the WordPress media library and used as the recipe's featured image.
 
 ### Cook with scaled ingredients
 
-Recipe pages include live portion scaling. Enter the number of servings you want and Cookbook rescales parsed ingredient amounts immediately. Unit display can be switched between metric and imperial globally in settings or per recipe while viewing it.
+Recipe pages include live portion scaling. Enter the number of servings you want and Cook App rescales parsed ingredient amounts immediately. Unit display can be switched between metric and imperial globally in settings or per recipe while viewing it.
 
 ### Cooking mode and history
 
-Cooking mode gives you a focused view with a large active step, step navigation, ingredient and instruction checkoffs, browser-saved progress, and screen wake lock where supported. When you finish, Cookbook can save that you cooked the recipe. You can also add dated "cooked this" entries from recipe pages.
+Cooking mode gives you a focused view with a large active step, step navigation, ingredient and instruction checkoffs, browser-saved progress, and screen wake lock where supported. When you finish, Cook App can save that you cooked the recipe. You can also add dated "cooked this" entries from recipe pages.
 
 ### Meal planning and shopping
 
@@ -43,17 +43,17 @@ Use the week planner to place recipes into breakfast, lunch, and dinner slots. A
 
 ### Ingredients and variations
 
-Cookbook can help you find recipes by ingredients you have on hand, allowing a configurable number of missing ingredients. Ingredient tools let you browse ingredient pages, replace an ingredient from a recipe view, and merge, group, or rename ingredient terms.
+Cook App can help you find recipes by ingredients you have on hand, allowing a configurable number of missing ingredients. Ingredient tools let you browse ingredient pages, replace an ingredient from a recipe view, and merge, group, or rename ingredient terms.
 
 Recipe variations let you link adapted recipes to their originals. Use "Edit as variation" to create a prefilled child recipe from an existing one.
 
 ### Browser extension import
 
-Cookbook integrates with the [Friends browser extension](https://github.com/akirk/browser-extension). After authorizing the extension for your site, use the "Save as Recipe" action on a recipe page and Cookbook will import the current page HTML.
+Cook App integrates with the [Friends browser extension](https://github.com/akirk/browser-extension). After authorizing the extension for your site, use the "Save as Recipe" action on a recipe page and Cook App will import the current page HTML.
 
 ### AI and automation
 
-When the WordPress Abilities API is available, Cookbook registers abilities for recipes, week plans, and managing ingredients, categories, cuisines, and tags. This allows compatible AI assistants and automations to work with your saved recipes in a structured way.
+When the WordPress Abilities API is available, Cook App registers abilities for recipes, week plans, and managing ingredients, categories, cuisines, and tags. This allows compatible AI assistants and automations to work with your saved recipes in a structured way.
 
 ### Features
 
@@ -79,42 +79,42 @@ When the WordPress Abilities API is available, Cookbook registers abilities for 
 
 1. Upload the `cookbook` directory to `wp-content/plugins/`
 2. Activate the plugin
-3. Visit `/cookbook/` on your site
-4. Add a recipe manually or open `/cookbook/import` to import one from the web
+3. Visit `/cook-app/` on your site
+4. Add a recipe manually or open `/cook-app/import` to import one from the web
 
 ## Frequently Asked Questions
 
 ### Where do I manage recipes?
 
-Visit `/cookbook/` on your site after activating the plugin. The app uses WordPress users and permissions, but it is separate from your active theme.
+Visit `/cook-app/` on your site after activating the plugin. The app uses WordPress users and permissions, but it is separate from your active theme.
 
 ### Can I import recipes from any website?
 
-Cookbook works best with pages that expose schema.org `Recipe` data or recognizable recipe markup. If a site cannot be parsed automatically, you can paste the recipe text and use the preview before saving.
+Cook App works best with pages that expose schema.org `Recipe` data or recognizable recipe markup. If a site cannot be parsed automatically, you can paste the recipe text and use the preview before saving.
 
-### Does Cookbook publish my recipes publicly?
+### Does Cook App publish my recipes publicly?
 
-Cookbook is designed as a personal app. Recipes are stored in WordPress and viewed through the `/cookbook/` app by users with the required permissions.
+Cook App is designed as a personal app. Recipes are stored in WordPress and viewed through the `/cook-app/` app by users with the required permissions.
 
 ### Can I switch between metric and imperial units?
 
-Yes. Set your default in `/cookbook/settings`, or switch units while viewing a recipe.
+Yes. Set your default in `/cook-app/settings`, or switch units while viewing a recipe.
 
 ### Can I make a shopping list from a weekly meal plan?
 
 Yes. Add recipes to the week planner, then add the planned recipes' ingredients to your shopping list.
 
-### Does Cookbook work with Static Archive?
+### Does Cook App work with Static Archive?
 
-Yes. If the Static Archive plugin is active, Cookbook can opt recipes into the archive and render structured recipe content as HTML and Markdown.
+Yes. If the Static Archive plugin is active, Cook App can opt recipes into the archive and render structured recipe content as HTML and Markdown.
 
-### Is Cookbook translatable?
+### Is Cook App translatable?
 
 Yes. The text domain is `cookbook`, and a German translation is included.
 
 ## Screenshots
 
-1. A recipe page in the Cookbook app, with its photo and the app navigation for recipes, shopping list, planner, cooking history and ingredients.
+1. A recipe page in Cook App, with its photo and the app navigation for recipes, shopping list, planner, cooking history and ingredients.
 2. The same recipe on a phone, where the navigation wraps and the photo, times and servings stack.
 
 ## Changelog
@@ -128,19 +128,19 @@ Yes. The text domain is `cookbook`, and a German translation is included.
 
 | URL | Page |
 | --- | --- |
-| `/cookbook/` | All recipes |
-| `/cookbook/new` | Create a recipe |
-| `/cookbook/import` | Import a recipe from a URL or pasted text |
-| `/cookbook/shopping-list` | Personal shopping list |
-| `/cookbook/planner` | Weekly meal planner |
-| `/cookbook/cooked` | Cooking history |
-| `/cookbook/by-ingredients` | Find recipes by ingredients on hand |
-| `/cookbook/manage-ingredients` | Merge, group, and rename ingredients |
-| `/cookbook/settings` | Unit preferences |
+| `/cook-app/` | All recipes |
+| `/cook-app/new` | Create a recipe |
+| `/cook-app/import` | Import a recipe from a URL or pasted text |
+| `/cook-app/shopping-list` | Personal shopping list |
+| `/cook-app/planner` | Weekly meal planner |
+| `/cook-app/cooked` | Cooking history |
+| `/cook-app/by-ingredients` | Find recipes by ingredients on hand |
+| `/cook-app/manage-ingredients` | Merge, group, and rename ingredients |
+| `/cook-app/settings` | Unit preferences |
 
 ### Abilities API
 
-When available, Cookbook registers these abilities:
+When available, Cook App registers these abilities:
 
 - `cookbook/search-recipes`
 - `cookbook/get-recipe`
@@ -158,4 +158,4 @@ The four term abilities take `type` as `ingredients`, `categories`, `cuisines`, 
 
 ### Static Archive Integration
 
-Cookbook integrates with Static Archive by making recipe posts available for archive generation and by rendering structured recipe meta as Static Archive HTML and Markdown.
+Cook App integrates with Static Archive by making recipe posts available for archive generation and by rendering structured recipe meta as Static Archive HTML and Markdown.

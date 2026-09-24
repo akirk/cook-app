@@ -14,6 +14,6 @@ abstract class AbstractService {
     }
 
     protected function get_url_path(): string {
-        return 'cookbook';
+        return 'cook-app';
     }
 }

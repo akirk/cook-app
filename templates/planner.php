@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Cookbook\App;
 
 if ( ! is_user_logged_in() ) {
-    wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+    wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
 }
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only query params and flash flags.
@@ -47,7 +47,7 @@ foreach ( $recipes as $recipe ) {
     $recipe_value = $recipe_title_counts[ $recipe_title ] > 1
         ? sprintf(
             /* translators: 1: recipe title, 2: recipe ID */
-            __( '%1$s (#%2$d)', 'cookbook' ),
+            __( '%1$s (#%2$d)', 'cook-app' ),
             $recipe_title,
             (int) $recipe->ID
         )
@@ -121,7 +121,7 @@ foreach ( $days as $date => $day ) {
     }
 }
 
-$page_title = __( 'Week planner', 'cookbook' );
+$page_title = __( 'Week planner', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
 <?php
@@ -131,22 +131,22 @@ ob_start();
     <a class="btn secondary" href="<?php echo esc_url( add_query_arg( [
         'week'      => $current_week_start,
         'copy-form' => $week_start,
-    ], home_url( '/cookbook/planner' ) ) ); ?>"><?php esc_html_e( 'Copy to current week', 'cookbook' ); ?></a>
+    ], home_url( '/cook-app/planner' ) ) ); ?>"><?php esc_html_e( 'Copy to current week', 'cook-app' ); ?></a>
 <?php endif; ?>
 <?php if ( $is_current_week && $plan_id ) : ?>
     <a class="btn secondary" href="<?php echo esc_url( add_query_arg( [
         'week'      => $next_week,
         'copy-form' => $week_start,
-    ], home_url( '/cookbook/planner' ) ) ); ?>"><?php esc_html_e( 'Copy to next week', 'cookbook' ); ?></a>
+    ], home_url( '/cook-app/planner' ) ) ); ?>"><?php esc_html_e( 'Copy to next week', 'cook-app' ); ?></a>
 <?php endif; ?>
-<button class="btn fresh" type="submit" form="planner-form"><?php esc_html_e( 'Save week', 'cookbook' ); ?></button>
+<button class="btn fresh" type="submit" form="planner-form"><?php esc_html_e( 'Save week', 'cook-app' ); ?></button>
 <?php
 $planner_actions = ob_get_clean();
-cookbook_page_head( __( 'Week planner', 'cookbook' ), [
+cookbook_page_head( __( 'Week planner', 'cook-app' ), [
     'current_section' => 'planner',
     'subtitle'        => sprintf(
         /* translators: %s: formatted date */
-        __( 'Planning week of %s.', 'cookbook' ),
+        __( 'Planning week of %s.', 'cook-app' ),
         wp_date( get_option( 'date_format' ), $start->getTimestamp() )
     ),
     'actions_html'    => $planner_actions,
@@ -154,23 +154,23 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
 ?>
 
 <?php if ( $saved ) : ?>
-    <div class="notice success"><?php esc_html_e( 'Week planner saved.', 'cookbook' ); ?></div>
+    <div class="notice success"><?php esc_html_e( 'Week planner saved.', 'cook-app' ); ?></div>
 <?php endif; ?>
 <?php if ( $copy_source_slots ) : ?>
-    <div class="notice"><?php esc_html_e( 'Review the copied week, then save the week to keep it.', 'cookbook' ); ?></div>
+    <div class="notice"><?php esc_html_e( 'Review the copied week, then save the week to keep it.', 'cook-app' ); ?></div>
 <?php endif; ?>
 <?php if ( $shopping_status === 'added' ) : ?>
     <div class="notice success">
         <?php
         $shopping_message = sprintf(
             /* translators: %d: shopping-list items */
-            _n( '%d planned ingredient added to your shopping list.', '%d planned ingredients added to your shopping list.', $shopping_items, 'cookbook' ),
+            _n( '%d planned ingredient added to your shopping list.', '%d planned ingredients added to your shopping list.', $shopping_items, 'cook-app' ),
             $shopping_items
         );
         if ( $shopping_household ) {
             $shopping_message .= ' ' . sprintf(
                 /* translators: %d: household ingredients */
-                _n( '%d household ingredient listed as at home.', '%d household ingredients listed as at home.', $shopping_household, 'cookbook' ),
+                _n( '%d household ingredient listed as at home.', '%d household ingredients listed as at home.', $shopping_household, 'cook-app' ),
                 $shopping_household
             );
         }
@@ -183,17 +183,17 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
         <?php
         echo esc_html( sprintf(
             /* translators: %s: recipe title */
-            __( 'Select a slot for %s, then save the week.', 'cookbook' ),
+            __( 'Select a slot for %s, then save the week.', 'cook-app' ),
             get_the_title( $pending_recipe )
         ) );
         ?>
     </div>
 <?php endif; ?>
 
-<nav class="planner-nav" aria-label="<?php esc_attr_e( 'Planner week navigation', 'cookbook' ); ?>">
-    <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'week', $prev_week, home_url( '/cookbook/planner' ) ) ); ?>"><?php esc_html_e( 'Previous week', 'cookbook' ); ?></a>
-    <a class="badge" href="<?php echo esc_url( home_url( '/cookbook/planner' ) ); ?>"><?php esc_html_e( 'This week', 'cookbook' ); ?></a>
-    <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'week', $next_week, home_url( '/cookbook/planner' ) ) ); ?>"><?php esc_html_e( 'Next week', 'cookbook' ); ?></a>
+<nav class="planner-nav" aria-label="<?php esc_attr_e( 'Planner week navigation', 'cook-app' ); ?>">
+    <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'week', $prev_week, home_url( '/cook-app/planner' ) ) ); ?>"><?php esc_html_e( 'Previous week', 'cook-app' ); ?></a>
+    <a class="badge" href="<?php echo esc_url( home_url( '/cook-app/planner' ) ); ?>"><?php esc_html_e( 'This week', 'cook-app' ); ?></a>
+    <a class="btn secondary" href="<?php echo esc_url( add_query_arg( 'week', $next_week, home_url( '/cook-app/planner' ) ) ); ?>"><?php esc_html_e( 'Next week', 'cook-app' ); ?></a>
 </nav>
 
 <form
@@ -204,8 +204,8 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
     data-recipes="<?php echo esc_attr( wp_json_encode( $recipe_lookup, JSON_HEX_TAG | JSON_HEX_AMP ) ); ?>"
     data-copy-source-slots="<?php echo esc_attr( wp_json_encode( $copy_source_slots, JSON_HEX_TAG | JSON_HEX_AMP ) ); ?>"
     data-copy-inserted-slots="<?php echo esc_attr( wp_json_encode( $copy_inserted_slots, JSON_HEX_TAG | JSON_HEX_AMP ) ); ?>"
-    data-place-label="<?php esc_attr_e( 'Place selected recipe here', 'cookbook' ); ?>"
-    data-remove-label="<?php esc_attr_e( 'Remove from stash', 'cookbook' ); ?>"
+    data-place-label="<?php esc_attr_e( 'Place selected recipe here', 'cook-app' ); ?>"
+    data-remove-label="<?php esc_attr_e( 'Remove from stash', 'cook-app' ); ?>"
 >
     <?php wp_nonce_field( 'cookbook_save_planner' ); ?>
     <input type="hidden" name="action" value="cookbook_save_planner">
@@ -239,7 +239,7 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
                                 data-day-label="<?php echo esc_attr( $day['short'] ); ?>"
                                 data-slot-label="<?php echo esc_attr( $slot_label ); ?>"
                                 hidden
-                            ><?php esc_html_e( 'Here', 'cookbook' ); ?></button>
+                            ><?php esc_html_e( 'Here', 'cook-app' ); ?></button>
                             <button
                                 class="planner-action"
                                 type="button"
@@ -247,19 +247,19 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
                                 data-target-id="<?php echo esc_attr( $field_id ); ?>"
                                 aria-label="<?php echo esc_attr( sprintf(
                                     /* translators: 1: day label, 2: meal slot label */
-                                    __( 'Lift recipe from %1$s %2$s', 'cookbook' ),
+                                    __( 'Lift recipe from %1$s %2$s', 'cook-app' ),
                                     $day['short'],
                                     $slot_label
                                 ) ); ?>"
                                 hidden
-                            ><?php esc_html_e( 'Lift', 'cookbook' ); ?></button>
+                            ><?php esc_html_e( 'Lift', 'cook-app' ); ?></button>
                         </div>
                         <input
                             id="<?php echo esc_attr( $field_id ); ?>"
                             type="text"
                             name="meal_labels[<?php echo esc_attr( $date ); ?>][<?php echo esc_attr( $slot ); ?>]"
                             value="<?php echo esc_attr( $selected_value ); ?>"
-                            placeholder="<?php esc_attr_e( 'Search recipes', 'cookbook' ); ?>"
+                            placeholder="<?php esc_attr_e( 'Search recipes', 'cook-app' ); ?>"
                             data-meal-input
                             data-hidden-id="<?php echo esc_attr( $hidden_id ); ?>"
                             data-slot="<?php echo esc_attr( $slot ); ?>"
@@ -277,7 +277,7 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
                                 data-recipe-value="<?php echo esc_attr( $selected_value ); ?>"
                             >
                                 <span><?php echo esc_html( $selected_value ); ?></span>
-                                <button class="planner-action" type="button" data-copy-previous-put-back data-target-id="<?php echo esc_attr( $field_id ); ?>"><?php esc_html_e( 'Put back', 'cookbook' ); ?></button>
+                                <button class="planner-action" type="button" data-copy-previous-put-back data-target-id="<?php echo esc_attr( $field_id ); ?>"><?php esc_html_e( 'Put back', 'cook-app' ); ?></button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -286,15 +286,15 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
         <?php endforeach; ?>
         <section class="planner-day planner-stash" data-planner-stash hidden>
             <h3>
-                <?php esc_html_e( 'Stash', 'cookbook' ); ?>
-                <button class="planner-action" type="button" data-planner-clear-stash><?php esc_html_e( 'Clear', 'cookbook' ); ?></button>
+                <?php esc_html_e( 'Stash', 'cook-app' ); ?>
+                <button class="planner-action" type="button" data-planner-clear-stash><?php esc_html_e( 'Clear', 'cook-app' ); ?></button>
             </h3>
             <div class="planner-stash-items" data-planner-stash-items></div>
         </section>
     </div>
 
     <div class="toolbar">
-        <button class="btn fresh" type="submit"><?php esc_html_e( 'Save week', 'cookbook' ); ?></button>
+        <button class="btn fresh" type="submit"><?php esc_html_e( 'Save week', 'cook-app' ); ?></button>
     </div>
 </form>
 
@@ -303,18 +303,18 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
         <?php wp_nonce_field( 'cookbook_add_planner_to_shopping_list' ); ?>
         <input type="hidden" name="action" value="cookbook_add_planner_to_shopping_list">
         <input type="hidden" name="week_start" value="<?php echo esc_attr( $week_start ); ?>">
-        <button class="btn" type="submit"><?php esc_html_e( 'Add planned ingredients to shopping list', 'cookbook' ); ?></button>
-        <a class="btn secondary" href="<?php echo esc_url( home_url( '/cookbook/shopping-list' ) ); ?>"><?php esc_html_e( 'Open shopping list', 'cookbook' ); ?></a>
+        <button class="btn" type="submit"><?php esc_html_e( 'Add planned ingredients to shopping list', 'cook-app' ); ?></button>
+        <a class="btn secondary" href="<?php echo esc_url( home_url( '/cook-app/shopping-list' ) ); ?>"><?php esc_html_e( 'Open shopping list', 'cook-app' ); ?></a>
     </form>
 <?php endif; ?>
 
 <?php if ( $planned ) : ?>
-    <h2><?php esc_html_e( 'Planned recipes', 'cookbook' ); ?></h2>
+    <h2><?php esc_html_e( 'Planned recipes', 'cook-app' ); ?></h2>
     <div class="planned-strip">
         <?php foreach ( $planned as $entry ) :
             $recipe = $entry['recipe'];
             ?>
-            <a class="planned-card" href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $recipe->ID ) ); ?>">
+            <a class="planned-card" href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $recipe->ID ) ); ?>">
                 <?php if ( has_post_thumbnail( $recipe->ID ) ) : ?>
                     <?php echo get_the_post_thumbnail( $recipe->ID, 'thumbnail', [ 'alt' => '' ] ); ?>
                 <?php else : ?>
@@ -332,11 +332,11 @@ cookbook_page_head( __( 'Week planner', 'cookbook' ), [
 <?php
 wp_app_enqueue_script(
     'cookbook-planner',
-    plugins_url( 'assets/cookbook-planner.js', dirname( __DIR__ ) . '/cookbook.php' ),
+    COOK_APP_PLUGIN_URL . 'assets/cookbook-planner.js',
     array(),
     filemtime( dirname( __DIR__ ) . '/assets/cookbook-planner.js' ),
     true,
-    'cookbook'
+    'cook-app'
 );
 ?>
 

@@ -31,7 +31,7 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
     }
 
     /**
-     * Render a consistent Cookbook page heading with optional section navigation.
+     * Render a consistent Cook App page heading with optional section navigation.
      *
      * @param string $title Page heading text.
      * @param array  $args  {
@@ -50,24 +50,24 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
         $actions_html = isset( $args['actions_html'] ) ? (string) $args['actions_html'] : '';
         $sections = [
             'recipes'     => [
-                'label' => __( 'Recipes', 'cookbook' ),
-                'url'   => home_url( '/cookbook/' ),
+                'label' => __( 'Recipes', 'cook-app' ),
+                'url'   => home_url( '/cook-app/' ),
             ],
             'shopping'    => [
-                'label' => __( 'Shopping', 'cookbook' ),
-                'url'   => home_url( '/cookbook/shopping-list' ),
+                'label' => __( 'Shopping', 'cook-app' ),
+                'url'   => home_url( '/cook-app/shopping-list' ),
             ],
             'planner'     => [
-                'label' => __( 'Planner', 'cookbook' ),
-                'url'   => home_url( '/cookbook/planner' ),
+                'label' => __( 'Planner', 'cook-app' ),
+                'url'   => home_url( '/cook-app/planner' ),
             ],
             'cooked'      => [
-                'label' => __( 'Cooking history', 'cookbook' ),
-                'url'   => home_url( '/cookbook/cooked' ),
+                'label' => __( 'Cooking history', 'cook-app' ),
+                'url'   => home_url( '/cook-app/cooked' ),
             ],
             'ingredients' => [
-                'label' => __( 'Ingredients', 'cookbook' ),
-                'url'   => home_url( '/cookbook/by-ingredients' ),
+                'label' => __( 'Ingredients', 'cook-app' ),
+                'url'   => home_url( '/cook-app/by-ingredients' ),
             ],
         ];
         ?>
@@ -75,7 +75,7 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
             <div class="page-head-main">
                 <h1><?php echo esc_html( $title ); ?></h1>
                 <?php if ( $show_nav ) : ?>
-                    <nav class="page-head-nav" aria-label="<?php esc_attr_e( 'Cookbook sections', 'cookbook' ); ?>">
+                    <nav class="page-head-nav" aria-label="<?php esc_attr_e( 'Cook App sections', 'cook-app' ); ?>">
                         <?php foreach ( $sections as $section_key => $section ) : ?>
                             <a href="<?php echo esc_url( $section['url'] ); ?>"<?php echo $current_section === $section_key ? ' aria-current="page"' : ''; ?>>
                                 <?php echo esc_html( $section['label'] ); ?>
@@ -97,17 +97,17 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
     }
 }
 /**
- * Shared header partial for the Cookbook app.
+ * Shared header partial for Cook App.
  *
  * Templates include this near the top to set up <head>, masterbar, and the
  * outer page chrome. Pair it with templates/_footer.php.
  */
 wp_app_enqueue_style(
-    'cookbook',
-    plugins_url( 'assets/cookbook.css', dirname( __DIR__ ) . '/cookbook.php' ),
+    'cook-app',
+    COOK_APP_PLUGIN_URL . 'assets/cookbook.css',
     array(),
     filemtime( dirname( __DIR__ ) . '/assets/cookbook.css' ),
-    'cookbook'
+    'cook-app'
 );
 ?>
 <!DOCTYPE html>

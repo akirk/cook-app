@@ -102,9 +102,9 @@ class PlannerService extends AbstractService {
 
     public function meal_slots(): array {
         $labels = [
-            'breakfast' => __( 'Breakfast', 'cookbook' ),
-            'lunch'     => __( 'Lunch', 'cookbook' ),
-            'dinner'    => __( 'Dinner', 'cookbook' ),
+            'breakfast' => __( 'Breakfast', 'cook-app' ),
+            'lunch'     => __( 'Lunch', 'cook-app' ),
+            'dinner'    => __( 'Dinner', 'cook-app' ),
         ];
         return array_intersect_key( $labels, array_flip( App::MEAL_SLOTS ) );
     }
@@ -183,7 +183,7 @@ class PlannerService extends AbstractService {
         }
         $title = sprintf(
             /* translators: %s: formatted date */
-            __( 'Week of %s', 'cookbook' ),
+            __( 'Week of %s', 'cook-app' ),
             wp_date( get_option( 'date_format' ), $start->getTimestamp() )
         );
         $post_id = wp_insert_post( [
@@ -210,7 +210,7 @@ class PlannerService extends AbstractService {
 
     public function handle_save_planner(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Not allowed.', 'cookbook' ), 403 );
+            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
         }
         check_admin_referer( 'cookbook_save_planner' );
 
@@ -290,7 +290,7 @@ class PlannerService extends AbstractService {
 
         return $label === sprintf(
             /* translators: 1: recipe title, 2: recipe ID */
-            __( '%1$s (#%2$d)', 'cookbook' ),
+            __( '%1$s (#%2$d)', 'cook-app' ),
             $title,
             $recipe_id
         );

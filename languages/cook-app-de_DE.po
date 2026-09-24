@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Cookbook 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cookbook\n"
-"POT-Creation-Date: 2026-06-26T14:13:42+00:00\n"
+"Project-Id-Version: Cook App 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cook-app\n"
+"POT-Creation-Date: 2026-09-24T12:24:25+00:00\n"
 "PO-Revision-Date: 2026-06-20T08:17:20+00:00\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -12,40 +12,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: cookbook\n"
+"X-Domain: cook-app\n"
 
 #. Plugin Name of the plugin
-#: cookbook.php src/AbilitiesService.php:90 templates/index.php:138
-#: templates/index.php:182
-msgid "Cookbook"
-msgstr "Kochbuch"
+#: cook-app.php:3 src/AbilitiesService.php:92 templates/index.php:141
+#: templates/index.php:145
+msgid "Cook App"
+msgstr "Cook App"
+
+#. Plugin URI of the plugin
+#: cook-app.php:4
+msgid "https://wpapps.kirk.at/apps/cook-app/"
+msgstr ""
 
 #. Description of the plugin
-#: cookbook.php
+#: cook-app.php:5
 msgid ""
-"A personal cookbook: store, categorize, scale and import recipes from the "
-"web."
+"A personal cookbook for WordPress: store, import, categorize, scale, plan "
+"and shop from your own recipes."
 msgstr ""
-"Ein persönliches Kochbuch: Rezepte speichern, kategorisieren, skalieren und "
-"aus dem Web importieren."
 
 #. Author of the plugin
-#: cookbook.php
+#: cook-app.php:10
 msgid "Alex Kirk"
 msgstr "Alex Kirk"
 
 #. Author URI of the plugin
-#: cookbook.php
+#: cook-app.php:11
 msgid "https://alex.kirk.at/"
 msgstr "https://alex.kirk.at/"
 
-#: src/AbilitiesService.php:38
+#: src/AbilitiesService.php:39
 msgid "Ask me to find saved recipes by title, ingredient, category, or tag."
 msgstr ""
 "Bitten Sie mich, gespeicherte Rezepte nach Titel, Zutat, Kategorie oder "
 "Schlagwort zu finden."
 
-#: src/AbilitiesService.php:39
+#: src/AbilitiesService.php:40
 msgid ""
 "Ask me to import a recipe from a URL, create a recipe variation, or help "
 "plan meals for the week."
@@ -53,161 +56,134 @@ msgstr ""
 "Bitten Sie mich, ein Rezept von einer URL zu importieren, eine "
 "Rezeptvariante zu erstellen oder Mahlzeiten für die Woche zu planen."
 
-#: src/AbilitiesService.php:65
+#: src/AbilitiesService.php:41
 msgid ""
-"When presenting Cookbook recipes, include the recipe title and link it with "
+"Ask me to review and tidy Cook App ingredients, categories, cuisines, or "
+"tags."
+msgstr ""
+
+#: src/AbilitiesService.php:67
+msgid ""
+"When presenting Cook App recipes, include the recipe title and link it with "
 "view_url when present."
 msgstr ""
-"Wenn Kochbuch-Rezepte angezeigt werden, geben Sie den Rezepttitel an und "
-"verlinken Sie ihn mit view_url, falls vorhanden."
 
-#: src/AbilitiesService.php:69
+#: src/AbilitiesService.php:71
 msgid ""
-"When presenting Cookbook search results, show concise recipe matches and "
+"When presenting Cook App search results, show concise recipe matches and "
 "link each recipe with view_url when present. If no recipes match, say that "
-"no Cookbook recipe was found instead of guessing from the database."
+"no Cook App recipe was found instead of guessing from the database."
 msgstr ""
-"Wenn Kochbuch-Suchergebnisse angezeigt werden, zeigen Sie kurze "
-"Rezepttreffer und verlinken Sie jedes Rezept mit view_url, falls vorhanden. "
-"Wenn keine Rezepte passen, sagen Sie, dass kein Kochbuch-Rezept gefunden "
-"wurde, statt aus der Datenbank zu raten."
 
-#: src/AbilitiesService.php:73
+#: src/AbilitiesService.php:75
 msgid ""
-"When presenting Cookbook week plans, summarize planned meals by day and meal "
+"When presenting Cook App week plans, summarize planned meals by day and meal "
 "slot. Link planned recipes with their view_url when present, and link to the "
 "planner using the returned url."
 msgstr ""
-"Wenn Kochbuch-Wochenpläne angezeigt werden, fassen Sie geplante Mahlzeiten "
-"nach Tag und Mahlzeit zusammen. Verlinken Sie geplante Rezepte mit view_url, "
-"falls vorhanden, und verlinken Sie den Planer mit der zurückgegebenen url."
 
-#: src/AbilitiesService.php:91
-msgid "Abilities for working with Cookbook recipes and week plans."
-msgstr "Funktionen zum Arbeiten mit Kochbuch-Rezepten und Wochenplänen."
-
-#: src/AbilitiesService.php:107
-msgid "Search Cookbook Recipes"
-msgstr "Kochbuch-Rezepte suchen"
-
-#: src/AbilitiesService.php:108
-msgid "Searches Cookbook recipes and returns matching recipe summaries."
+#: src/AbilitiesService.php:93
+msgid "Abilities for working with Cook App recipes and week plans."
 msgstr ""
-"Sucht Kochbuch-Rezepte und gibt passende Rezeptzusammenfassungen zurück."
 
-#: src/AbilitiesService.php:116
+#: src/AbilitiesService.php:109
+msgid "Search Cook App Recipes"
+msgstr ""
+
+#: src/AbilitiesService.php:110
+msgid "Searches Cook App recipes and returns matching recipe summaries."
+msgstr ""
+
+#: src/AbilitiesService.php:118
 msgid ""
-"Use this when the user asks to find, list, filter, or choose Cookbook "
+"Use this when the user asks to find, list, filter, or choose Cook App "
 "recipes. Call without input to list the latest 10 recipes. Return recipe IDs "
 "for follow-up get-recipe calls, and use view_url when linking results to the "
 "user."
 msgstr ""
-"Verwenden, wenn der Benutzer Kochbuch-Rezepte finden, auflisten, filtern "
-"oder auswählen möchte. Ohne Eingabe aufrufen, um die neuesten 10 Rezepte "
-"aufzulisten. Rezept-IDs für nachfolgende get-recipe-Aufrufe zurückgeben und "
-"view_url zum Verlinken der Ergebnisse verwenden."
 
-#: src/AbilitiesService.php:129
-msgid "Get Cookbook Recipe"
-msgstr "Kochbuch-Rezept abrufen"
+#: src/AbilitiesService.php:131
+msgid "Get Cook App Recipe"
+msgstr ""
 
-#: src/AbilitiesService.php:130
-msgid "Returns one structured Cookbook recipe by ID."
-msgstr "Gibt ein strukturiertes Kochbuch-Rezept nach ID zurück."
+#: src/AbilitiesService.php:132
+msgid "Returns one structured Cook App recipe by ID."
+msgstr ""
 
-#: src/AbilitiesService.php:138
+#: src/AbilitiesService.php:140
 msgid "Recipe post ID."
 msgstr "Beitrags-ID des Rezepts."
 
-#: src/AbilitiesService.php:148
+#: src/AbilitiesService.php:150
 msgid ""
-"Use this when the user asks about one known Cookbook recipe. The response "
+"Use this when the user asks about one known Cook App recipe. The response "
 "includes view_url for linking, flat compatibility ingredients/instructions, "
 "named parts for ingredient or instruction sections, notes, taxonomy terms, "
 "and variation family data."
 msgstr ""
-"Verwenden, wenn der Benutzer nach einem bekannten Kochbuch-Rezept fragt. Die "
-"Antwort enthält view_url zum Verlinken, flache Kompatibilitätslisten für "
-"Zutaten und Anweisungen, benannte Teile für Zutaten- oder "
-"Anleitungabschnitte, Notizen, Taxonomiebegriffe und Daten zur "
-"Variantenfamilie."
 
-#: src/AbilitiesService.php:161
-msgid "Save Cookbook Recipe"
-msgstr "Kochbuch-Rezept speichern"
+#: src/AbilitiesService.php:163
+msgid "Save Cook App Recipe"
+msgstr ""
 
-#: src/AbilitiesService.php:162
+#: src/AbilitiesService.php:164
 msgid ""
-"Creates a structured Cookbook recipe, or updates an existing recipe when an "
+"Creates a structured Cook App recipe, or updates an existing recipe when an "
 "ID is provided."
 msgstr ""
-"Erstellt ein strukturiertes Kochbuch-Rezept oder aktualisiert ein "
-"bestehendes Rezept, wenn eine ID angegeben ist."
 
-#: src/AbilitiesService.php:170
+#: src/AbilitiesService.php:172
 msgid ""
-"Use this when the user asks to save, create, or update a structured Cookbook "
+"Use this when the user asks to save, create, or update a structured Cook App "
 "recipe. Pass parts to preserve named ingredient or instruction sections; "
 "flat ingredients and instructions remain supported for unsectioned recipes. "
 "To add or replace a recipe photo, pass the existing recipe id with "
 "image_url. Prefer create-recipe-variation when adapting an existing recipe "
 "into a new variation. Link the result using view_url."
 msgstr ""
-"Verwenden, wenn der Benutzer ein strukturiertes Kochbuch-Rezept speichern, "
-"erstellen oder aktualisieren möchte. parts übergeben, um benannte Zutaten- "
-"oder Anleitungabschnitte zu erhalten; flache Zutaten und Anweisungen bleiben "
-"für Rezepte ohne Abschnitte unterstützt. Zum Hinzufügen oder Ersetzen eines "
-"Rezeptfotos die bestehende Rezept-ID mit image_url übergeben. Für "
-"Anpassungen eines bestehenden Rezepts bevorzugt create-recipe-variation "
-"verwenden. Das Ergebnis mit view_url verlinken."
 
-#: src/AbilitiesService.php:183
-msgid "Import Cookbook Recipe"
-msgstr "Kochbuch-Rezept importieren"
+#: src/AbilitiesService.php:185
+msgid "Import Cook App Recipe"
+msgstr ""
 
-#: src/AbilitiesService.php:184
+#: src/AbilitiesService.php:186
 msgid ""
 "Imports a recipe from source_url or pasted recipe text and publishes it."
 msgstr ""
 "Importiert ein Rezept aus source_url oder eingefügtem Rezepttext und "
 "veröffentlicht es."
 
-#: src/AbilitiesService.php:191
+#: src/AbilitiesService.php:193
 msgid "Recipe page URL to parse."
 msgstr "Zu analysierende URL der Rezeptseite."
 
-#: src/AbilitiesService.php:195
+#: src/AbilitiesService.php:197
 msgid "Plain recipe text to parse if no URL can be parsed."
 msgstr ""
 "Einfacher Rezepttext zur Analyse, wenn keine URL analysiert werden kann."
 
-#: src/AbilitiesService.php:199 src/AbilitiesService.php:652
+#: src/AbilitiesService.php:201 src/AbilitiesService.php:656
 msgid "Optional image URL to sideload as the recipe photo."
 msgstr "Optionale Bild-URL, die als Rezeptfoto in die Mediathek geladen wird."
 
-#: src/AbilitiesService.php:209
+#: src/AbilitiesService.php:211
 msgid ""
 "Use this when the user provides a recipe URL, pasted recipe text, or an "
-"image URL to import into Cookbook. This publishes the recipe; link the "
+"image URL to import into Cook App. This publishes the recipe; link the "
 "result using view_url."
 msgstr ""
-"Verwenden, wenn der Benutzer eine Rezept-URL, eingefügten Rezepttext oder "
-"eine Bild-URL zum Import ins Kochbuch bereitstellt. Dadurch wird das Rezept "
-"veröffentlicht; Ergebnis mit view_url verlinken."
 
-#: src/AbilitiesService.php:222
-msgid "Create Cookbook Recipe Variation"
-msgstr "Kochbuch-Rezeptvariante erstellen"
+#: src/AbilitiesService.php:224
+msgid "Create Cook App Recipe Variation"
+msgstr ""
 
-#: src/AbilitiesService.php:223
+#: src/AbilitiesService.php:225
 msgid ""
-"Creates a child recipe variation from an existing Cookbook recipe, copying "
+"Creates a child recipe variation from an existing Cook App recipe, copying "
 "omitted fields from the source."
 msgstr ""
-"Erstellt aus einem bestehenden Kochbuch-Rezept eine untergeordnete "
-"Rezeptvariante und kopiert ausgelassene Felder aus der Quelle."
 
-#: src/AbilitiesService.php:231
+#: src/AbilitiesService.php:233
 msgid ""
 "Use this when the user asks for an adapted version of an existing recipe, "
 "such as substituting an ingredient they do not have. First call get-recipe "
@@ -224,17 +200,17 @@ msgstr ""
 "Zwischenüberschriften bei Zutaten zu erhalten. Die erstellte Variante mit "
 "view_url verlinken."
 
-#: src/AbilitiesService.php:244
-msgid "Get Cookbook Week Plan"
-msgstr "Kochbuch-Wochenplan abrufen"
+#: src/AbilitiesService.php:246
+msgid "Get Cook App Week Plan"
+msgstr ""
 
-#: src/AbilitiesService.php:245
+#: src/AbilitiesService.php:247
 msgid "Returns the signed-in user's week planner for a normalized week."
 msgstr ""
 "Gibt den Wochenplan des angemeldeten Benutzers für eine normalisierte Woche "
 "zurück."
 
-#: src/AbilitiesService.php:253
+#: src/AbilitiesService.php:255
 msgid ""
 "Use this when the user asks what meals are planned for a week. The "
 "week_start input can be any date in the week; use the returned url to link "
@@ -244,17 +220,17 @@ msgstr ""
 "sind. week_start kann ein beliebiges Datum in der Woche sein; die "
 "zurückgegebene url zum Planer verlinken."
 
-#: src/AbilitiesService.php:266
-msgid "Save Cookbook Week Plan"
-msgstr "Kochbuch-Wochenplan speichern"
+#: src/AbilitiesService.php:268
+msgid "Save Cook App Week Plan"
+msgstr ""
 
-#: src/AbilitiesService.php:267
+#: src/AbilitiesService.php:269
 msgid "Saves recipe IDs into the signed-in user's week planner meal slots."
 msgstr ""
 "Speichert Rezept-IDs in die Mahlzeitfelder des Wochenplans des angemeldeten "
 "Benutzers."
 
-#: src/AbilitiesService.php:275
+#: src/AbilitiesService.php:277
 msgid ""
 "Use this when the user asks to add, move, clear, or replace recipes in their "
 "week planner. This can clear slots with recipe ID 0 or replace the whole "
@@ -266,39 +242,39 @@ msgstr ""
 "bei replace=true die ganze Woche ersetzen; unklare Planänderungen daher vor "
 "dem Ausführen bestätigen."
 
-#: src/AbilitiesService.php:390 src/AccessService.php:32
+#: src/AbilitiesService.php:394 src/AccessService.php:32
 #: src/CookedHistoryService.php:167 src/ImportService.php:121
-#: src/RecipeService.php:140 src/RecipeService.php:252
-#: src/RecipeService.php:801 src/RecipeService.php:1096
-#: src/RecipeService.php:1128
+#: src/RecipeService.php:140 src/RecipeService.php:257
+#: src/RecipeService.php:862 src/RecipeService.php:1157
+#: src/RecipeService.php:1189
 msgid "Recipe not found."
 msgstr "Rezept nicht gefunden."
 
-#: src/AbilitiesService.php:396
+#: src/AbilitiesService.php:400
 msgid "Variation parent recipe not found."
 msgstr "Übergeordnetes Rezept der Variante nicht gefunden."
 
-#: src/AbilitiesService.php:432
+#: src/AbilitiesService.php:436
 msgid "Week plan could not be saved."
 msgstr "Wochenplan konnte nicht gespeichert werden."
 
-#: src/AbilitiesService.php:450
+#: src/AbilitiesService.php:454
 msgid "Optional search text for recipe title and content."
 msgstr "Optionaler Suchtext für Rezepttitel und Inhalt."
 
-#: src/AbilitiesService.php:454
+#: src/AbilitiesService.php:458
 msgid "Optional category slug or term ID."
 msgstr "Optionaler Kategorie-Slug oder Begriffs-ID."
 
-#: src/AbilitiesService.php:458
+#: src/AbilitiesService.php:462
 msgid "Optional tag slug or term ID."
 msgstr "Optionaler Schlagwort-Slug oder Begriffs-ID."
 
-#: src/AbilitiesService.php:462
+#: src/AbilitiesService.php:466
 msgid "Optional ingredient slug or term ID."
 msgstr "Optionaler Zutaten-Slug oder Begriffs-ID."
 
-#: src/AbilitiesService.php:466
+#: src/AbilitiesService.php:470
 msgid ""
 "Maximum number of recipes to return, from 1 to 100. Defaults to 10 when no "
 "search filters are supplied, otherwise 20."
@@ -306,31 +282,31 @@ msgstr ""
 "Maximale Anzahl zurückzugebender Rezepte, von 1 bis 100. Standardmäßig 10 "
 "ohne Suchfilter, sonst 20."
 
-#: src/AbilitiesService.php:482
+#: src/AbilitiesService.php:486
 msgid "Number of recipes returned."
 msgstr "Anzahl der zurückgegebenen Rezepte."
 
-#: src/AbilitiesService.php:503
+#: src/AbilitiesService.php:507
 msgid "User-facing app URL for linking to the recipe."
 msgstr "Benutzerseitige App-URL zum Verlinken des Rezepts."
 
-#: src/AbilitiesService.php:545
+#: src/AbilitiesService.php:549
 msgid ""
 "Optional named recipe sections with their own ingredients and instructions."
 msgstr ""
 "Optionale benannte Rezeptabschnitte mit eigenen Zutaten und Anweisungen."
 
-#: src/AbilitiesService.php:560
+#: src/AbilitiesService.php:564
 msgid "Existing recipe post ID to update. Omit to create a new recipe."
 msgstr ""
 "Bestehende Rezept-Beitrags-ID zum Aktualisieren. Weglassen, um ein neues "
 "Rezept zu erstellen."
 
-#: src/AbilitiesService.php:575
+#: src/AbilitiesService.php:579
 msgid "Recipe post ID to copy as the source for the new variation."
 msgstr "Rezept-Beitrags-ID, die als Quelle für die neue Variante kopiert wird."
 
-#: src/AbilitiesService.php:579
+#: src/AbilitiesService.php:583
 msgid ""
 "Whether to reuse the source recipe photo when image_url is omitted. Defaults "
 "to true."
@@ -338,27 +314,27 @@ msgstr ""
 "Ob das Foto des Quellrezepts wiederverwendet wird, wenn image_url fehlt. "
 "Standard ist true."
 
-#: src/AbilitiesService.php:583
+#: src/AbilitiesService.php:587
 msgid "Short note describing what changed in this variation."
 msgstr "Kurze Notiz, die beschreibt, was sich in dieser Variante geändert hat."
 
-#: src/AbilitiesService.php:598
+#: src/AbilitiesService.php:602
 msgid "Recipe title."
 msgstr "Rezepttitel."
 
-#: src/AbilitiesService.php:602
+#: src/AbilitiesService.php:606
 msgid "Short recipe description."
 msgstr "Kurze Rezeptbeschreibung."
 
-#: src/AbilitiesService.php:606
+#: src/AbilitiesService.php:610
 msgid "Structured ingredient rows."
 msgstr "Strukturierte Zutatenzeilen."
 
-#: src/AbilitiesService.php:611
+#: src/AbilitiesService.php:615
 msgid "Recipe instruction steps."
 msgstr "Rezept-Anleitungsschritte."
 
-#: src/AbilitiesService.php:616
+#: src/AbilitiesService.php:620
 msgid ""
 "Optional named recipe sections. When supplied, ingredient and instruction "
 "rows inside parts are also flattened into the compatibility ingredients and "
@@ -368,45 +344,45 @@ msgstr ""
 "Anleitungzeilen innerhalb von parts zusätzlich in die Kompatibilitätsfelder "
 "ingredients und instructions abgeflacht."
 
-#: src/AbilitiesService.php:621
+#: src/AbilitiesService.php:625
 msgid "Default serving count."
 msgstr "Standardanzahl der Portionen."
 
-#: src/AbilitiesService.php:626
+#: src/AbilitiesService.php:630
 msgid "Prep time in minutes."
 msgstr "Vorbereitungszeit in Minuten."
 
-#: src/AbilitiesService.php:631
+#: src/AbilitiesService.php:635
 msgid "Cook time in minutes."
 msgstr "Kochzeit in Minuten."
 
-#: src/AbilitiesService.php:636
+#: src/AbilitiesService.php:640
 msgid "Optional source URL."
 msgstr "Optionale Quell-URL."
 
-#: src/AbilitiesService.php:640
+#: src/AbilitiesService.php:644
 msgid "Private recipe notes."
 msgstr "Private Rezeptnotizen."
 
-#: src/AbilitiesService.php:644
+#: src/AbilitiesService.php:648
 msgid "Optional parent recipe ID to link this recipe as a variation."
 msgstr ""
 "Optionale ID des übergeordneten Rezepts, um dieses Rezept als Variante zu "
 "verknüpfen."
 
-#: src/AbilitiesService.php:647
+#: src/AbilitiesService.php:651
 msgid "Category names, slugs, or IDs."
 msgstr "Kategorienamen, Slugs oder IDs."
 
-#: src/AbilitiesService.php:648
+#: src/AbilitiesService.php:652
 msgid "Cuisine names, slugs, or IDs."
 msgstr "Küchennamen, Slugs oder IDs."
 
-#: src/AbilitiesService.php:649
+#: src/AbilitiesService.php:653
 msgid "Tag names, slugs, or IDs."
 msgstr "Schlagwortnamen, Slugs oder IDs."
 
-#: src/AbilitiesService.php:663
+#: src/AbilitiesService.php:667
 msgid ""
 "Any date in the requested week. The site week start is returned as YYYY-MM-"
 "DD."
@@ -414,12 +390,12 @@ msgstr ""
 "Beliebiges Datum in der gewünschten Woche. Der Wochenbeginn der Website wird "
 "als YYYY-MM-DD zurückgegeben."
 
-#: src/AbilitiesService.php:675
+#: src/AbilitiesService.php:679
 msgid "Whether omitted meal slots should be cleared. Defaults to false."
 msgstr ""
 "Ob ausgelassene Mahlzeitfelder geleert werden sollen. Standard ist false."
 
-#: src/AbilitiesService.php:679
+#: src/AbilitiesService.php:683
 msgid ""
 "Object keyed by YYYY-MM-DD, then breakfast, lunch, and dinner recipe IDs. "
 "Use 0 to clear a slot."
@@ -427,31 +403,31 @@ msgstr ""
 "Objekt nach YYYY-MM-DD, dann Rezept-IDs für Frühstück, Mittagessen und "
 "Abendessen. 0 leert ein Feld."
 
-#: src/AbilitiesService.php:757
+#: src/AbilitiesService.php:761
 msgid "Breakfast recipe ID, or 0 to clear."
 msgstr "Frühstücks-Rezept-ID oder 0 zum Leeren."
 
-#: src/AbilitiesService.php:762
+#: src/AbilitiesService.php:766
 msgid "Lunch recipe ID, or 0 to clear."
 msgstr "Mittagessen-Rezept-ID oder 0 zum Leeren."
 
-#: src/AbilitiesService.php:767
+#: src/AbilitiesService.php:771
 msgid "Dinner recipe ID, or 0 to clear."
 msgstr "Abendessen-Rezept-ID oder 0 zum Leeren."
 
-#: src/AbilitiesService.php:814
+#: src/AbilitiesService.php:818
 msgid "Optional section title, such as sauce, dough, or topping."
 msgstr "Optionaler Abschnittstitel, etwa Sauce, Teig oder Belag."
 
-#: src/AbilitiesService.php:818
+#: src/AbilitiesService.php:822
 msgid "Ingredient rows in this section."
 msgstr "Zutatenzeilen in diesem Abschnitt."
 
-#: src/AbilitiesService.php:823
+#: src/AbilitiesService.php:827
 msgid "Instruction steps in this section."
 msgstr "Anleitungsschritte in diesem Abschnitt."
 
-#: src/AbilitiesService.php:863
+#: src/AbilitiesService.php:867
 msgid "User-facing app URL for linking to the variation."
 msgstr "Benutzerseitige App-URL zum Verlinken der Variante."
 
@@ -466,9 +442,9 @@ msgstr "Nicht gefunden."
 #: src/ImportService.php:216 src/ImportService.php:241
 #: src/ImportService.php:257 src/IngredientAdminService.php:22
 #: src/IngredientAdminService.php:104 src/IngredientAdminService.php:133
-#: src/PlannerService.php:213 src/RecipeService.php:743
-#: src/RecipeService.php:1090 src/RecipeService.php:1105
-#: src/RecipeService.php:1119 src/RecipeService.php:1131
+#: src/PlannerService.php:213 src/RecipeService.php:804
+#: src/RecipeService.php:1151 src/RecipeService.php:1166
+#: src/RecipeService.php:1180 src/RecipeService.php:1192
 #: src/ShoppingListService.php:164 src/ShoppingListService.php:185
 #: src/ShoppingListService.php:259 templates/import.php:9
 #: templates/manage-ingredients.php:12 templates/new.php:9
@@ -481,43 +457,44 @@ msgstr "Nicht erlaubt."
 msgid "Shopping list not found."
 msgstr "Einkaufsliste nicht gefunden."
 
-#: src/App.php:151
-msgid "All recipes"
-msgstr "Alle Rezepte"
+#: src/App.php:178 src/ImportService.php:169 src/RegistryService.php:78
+#: templates/_header.php:53
+msgid "Recipes"
+msgstr "Rezepte"
 
-#: src/App.php:152 templates/cooked.php:33 templates/cooked.php:36
-#: templates/recipe.php:455 templates/_header.php:38
-msgid "Cooking history"
-msgstr "Kochverlauf"
-
-#: src/App.php:153 src/RegistryService.php:145 src/ShoppingListService.php:40
+#: src/App.php:179 src/RegistryService.php:181 src/ShoppingListService.php:40
 #: templates/shopping-list.php:54 templates/shopping-list.php:77
 msgid "Shopping list"
 msgstr "Einkaufsliste"
 
-#: src/App.php:154 templates/planner.php:124 templates/planner.php:145
+#: src/App.php:180 templates/planner.php:124 templates/planner.php:145
 msgid "Week planner"
 msgstr "Wochenplaner"
 
-#: src/App.php:155
+#: src/App.php:181 templates/cooked.php:33 templates/cooked.php:36
+#: templates/recipe.php:456 templates/_header.php:65
+msgid "Cooking history"
+msgstr "Kochverlauf"
+
+#: src/App.php:182
 msgid "By ingredients"
 msgstr "Nach Zutaten"
 
-#: src/App.php:156 templates/manage-ingredients.php:38
-#: templates/manage-ingredients.php:63
+#: src/App.php:183 templates/manage-ingredients.php:38
+#: templates/manage-ingredients.php:43
 msgid "Manage ingredients"
 msgstr "Zutaten verwalten"
 
-#: src/App.php:157 src/RegistryService.php:44 templates/index.php:279
-#: templates/new.php:37 templates/new.php:40
+#: src/App.php:184 src/RegistryService.php:80 templates/index.php:242
+#: templates/new.php:41 templates/new.php:51
 msgid "New recipe"
 msgstr "Neues Rezept"
 
-#: src/App.php:158
+#: src/App.php:185
 msgid "Import from web"
 msgstr "Aus dem Web importieren"
 
-#: src/App.php:159 templates/settings.php:16 templates/settings.php:19
+#: src/App.php:186 templates/settings.php:16 templates/settings.php:19
 msgid "Settings"
 msgstr "Einstellungen"
 
@@ -546,11 +523,6 @@ msgstr "Importiertes Rezept"
 #: src/ImportService.php:165
 msgid "Save as Recipe"
 msgstr "Als Rezept speichern"
-
-#: src/ImportService.php:169 src/RegistryService.php:42
-#: templates/_header.php:26
-msgid "Recipes"
-msgstr "Rezepte"
 
 #: src/ImportService.php:246
 msgid "Missing URL."
@@ -593,13 +565,13 @@ msgid "%1$s (#%2$d)"
 msgstr "%1$s (#%2$d)"
 
 #. translators: %s: source recipe title
-#: src/RecipeService.php:156 templates/new.php:30
+#: src/RecipeService.php:156 templates/new.php:32
 #, php-format
 msgid "%s variation"
 msgstr "Variante von %s"
 
-#: src/RecipeService.php:159 src/RecipeService.php:212
-#: src/RecipeService.php:264 src/RecipeService.php:793
+#: src/RecipeService.php:159 src/RecipeService.php:217
+#: src/RecipeService.php:269 src/RecipeService.php:854
 msgid "Untitled recipe"
 msgstr "Unbenanntes Rezept"
 
@@ -609,161 +581,165 @@ msgstr "Unbenanntes Rezept"
 msgid "Variation notes: %s"
 msgstr "Variantennotizen: %s"
 
-#: src/RecipeService.php:255
+#: src/RecipeService.php:260
 msgid "Not allowed to edit this recipe."
 msgstr "Sie dürfen dieses Rezept nicht bearbeiten."
 
-#: src/RecipeService.php:1136
+#: src/RecipeService.php:1197
 msgid "Ingredient not found."
 msgstr "Zutat nicht gefunden."
 
-#: src/RecipeService.php:1141
+#: src/RecipeService.php:1202
 msgid "Replacement ingredient is required."
 msgstr "Eine Ersatzzutat ist erforderlich."
 
-#: src/RegistryService.php:25 src/RegistryService.php:46
-#: templates/recipe-edit.php:37 templates/recipe.php:252
+#: src/RegistryService.php:25 src/RegistryService.php:82
+#: templates/recipe-edit.php:37 templates/recipe.php:253
 msgid "Edit recipe"
 msgstr "Rezept bearbeiten"
 
-#: src/RegistryService.php:43
+#: src/RegistryService.php:59
+msgid "Authentication is required to read this data."
+msgstr ""
+
+#: src/RegistryService.php:79
 msgid "Recipe"
 msgstr "Rezept"
 
-#: src/RegistryService.php:45
+#: src/RegistryService.php:81
 msgid "Add new recipe"
 msgstr "Neues Rezept hinzufügen"
 
-#: src/RegistryService.php:47
+#: src/RegistryService.php:83
 msgid "View recipe"
 msgstr "Rezept ansehen"
 
-#: src/RegistryService.php:48 templates/planner.php:257
+#: src/RegistryService.php:84 templates/planner.php:262
 msgid "Search recipes"
 msgstr "Rezepte suchen"
 
-#: src/RegistryService.php:49
+#: src/RegistryService.php:85
 msgid "No recipes yet"
 msgstr "Noch keine Rezepte"
 
-#: src/RegistryService.php:50
+#: src/RegistryService.php:86
 msgid "No recipes in trash"
 msgstr "Keine Rezepte im Papierkorb"
 
-#: src/RegistryService.php:132
+#: src/RegistryService.php:168
 msgid "Checked"
 msgstr "Abgehakt"
 
 #. translators: %s: number of checked shopping-list items
-#: src/RegistryService.php:139
+#: src/RegistryService.php:175
 #, php-format
 msgid "Checked <span class=\"count\">(%s)</span>"
 msgid_plural "Checked <span class=\"count\">(%s)</span>"
 msgstr[0] "Abgehakt <span class=\"count\">(%s)</span>"
 msgstr[1] "Abgehakt <span class=\"count\">(%s)</span>"
 
-#: src/RegistryService.php:144
+#: src/RegistryService.php:180
 msgid "Shopping lists"
 msgstr "Einkaufslisten"
 
-#: src/RegistryService.php:146
+#: src/RegistryService.php:182
 msgid "Edit shopping list"
 msgstr "Einkaufsliste bearbeiten"
 
-#: src/RegistryService.php:147
+#: src/RegistryService.php:183
 msgid "View shopping list"
 msgstr "Einkaufsliste ansehen"
 
-#: src/RegistryService.php:148
+#: src/RegistryService.php:184
 msgid "No shopping lists yet"
 msgstr "Noch keine Einkaufslisten"
 
-#: src/RegistryService.php:200
+#: src/RegistryService.php:236
 msgid "Week plans"
 msgstr "Wochenpläne"
 
-#: src/RegistryService.php:201
+#: src/RegistryService.php:237
 msgid "Week plan"
 msgstr "Wochenplan"
 
-#: src/RegistryService.php:202
+#: src/RegistryService.php:238
 msgid "Edit week plan"
 msgstr "Wochenplan bearbeiten"
 
-#: src/RegistryService.php:203
+#: src/RegistryService.php:239
 msgid "View week plan"
 msgstr "Wochenplan ansehen"
 
-#: src/RegistryService.php:204
+#: src/RegistryService.php:240
 msgid "No week plans yet"
 msgstr "Noch keine Wochenpläne"
 
-#: src/RegistryService.php:239
+#: src/RegistryService.php:275
 msgid "Cooking history entries"
 msgstr "Kochverlauf-Einträge"
 
-#: src/RegistryService.php:240
+#: src/RegistryService.php:276
 msgid "Cooking history entry"
 msgstr "Kochverlauf-Eintrag"
 
-#: src/RegistryService.php:241
+#: src/RegistryService.php:277
 msgid "Edit cooking history entry"
 msgstr "Kochverlauf-Eintrag bearbeiten"
 
-#: src/RegistryService.php:242
+#: src/RegistryService.php:278
 msgid "View cooking history entry"
 msgstr "Kochverlauf-Eintrag ansehen"
 
-#: src/RegistryService.php:243
+#: src/RegistryService.php:279
 msgid "No cooking history entries yet"
 msgstr "Noch keine Kochverlauf-Einträge"
 
-#: src/RegistryService.php:272 src/StaticArchiveService.php:105
-#: templates/_form.php:255
+#: src/RegistryService.php:308 src/StaticArchiveService.php:106
+#: templates/_form.php:259
 msgid "Categories"
 msgstr "Kategorien"
 
-#: src/RegistryService.php:273
+#: src/RegistryService.php:309
 msgid "Category"
 msgstr "Kategorie"
 
-#: src/RegistryService.php:283 src/StaticArchiveService.php:106
-#: templates/_form.php:266
+#: src/RegistryService.php:319 src/StaticArchiveService.php:107
+#: templates/_form.php:270
 msgid "Cuisines"
 msgstr "Küchen"
 
-#: src/RegistryService.php:284
+#: src/RegistryService.php:320
 msgid "Cuisine"
 msgstr "Küche"
 
-#: src/RegistryService.php:294 src/StaticArchiveService.php:107
+#: src/RegistryService.php:330 src/StaticArchiveService.php:108
 msgid "Tags"
 msgstr "Schlagwörter"
 
-#: src/RegistryService.php:295
+#: src/RegistryService.php:331
 msgid "Tag"
 msgstr "Schlagwort"
 
-#: src/RegistryService.php:305 src/StaticArchiveService.php:124
-#: src/StaticArchiveService.php:217 templates/import.php:123
-#: templates/recipe.php:385 templates/recipe.php:514 templates/_form.php:188
-#: templates/_header.php:42
+#: src/RegistryService.php:341 src/StaticArchiveService.php:125
+#: src/StaticArchiveService.php:206 templates/import.php:117
+#: templates/recipe.php:386 templates/recipe.php:515 templates/_form.php:196
+#: templates/_header.php:69
 msgid "Ingredients"
 msgstr "Zutaten"
 
-#: src/RegistryService.php:306 templates/import.php:134 templates/_form.php:306
+#: src/RegistryService.php:342 templates/import.php:128 templates/_form.php:309
 msgid "Ingredient"
 msgstr "Zutat"
 
 #. translators: %d: number of ingredients
-#: src/RegistryService.php:335
+#: src/RegistryService.php:371
 #, php-format
 msgid "%d ingredient"
 msgid_plural "%d ingredients"
 msgstr[0] "%d Zutat"
 msgstr[1] "%d Zutaten"
 
-#: src/RegistryService.php:340
+#: src/RegistryService.php:376
 msgid "all ingredients →"
 msgstr "alle Zutaten →"
 
@@ -779,7 +755,7 @@ msgid "Multiple recipes"
 msgstr "Mehrere Rezepte"
 
 #. translators: %d: servings
-#: src/StaticArchiveService.php:73 src/StaticArchiveService.php:177
+#: src/StaticArchiveService.php:74 src/StaticArchiveService.php:173
 #, php-format
 msgid "%d serving"
 msgid_plural "%d servings"
@@ -787,44 +763,164 @@ msgstr[0] "%d Portion"
 msgstr[1] "%d Portionen"
 
 #. translators: %d: prep time in minutes
-#: src/StaticArchiveService.php:80 src/StaticArchiveService.php:184
-#: templates/recipe.php:120
+#: src/StaticArchiveService.php:81 src/StaticArchiveService.php:180
+#: templates/recipe.php:121
 #, php-format
 msgid "Prep: %d min"
 msgstr "Vorbereitung: %d Min."
 
 #. translators: %d: cook time in minutes
-#: src/StaticArchiveService.php:87 src/StaticArchiveService.php:191
-#: templates/recipe.php:128
+#: src/StaticArchiveService.php:88 src/StaticArchiveService.php:187
+#: templates/recipe.php:129
 #, php-format
 msgid "Cook: %d min"
 msgstr "Kochen: %d Min."
 
-#: src/StaticArchiveService.php:95 src/StaticArchiveService.php:196
-#: templates/recipe.php:134
+#: src/StaticArchiveService.php:96 src/StaticArchiveService.php:192
+#: templates/recipe.php:135
 msgid "Source:"
 msgstr "Quelle:"
 
-#: src/StaticArchiveService.php:136 src/StaticArchiveService.php:138
-#: src/StaticArchiveService.php:217
+#: src/StaticArchiveService.php:131 src/StaticArchiveService.php:206
 msgid "No ingredients yet."
 msgstr "Noch keine Zutaten."
 
-#: src/StaticArchiveService.php:141 src/StaticArchiveService.php:226
-#: templates/import.php:147 templates/recipe.php:422 templates/_form.php:227
+#: src/StaticArchiveService.php:134 src/StaticArchiveService.php:211
+#: templates/import.php:141 templates/recipe.php:423 templates/_form.php:233
 msgid "Instructions"
 msgstr "Anweisungen"
 
-#: src/StaticArchiveService.php:145 src/StaticArchiveService.php:226
-#: templates/recipe.php:424
+#: src/StaticArchiveService.php:140 src/StaticArchiveService.php:211
+#: templates/recipe.php:425
 msgid "No instructions yet."
 msgstr "Noch keine Anweisungen."
 
-#: src/StaticArchiveService.php:149 src/StaticArchiveService.php:230
-#: templates/cooked.php:91 templates/recipe.php:449 templates/recipe.php:489
-#: templates/recipe.php:571
+#: src/StaticArchiveService.php:144 src/StaticArchiveService.php:215
+#: templates/cooked.php:91 templates/recipe.php:450 templates/recipe.php:490
+#: templates/recipe.php:603
 msgid "Notes"
 msgstr "Notizen"
+
+#: src/TermAbilitiesService.php:26
+msgid "Cook App vocabulary to manage."
+msgstr ""
+
+#: src/TermAbilitiesService.php:32
+msgid "List Cook App Ingredients, Categories, Cuisines or Tags"
+msgstr ""
+
+#: src/TermAbilitiesService.php:33
+msgid ""
+"Lists Cook App vocabulary entries with IDs, usage counts and parent IDs."
+msgstr ""
+
+#: src/TermAbilitiesService.php:39
+msgid ""
+"Use to inspect Cook App ingredients, categories, cuisines, or tags before "
+"changing them. Results include IDs needed for merge, update, and delete. "
+"Paginate with limit and offset."
+msgstr ""
+
+#: src/TermAbilitiesService.php:42
+msgid "Merge Cook App Ingredients, Categories, Cuisines or Tags"
+msgstr ""
+
+#: src/TermAbilitiesService.php:43
+msgid ""
+"Moves assignments from source entries to an existing target, then deletes "
+"the sources."
+msgstr ""
+
+#: src/TermAbilitiesService.php:49
+msgid ""
+"Use only after identifying the exact source and target IDs. Ingredient "
+"merges preserve the wording, amounts, and notes in recipes while updating "
+"stored ingredient IDs. The source entries are deleted."
+msgstr ""
+
+#: src/TermAbilitiesService.php:52
+msgid "Update Cook App Ingredient, Category, Cuisine or Tag"
+msgstr ""
+
+#: src/TermAbilitiesService.php:53
+msgid "Renames a Cook App vocabulary entry and optionally changes its slug."
+msgstr ""
+
+#: src/TermAbilitiesService.php:59
+msgid ""
+"Use to rename one Cook App ingredient, category, cuisine, or tag. Omit slug "
+"to preserve existing links. This does not rewrite recipe ingredient wording."
+msgstr ""
+
+#: src/TermAbilitiesService.php:62
+msgid "Delete Unused Cook App Ingredients, Categories, Cuisines or Tags"
+msgstr ""
+
+#: src/TermAbilitiesService.php:63
+msgid ""
+"Deletes only entries with no object assignments or stored ingredient "
+"references."
+msgstr ""
+
+#: src/TermAbilitiesService.php:69
+msgid ""
+"Use to remove confirmed unused Cook App entries. Assigned entries are "
+"refused; merge them first. This permanently deletes the listed entries."
+msgstr ""
+
+#: src/TermAbilitiesService.php:105
+msgid "Unknown Cook App vocabulary."
+msgstr ""
+
+#: src/TermAbilitiesService.php:110
+msgid "Cook App entry not found."
+msgstr ""
+
+#: src/TermAbilitiesService.php:142
+msgid "Name is required."
+msgstr ""
+
+#: src/TermAbilitiesService.php:146
+msgid "Slug cannot be empty."
+msgstr ""
+
+#: src/TermAbilitiesService.php:160
+msgid "Choose source entries different from the target."
+msgstr ""
+
+#: src/TermAbilitiesService.php:168
+msgid "The target cannot be a descendant of a source."
+msgstr ""
+
+#: src/TermAbilitiesService.php:207
+msgid "Could not delete source entry."
+msgstr ""
+
+#: src/TermAbilitiesService.php:273
+msgid "Choose entries to delete."
+msgstr ""
+
+#. translators: %d: Cook App entry ID.
+#: src/TermAbilitiesService.php:282
+#, php-format
+msgid "Entry %d is assigned and cannot be deleted."
+msgstr ""
+
+#. translators: %d: Ingredient term ID.
+#: src/TermAbilitiesService.php:286
+#, php-format
+msgid "Ingredient %d is referenced by saved items."
+msgstr ""
+
+#. translators: %d: Ingredient term ID.
+#: src/TermAbilitiesService.php:290
+#, php-format
+msgid "Ingredient %d is saved in household preferences."
+msgstr ""
+
+#: src/TermAbilitiesService.php:295
+msgid "Could not delete entry."
+msgstr ""
 
 #: templates/by-ingredients.php:85 templates/by-ingredients.php:88
 msgid "Find recipes by ingredients"
@@ -866,7 +962,7 @@ msgid_plural "up to %d ingredients"
 msgstr[0] "bis zu %d Zutat"
 msgstr[1] "bis zu %d Zutaten"
 
-#: templates/by-ingredients.php:127 templates/planner.php:285
+#: templates/by-ingredients.php:127 templates/planner.php:290
 msgid "Clear"
 msgstr "Leeren"
 
@@ -920,7 +1016,7 @@ msgid "No recipes in this category yet."
 msgstr "Noch keine Rezepte in dieser Kategorie."
 
 #. translators: %s: cooked date
-#: templates/cooked.php:43 templates/recipe.php:315
+#: templates/cooked.php:43 templates/recipe.php:316
 #, php-format
 msgid "Updated your cooked entry for %s."
 msgstr "Ihr Kocheintrag für %s wurde aktualisiert."
@@ -938,23 +1034,23 @@ msgid_plural "%d recipes"
 msgstr[0] "%d Rezept"
 msgstr[1] "%d Rezepte"
 
-#: templates/cooked.php:82 templates/recipe.php:480
+#: templates/cooked.php:82 templates/recipe.php:481
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: templates/cooked.php:92 templates/recipe.php:490 templates/recipe.php:569
+#: templates/cooked.php:92 templates/recipe.php:491 templates/recipe.php:601
 msgid "Cooked on"
 msgstr "Gekocht am"
 
-#: templates/cooked.php:93 templates/manage-ingredients.php:130
-#: templates/recipe.php:376 templates/recipe.php:491
+#: templates/cooked.php:93 templates/manage-ingredients.php:110
+#: templates/recipe.php:377 templates/recipe.php:492
 #: templates/shopping-list.php:122
 msgid "Save"
 msgstr "Speichern"
 
-#: templates/cooked.php:94 templates/import.php:100
-#: templates/manage-ingredients.php:131 templates/recipe.php:377
-#: templates/recipe.php:492 templates/_form.php:286
+#: templates/cooked.php:94 templates/import.php:94
+#: templates/manage-ingredients.php:111 templates/recipe.php:378
+#: templates/recipe.php:493 templates/_form.php:290
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -968,7 +1064,7 @@ msgstr ""
 "Fügen Sie eine URL von einer Rezeptseite oder den Rezepttext selbst ein."
 
 #. translators: %s: source hostname
-#: templates/import.php:64
+#: templates/import.php:35
 #, php-format
 msgid ""
 "Could not detect recipe metadata on %s. The URL is kept below as the source; "
@@ -978,7 +1074,7 @@ msgstr ""
 "als Quelle erhalten; fügen Sie den Rezepttext ein und prüfen Sie in der "
 "Vorschau, was importiert wird."
 
-#: templates/import.php:69
+#: templates/import.php:40
 msgid ""
 "Could not detect a recipe. Paste the recipe text and use the preview to "
 "check what will be imported."
@@ -986,11 +1082,44 @@ msgstr ""
 "Es konnte kein Rezept erkannt werden. Fügen Sie den Rezepttext ein und "
 "prüfen Sie in der Vorschau, was importiert wird."
 
-#: templates/import.php:78
+#: templates/import.php:54
+msgid "Checking the pasted text…"
+msgstr "Eingefügter Text wird geprüft..."
+
+#: templates/import.php:55
+msgid "Paste recipe text to fill the checklist."
+msgstr "Fügen Sie Rezepttext ein, um die Checkliste zu füllen."
+
+#: templates/import.php:56 templates/import.php:99
+msgid "Review each detected section before importing."
+msgstr "Prüfen Sie jeden erkannten Abschnitt vor dem Import."
+
+#: templates/import.php:57 templates/import.php:106 templates/import.php:118
+#: templates/import.php:142
+msgid "Missing"
+msgstr "Fehlt"
+
+#: templates/import.php:58
+msgid "Detected"
+msgstr "Erkannt"
+
+#: templates/import.php:59
+msgid "No ingredients detected."
+msgstr "Keine Zutaten erkannt."
+
+#: templates/import.php:60
+msgid "No instructions detected."
+msgstr "Keine Anweisungen erkannt."
+
+#: templates/import.php:62
+msgid "Could not preview that text yet."
+msgstr "Für diesen Text konnte noch keine Vorschau erstellt werden."
+
+#: templates/import.php:72
 msgid "Recipe URL"
 msgstr "Rezept-URL"
 
-#: templates/import.php:80
+#: templates/import.php:74
 msgid ""
 "We look for schema.org Recipe metadata first. If that fails, keep the URL "
 "here and paste the recipe text below."
@@ -998,15 +1127,15 @@ msgstr ""
 "Wir suchen zuerst nach schema.org-Recipe-Metadaten. Wenn das fehlschlägt, "
 "lassen Sie die URL hier und fügen Sie unten den Rezepttext ein."
 
-#: templates/import.php:82
+#: templates/import.php:76
 msgid "This source is already in your cookbook:"
 msgstr "Diese Quelle ist bereits in Ihrem Kochbuch:"
 
-#: templates/import.php:86 templates/_form.php:143
+#: templates/import.php:80 templates/_form.php:167
 msgid "Photo URL"
 msgstr "Foto-URL"
 
-#: templates/import.php:88
+#: templates/import.php:82
 msgid ""
 "Optional. Paste an image URL from the source page to add it to the media "
 "library with the imported recipe."
@@ -1014,11 +1143,11 @@ msgstr ""
 "Optional. Fügen Sie eine Bild-URL von der Quellseite ein, um sie mit dem "
 "importierten Rezept zur Mediathek hinzuzufügen."
 
-#: templates/import.php:95
+#: templates/import.php:89
 msgid "…or paste the recipe text"
 msgstr "...oder Rezepttext einfügen"
 
-#: templates/import.php:96
+#: templates/import.php:90
 msgid ""
 "Title\n"
 "\n"
@@ -1040,156 +1169,129 @@ msgstr ""
 "Alles mischen\n"
 "Backen, bis es fertig ist"
 
-#: templates/import.php:97
+#: templates/import.php:91
 msgid "The imported recipe will be available immediately."
 msgstr "Das importierte Rezept ist sofort verfügbar."
 
-#: templates/import.php:99
+#: templates/import.php:93
 msgid "Import"
 msgstr "Importieren"
 
-#: templates/import.php:104
+#: templates/import.php:98
 msgid "Paste checklist"
 msgstr "Einfüge-Checkliste"
 
-#: templates/import.php:105 templates/import.php:197
-msgid "Review each detected section before importing."
-msgstr "Prüfen Sie jeden erkannten Abschnitt vor dem Import."
-
-#: templates/import.php:111 templates/_form.php:116
+#: templates/import.php:105 templates/_form.php:119
 msgid "Title"
 msgstr "Titel"
 
-#: templates/import.php:112 templates/import.php:124 templates/import.php:148
-#: templates/import.php:198
-msgid "Missing"
-msgstr "Fehlt"
-
-#: templates/import.php:132
+#: templates/import.php:126
 msgid "Number"
 msgstr "Nummer"
 
-#: templates/import.php:133
+#: templates/import.php:127
 msgid "Type"
 msgstr "Typ"
 
-#: templates/import.php:135
+#: templates/import.php:129
 msgid "Additional"
 msgstr "Zusätzlich"
 
-#: templates/import.php:195
-msgid "Checking the pasted text…"
-msgstr "Eingefügter Text wird geprüft..."
-
-#: templates/import.php:196
-msgid "Paste recipe text to fill the checklist."
-msgstr "Fügen Sie Rezepttext ein, um die Checkliste zu füllen."
-
-#: templates/import.php:199
-msgid "Detected"
-msgstr "Erkannt"
-
-#: templates/import.php:200
-msgid "No ingredients detected."
-msgstr "Keine Zutaten erkannt."
-
-#: templates/import.php:201
-msgid "No instructions detected."
-msgstr "Keine Anweisungen erkannt."
-
-#: templates/import.php:203
-msgid "Could not preview that text yet."
-msgstr "Für diesen Text konnte noch keine Vorschau erstellt werden."
-
 #. translators: %s: hostname being imported from
-#: templates/import.php:493
+#: templates/import.php:162
 #, php-format
 msgid "Importing from %s…"
 msgstr "Import von %s..."
 
-#: templates/index.php:185
+#: templates/index.php:148
 msgid "Search recipes or paste a URL to import…"
 msgstr "Rezepte suchen oder URL zum Importieren einfügen..."
 
-#: templates/index.php:187
+#: templates/index.php:150
 msgid "Search"
 msgstr "Suchen"
 
-#: templates/index.php:194
+#: templates/index.php:157
 msgid "Today's plan"
 msgstr "Heutiger Plan"
 
-#: templates/index.php:197
+#: templates/index.php:160
 msgid "Open week planner"
 msgstr "Wochenplaner öffnen"
 
-#: templates/index.php:221
+#: templates/index.php:184
 msgid "Categories:"
 msgstr "Kategorien:"
 
-#: templates/index.php:231
+#: templates/index.php:194
 msgid "Search results"
 msgstr "Suchergebnisse"
 
-#: templates/index.php:236
+#: templates/index.php:199
 msgid "Recipe index"
 msgstr "Rezeptindex"
 
-#: templates/index.php:250
+#: templates/index.php:213
 msgid "Recipe view"
 msgstr "Rezeptansicht"
 
-#: templates/index.php:257
+#: templates/index.php:220
 msgid "Photos"
 msgstr "Fotos"
 
-#: templates/index.php:268
+#: templates/index.php:231
 msgid "Compact"
 msgstr "Kompakt"
 
-#: templates/index.php:276
+#: templates/index.php:239
 msgid "Recent"
 msgstr "Aktuell"
 
-#: templates/index.php:284
-msgid "No recipes match your search."
-msgstr "Keine Rezepte passen zu Ihrer Suche."
+#. translators: 1: search text, 2: link to create a new recipe
+#: templates/index.php:251
+#, php-format
+msgid "No recipes match \"%1$s\". %2$s"
+msgstr ""
 
-#. translators: 1: link to /cookbook/new, 2: link to /cookbook/import
-#: templates/index.php:290
+#: templates/index.php:253
+msgid "Create a new recipe with that title."
+msgstr ""
+
+#. translators: 1: link to /cook-app/new, 2: link to /cook-app/import
+#: templates/index.php:262
 #, php-format
 msgid "No recipes yet. %1$s or %2$s."
 msgstr "Noch keine Rezepte. %1$s oder %2$s."
 
-#: templates/index.php:291
+#: templates/index.php:263
 msgid "Create one"
 msgstr "Eins erstellen"
 
-#: templates/index.php:292
+#: templates/index.php:264
 msgid "import from a URL"
 msgstr "von einer URL importieren"
 
-#: templates/index.php:303
+#: templates/index.php:275
 msgid "No recipes with photos match your search."
 msgstr "Keine Rezepte mit Fotos passen zu Ihrer Suche."
 
-#: templates/index.php:304
+#: templates/index.php:276
 msgid "No recipes with photos yet."
 msgstr "Noch keine Rezepte mit Fotos."
 
 #. translators: %s: cooked date
-#: templates/index.php:326
+#: templates/index.php:298
 #, php-format
 msgid "Cooked %s"
 msgstr "Gekocht %s"
 
 #. translators: %s: recipe published date
-#: templates/index.php:331
+#: templates/index.php:303
 #, php-format
 msgid "Added %s"
 msgstr "Hinzugefügt %s"
 
-#: templates/index.php:366
+#: templates/index.php:344
 msgid "Browse by ingredient"
 msgstr "Nach Zutat stöbern"
 
@@ -1213,7 +1315,7 @@ msgstr "Noch keine Rezepte verwenden diese Zutat."
 msgid "Not allowed"
 msgstr "Nicht erlaubt"
 
-#: templates/manage-ingredients.php:65
+#: templates/manage-ingredients.php:45
 msgid ""
 "Tick duplicates and merge them into one canonical term, or group similar "
 "ingredients under a parent. Merging rewrites the linked recipes; grouping "
@@ -1225,7 +1327,7 @@ msgstr ""
 "eine Hierarchie."
 
 #. translators: %d: number of merged ingredient terms
-#: templates/manage-ingredients.php:72
+#: templates/manage-ingredients.php:52
 #, php-format
 msgid "Merged %d ingredient."
 msgid_plural "Merged %d ingredients."
@@ -1233,76 +1335,95 @@ msgstr[0] "%d Zutat zusammengeführt."
 msgstr[1] "%d Zutaten zusammengeführt."
 
 #. translators: %d: number of grouped ingredient terms
-#: templates/manage-ingredients.php:80
+#: templates/manage-ingredients.php:60
 #, php-format
 msgid "Grouped %d ingredient."
 msgid_plural "Grouped %d ingredients."
 msgstr[0] "%d Zutat gruppiert."
 msgstr[1] "%d Zutaten gruppiert."
 
-#: templates/manage-ingredients.php:85
+#: templates/manage-ingredients.php:65
 msgid "Ingredient renamed."
 msgstr "Zutat umbenannt."
 
-#: templates/manage-ingredients.php:89
+#: templates/manage-ingredients.php:69
 msgid "No ingredients yet — add or import a recipe to populate this list."
 msgstr ""
 "Noch keine Zutaten - fügen oder importieren Sie ein Rezept, um diese Liste "
 "zu füllen."
 
-#: templates/manage-ingredients.php:96
+#: templates/manage-ingredients.php:76
 msgid "Filter ingredients…"
 msgstr "Zutaten filtern..."
 
-#: templates/manage-ingredients.php:99 templates/shopping-list.php:211
+#: templates/manage-ingredients.php:79 templates/shopping-list.php:211
 msgid "selected"
 msgstr "ausgewählt"
 
-#: templates/manage-ingredients.php:101
+#: templates/manage-ingredients.php:81
 msgid "Target:"
 msgstr "Ziel:"
 
-#: templates/manage-ingredients.php:103
+#: templates/manage-ingredients.php:83
 msgid "pick a target ingredient"
 msgstr "Zielzutat auswählen"
 
 #. translators: %d: number of recipes using this ingredient
-#: templates/manage-ingredients.php:105
+#: templates/manage-ingredients.php:85
 #, php-format
 msgid "(%d)"
 msgstr "(%d)"
 
-#: templates/manage-ingredients.php:108
+#: templates/manage-ingredients.php:88
 msgid "Merge into target"
 msgstr "In Ziel zusammenführen"
 
-#: templates/manage-ingredients.php:109
+#: templates/manage-ingredients.php:89
 msgid "Make children of target"
 msgstr "Als untergeordnet zu Ziel setzen"
 
 #. translators: %s: parent ingredient name
-#: templates/manage-ingredients.php:124
+#: templates/manage-ingredients.php:104
 #, php-format
 msgid "child of %s"
 msgstr "untergeordnet von %s"
 
-#: templates/manage-ingredients.php:135
+#: templates/manage-ingredients.php:115
 msgid "View"
 msgstr "Ansehen"
 
-#: templates/manage-ingredients.php:136
+#: templates/manage-ingredients.php:116
 msgid "Rename"
 msgstr "Umbenennen"
 
-#: templates/new.php:37 templates/new.php:40
+#: templates/new.php:41 templates/new.php:51
 msgid "New variation"
 msgstr "Neue Variante"
 
 #. translators: %s: linked source recipe title
-#: templates/new.php:46
+#: templates/new.php:57
 #, php-format
 msgid "Prefilled from %s."
 msgstr "Aus %s vorausgefüllt."
+
+#. translators: %s: link to recipe import
+#: templates/new.php:69
+#, php-format
+msgid ""
+"Enter a recipe below, choose and load an existing recipe as a variation, or "
+"<a href=\"%s\">import a URL or pasted text</a>."
+msgstr ""
+"Unten ein Rezept eingeben, ein vorhandenes Rezept als Variante auswählen und "
+"laden oder <a href=\"%s\">eine URL oder eingefügten Text importieren</a>."
+
+#. translators: %s: link to recipe import
+#: templates/new.php:75
+#, php-format
+msgid ""
+"Enter a recipe below, or <a href=\"%s\">import a URL or pasted text</a>."
+msgstr ""
+"Unten ein Rezept eingeben oder <a href=\"%s\">eine URL oder eingefügten Text "
+"importieren</a>."
 
 #: templates/planner.php:134
 msgid "Copy to current week"
@@ -1312,7 +1433,7 @@ msgstr "In aktuelle Woche kopieren"
 msgid "Copy to next week"
 msgstr "In nächste Woche kopieren"
 
-#: templates/planner.php:142 templates/planner.php:292
+#: templates/planner.php:142 templates/planner.php:297
 msgid "Save week"
 msgstr "Woche speichern"
 
@@ -1339,7 +1460,7 @@ msgstr[0] "%d geplante Zutat wurde Ihrer Einkaufsliste hinzugefügt."
 msgstr[1] "%d geplante Zutaten wurden Ihrer Einkaufsliste hinzugefügt."
 
 #. translators: %d: household ingredients
-#: templates/planner.php:173 templates/recipe.php:279
+#: templates/planner.php:173 templates/recipe.php:280
 #, php-format
 msgid "%d household ingredient listed as at home."
 msgid_plural "%d household ingredients listed as at home."
@@ -1368,53 +1489,53 @@ msgstr "Diese Woche"
 msgid "Next week"
 msgstr "Nächste Woche"
 
-#: templates/planner.php:237
+#: templates/planner.php:207
+msgid "Place selected recipe here"
+msgstr "Ausgewähltes Rezept hier platzieren"
+
+#: templates/planner.php:208
+msgid "Remove from stash"
+msgstr "Aus Ablage entfernen"
+
+#: templates/planner.php:242
 msgid "Here"
 msgstr "Hier"
 
 #. translators: 1: day label, 2: meal slot label
-#: templates/planner.php:245
+#: templates/planner.php:250
 #, php-format
 msgid "Lift recipe from %1$s %2$s"
 msgstr "Rezept aus %1$s %2$s aufnehmen"
 
-#: templates/planner.php:250
+#: templates/planner.php:255
 msgid "Lift"
 msgstr "Aufnehmen"
 
-#: templates/planner.php:275
+#: templates/planner.php:280
 msgid "Put back"
 msgstr "Zurücklegen"
 
-#: templates/planner.php:284
+#: templates/planner.php:289
 msgid "Stash"
 msgstr "Ablage"
 
-#: templates/planner.php:301
+#: templates/planner.php:306
 msgid "Add planned ingredients to shopping list"
 msgstr "Geplante Zutaten zur Einkaufsliste hinzufügen"
 
-#: templates/planner.php:302
+#: templates/planner.php:307
 msgid "Open shopping list"
 msgstr "Einkaufsliste öffnen"
 
-#: templates/planner.php:307
+#: templates/planner.php:312
 msgid "Planned recipes"
 msgstr "Geplante Rezepte"
 
-#: templates/planner.php:648
-msgid "Place selected recipe here"
-msgstr "Ausgewähltes Rezept hier platzieren"
-
-#: templates/planner.php:682
-msgid "Remove from stash"
-msgstr "Aus Ablage entfernen"
-
-#: templates/recipe-edit.php:16 templates/recipe.php:14
+#: templates/recipe-edit.php:16 templates/recipe.php:15
 msgid "Recipe not found"
 msgstr "Rezept nicht gefunden"
 
-#: templates/recipe-edit.php:18 templates/recipe.php:16
+#: templates/recipe-edit.php:18 templates/recipe.php:17
 msgid "Not found"
 msgstr "Nicht gefunden"
 
@@ -1432,79 +1553,79 @@ msgstr "← Zurück zum Rezept"
 msgid "Save recipe"
 msgstr "Rezept speichern"
 
-#: templates/recipe.php:16
+#: templates/recipe.php:17
 msgid "That recipe does not exist."
 msgstr "Dieses Rezept existiert nicht."
 
-#: templates/recipe.php:140
+#: templates/recipe.php:141
 msgid "Variation of:"
 msgstr "Variante von:"
 
-#: templates/recipe.php:163
+#: templates/recipe.php:164
 msgid "Recipe variations"
 msgstr "Rezeptvarianten"
 
-#: templates/recipe.php:179
+#: templates/recipe.php:180
 msgid "base"
 msgstr "Basis"
 
-#: templates/recipe.php:182
+#: templates/recipe.php:183
 msgid "current"
 msgstr "aktuell"
 
-#: templates/recipe.php:190
+#: templates/recipe.php:191
 msgid "Recipe controls"
 msgstr "Rezeptsteuerung"
 
-#: templates/recipe.php:193
+#: templates/recipe.php:194
 msgid "Servings:"
 msgstr "Portionen:"
 
-#: templates/recipe.php:196
+#: templates/recipe.php:197
 msgid "Unit system"
 msgstr "Einheitensystem"
 
-#: templates/recipe.php:197
+#: templates/recipe.php:198
 msgid "Metric"
 msgstr "Metrisch"
 
-#: templates/recipe.php:198
+#: templates/recipe.php:199
 msgid "Imperial"
 msgstr "Imperial"
 
-#: templates/recipe.php:203
+#: templates/recipe.php:204
 msgid "Last cooked:"
 msgstr "Zuletzt gekocht:"
 
 #. translators: %d: number of times the recipe was cooked
-#: templates/recipe.php:211
+#: templates/recipe.php:212
 #, php-format
 msgid "%d time"
 msgid_plural "%d times"
 msgstr[0] "%d Mal"
 msgstr[1] "%d Mal"
 
-#: templates/recipe.php:218
+#: templates/recipe.php:219
 msgid "Not yet"
 msgstr "Noch nicht"
 
-#: templates/recipe.php:224
+#: templates/recipe.php:225
 msgid "Cook this"
 msgstr "Dieses Rezept kochen"
 
-#: templates/recipe.php:232
+#: templates/recipe.php:233
 msgid "Add to shopping list"
 msgstr "Zur Einkaufsliste hinzufügen"
 
-#: templates/recipe.php:237
+#: templates/recipe.php:238
 msgid "More actions"
 msgstr "Weitere Aktionen"
 
-#: templates/recipe.php:240
+#: templates/recipe.php:241
 msgid "Plan recipe"
 msgstr "Rezept planen"
 
-#: templates/recipe.php:244
+#: templates/recipe.php:245
 msgid ""
 "Re-fetch this recipe from its source URL? Ingredients, instructions, times "
 "and image will be replaced with the latest parsed data. Notes and tags are "
@@ -1514,116 +1635,116 @@ msgstr ""
 "und Bild werden durch die neuesten gelesenen Daten ersetzt. Notizen und "
 "Schlagwörter bleiben erhalten."
 
-#: templates/recipe.php:248
+#: templates/recipe.php:249
 msgid "Re-import from source URL"
 msgstr "Von Quell-URL neu importieren"
 
-#: templates/recipe.php:248
+#: templates/recipe.php:249
 msgid "Refetch from source"
 msgstr "Aus Quelle neu abrufen"
 
-#: templates/recipe.php:254
+#: templates/recipe.php:255
 msgid "Edit as variation"
 msgstr "Als Variante bearbeiten"
 
-#: templates/recipe.php:262
+#: templates/recipe.php:263
 msgid "Refetched from source."
 msgstr "Aus Quelle neu abgerufen."
 
-#: templates/recipe.php:264
+#: templates/recipe.php:265
 msgid "Could not re-parse the source URL — recipe left unchanged."
 msgstr "Die Quell-URL konnte nicht erneut gelesen werden - Rezept unverändert."
 
-#: templates/recipe.php:266
+#: templates/recipe.php:267
 msgid "No source URL stored on this recipe."
 msgstr "Für dieses Rezept ist keine Quell-URL gespeichert."
 
 #. translators: %d: shopping-list items
-#: templates/recipe.php:273
+#: templates/recipe.php:274
 #, php-format
 msgid "%d ingredient added to your shopping list."
 msgid_plural "%d ingredients added to your shopping list."
 msgstr[0] "%d Zutat wurde Ihrer Einkaufsliste hinzugefügt."
 msgstr[1] "%d Zutaten wurden Ihrer Einkaufsliste hinzugefügt."
 
-#: templates/recipe.php:288
+#: templates/recipe.php:289
 msgid "Ingredient replaced."
 msgstr "Zutat ersetzt."
 
 #. translators: %s: cooked date
-#: templates/recipe.php:295
+#: templates/recipe.php:296
 #, php-format
 msgid "Saved that you cooked this on %s."
 msgstr "Gespeichert, dass Sie dies am %s gekocht haben."
 
 #. translators: %s: cooked date
-#: templates/recipe.php:305
+#: templates/recipe.php:306
 #, php-format
 msgid "This recipe was already saved for %s."
 msgstr "Dieses Rezept wurde bereits für %s gespeichert."
 
-#: templates/recipe.php:358
+#: templates/recipe.php:359
 msgid "Replace"
 msgstr "Ersetzen"
 
-#: templates/recipe.php:368 templates/shopping-list.php:243
-#: templates/shopping-list.php:320 templates/_form.php:209
-#: templates/_form.php:301
+#: templates/recipe.php:369 templates/shopping-list.php:243
+#: templates/shopping-list.php:320 templates/_form.php:217
+#: templates/_form.php:304
 msgid "2"
 msgstr "2"
 
-#: templates/recipe.php:369 templates/shopping-list.php:244
-#: templates/shopping-list.php:321 templates/_form.php:210
-#: templates/_form.php:302
+#: templates/recipe.php:370 templates/shopping-list.php:244
+#: templates/shopping-list.php:321 templates/_form.php:218
+#: templates/_form.php:305
 msgid "g"
 msgstr "g"
 
 #. translators: %s: ingredient name
-#: templates/recipe.php:372
+#: templates/recipe.php:373
 #, php-format
 msgid "Replace %s with..."
 msgstr "%s ersetzen durch..."
 
-#: templates/recipe.php:375 templates/shopping-list.php:246
+#: templates/recipe.php:376 templates/shopping-list.php:246
 #: templates/shopping-list.php:323
 msgid "notes"
 msgstr "Notizen"
 
 #. translators: %s: link to the recipe edit page
-#: templates/recipe.php:391
+#: templates/recipe.php:392
 #, php-format
 msgid "No ingredients yet. %s."
 msgstr "Noch keine Zutaten. %s."
 
-#: templates/recipe.php:392
+#: templates/recipe.php:393
 msgid "Add some"
 msgstr "Einige hinzufügen"
 
-#: templates/recipe.php:456
+#: templates/recipe.php:457
 msgid "All"
 msgstr "Alle"
 
 #. translators: 1: number of times, 2: last cooked date
-#: templates/recipe.php:462
+#: templates/recipe.php:463
 #, php-format
 msgid "Cooked %1$d time. Last: %2$s."
 msgid_plural "Cooked %1$d times. Last: %2$s."
 msgstr[0] "%1$d Mal gekocht. Zuletzt: %2$s."
 msgstr[1] "%1$d Mal gekocht. Zuletzt: %2$s."
 
-#: templates/recipe.php:478
+#: templates/recipe.php:479
 msgid "Cooked"
 msgstr "Gekocht"
 
-#: templates/recipe.php:505
+#: templates/recipe.php:506
 msgid "Cook mode"
 msgstr "Kochmodus"
 
-#: templates/recipe.php:508
+#: templates/recipe.php:509
 msgid "Exit"
 msgstr "Beenden"
 
-#: templates/recipe.php:544
+#: templates/recipe.php:576
 msgid ""
 "Shortcuts: Space or Right arrow for next, Left arrow for previous, Escape to "
 "exit."
@@ -1631,87 +1752,87 @@ msgstr ""
 "Tastenkürzel: Leertaste oder Pfeil rechts für weiter, Pfeil links für "
 "zurück, Escape zum Beenden."
 
-#: templates/recipe.php:552
+#: templates/recipe.php:584
 msgid "Step done"
 msgstr "Schritt erledigt"
 
-#: templates/recipe.php:555
+#: templates/recipe.php:587
 msgid "Previous step (Left arrow)"
 msgstr "Vorheriger Schritt (Pfeil links)"
 
-#: templates/recipe.php:555
+#: templates/recipe.php:587
 msgid "Previous"
 msgstr "Zurück"
 
-#: templates/recipe.php:556
+#: templates/recipe.php:588
 msgid "Next step (Space or Right arrow)"
 msgstr "Nächster Schritt (Leertaste oder Pfeil rechts)"
 
-#: templates/recipe.php:556 templates/recipe.php:654
+#: templates/recipe.php:588 templates/recipe.php:710
 msgid "Next"
 msgstr "Weiter"
 
-#: templates/recipe.php:557
+#: templates/recipe.php:589
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: templates/recipe.php:562
+#: templates/recipe.php:594
 msgid "Mark this recipe as cooked?"
 msgstr "Dieses Rezept als gekocht markieren?"
 
-#: templates/recipe.php:563
+#: templates/recipe.php:595
 msgid "Save the date and any notes from this cook session."
 msgstr "Datum und Notizen zu diesem Kochvorgang speichern."
 
-#: templates/recipe.php:572
+#: templates/recipe.php:604
 msgid "Tweaks, timing, reactions"
 msgstr "Anpassungen, Timing, Reaktionen"
 
-#: templates/recipe.php:573
+#: templates/recipe.php:605
 msgid "Mark as cooked"
 msgstr "Als gekocht markieren"
 
-#: templates/recipe.php:574
+#: templates/recipe.php:606
 msgid "Not now"
 msgstr "Jetzt nicht"
 
 #. translators: %d: step number
-#: templates/recipe.php:590
+#: templates/recipe.php:628 templates/recipe.php:661
 #, php-format
 msgid "Step %d done"
 msgstr "Schritt %d erledigt"
 
 #. translators: %d: step number
-#: templates/recipe.php:599 templates/_form.php:240
+#: templates/recipe.php:637 templates/recipe.php:670 templates/_form.php:246
 #, php-format
 msgid "Step %d"
 msgstr "Schritt %d"
 
-#: templates/recipe.php:616
+#: templates/recipe.php:689
 msgid "Move this recipe to trash?"
 msgstr "Dieses Rezept in den Papierkorb verschieben?"
 
-#: templates/recipe.php:620
+#: templates/recipe.php:693
 msgid "Delete recipe"
 msgstr "Rezept löschen"
 
 #. translators: 1: current step number, 2: total number of steps
-#: templates/recipe.php:651
+#: templates/recipe.php:707
 #, php-format
 msgid "Step %1$d of %2$d"
 msgstr "Schritt %1$d von %2$d"
 
 #. translators: 1: number of completed steps, 2: total number of steps
-#: templates/recipe.php:653
+#: templates/recipe.php:709
 #, php-format
 msgid "%1$d of %2$d done"
 msgstr "%1$d von %2$d erledigt"
 
-#: templates/recipe.php:655
+#: templates/recipe.php:711
 msgid "Finish"
 msgstr "Fertig"
 
-#: templates/recipe.php:862
+#: templates/recipe.php:712
 msgid "For this step"
 msgstr "Für diesen Schritt"
 
@@ -1836,12 +1957,12 @@ msgid "Select item"
 msgstr "Artikel auswählen"
 
 #: templates/shopping-list.php:245 templates/shopping-list.php:322
-#: templates/_form.php:211 templates/_form.php:303
+#: templates/_form.php:219 templates/_form.php:306
 msgid "ingredient"
 msgstr "Zutat"
 
 #: templates/shopping-list.php:247 templates/shopping-list.php:324
-#: templates/_form.php:213 templates/_form.php:242 templates/_form.php:305
+#: templates/_form.php:221 templates/_form.php:248 templates/_form.php:308
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -1881,27 +2002,55 @@ msgstr "Variante erstellen"
 msgid "Create recipe"
 msgstr "Rezept erstellen"
 
-#: templates/_form.php:119
+#: templates/_form.php:124
+msgid "Is this a variant of an existing recipe?"
+msgstr "Ist das eine Variante eines vorhandenen Rezepts?"
+
+#: templates/_form.php:125
+msgid "Variation of"
+msgstr "Variante von"
+
+#: templates/_form.php:128
+msgid "Standalone recipe"
+msgstr "Eigenständiges Rezept"
+
+#: templates/_form.php:136
+msgid "Load recipe"
+msgstr "Rezept laden"
+
+#: templates/_form.php:139
+msgid "Select a recipe and load it to copy its details into a new variation."
+msgstr ""
+"Ein Rezept auswählen und laden, um seine Details in eine neue Variante zu "
+"übernehmen."
+
+#: templates/_form.php:139
+msgid "Choose a parent recipe to make this recipe a variation."
+msgstr ""
+"Wählen Sie ein übergeordnetes Rezept, um dieses Rezept als Variante "
+"anzulegen."
+
+#: templates/_form.php:143
 msgid "Photo"
 msgstr "Foto"
 
-#: templates/_form.php:126
+#: templates/_form.php:150
 msgid "Remove photo"
 msgstr "Foto entfernen"
 
-#: templates/_form.php:135
+#: templates/_form.php:159
 msgid "The source photo will be reused unless you upload a different one."
 msgstr "Das Quellfoto wird wiederverwendet, sofern Sie kein anderes hochladen."
 
-#: templates/_form.php:137
+#: templates/_form.php:161
 msgid "Upload a new file to replace the current photo."
 msgstr "Laden Sie eine neue Datei hoch, um das aktuelle Foto zu ersetzen."
 
-#: templates/_form.php:139
+#: templates/_form.php:163
 msgid "Optional. Will be added to the media library."
 msgstr "Optional. Wird zur Mediathek hinzugefügt."
 
-#: templates/_form.php:145
+#: templates/_form.php:169
 msgid ""
 "Paste an image URL to add it to the media library. If you also upload a "
 "file, the uploaded file is used."
@@ -1909,41 +2058,27 @@ msgstr ""
 "Fügen Sie eine Bild-URL ein, um sie zur Mediathek hinzuzufügen. Wenn Sie "
 "zusätzlich eine Datei hochladen, wird die hochgeladene Datei verwendet."
 
-#: templates/_form.php:150
+#: templates/_form.php:174
 msgid "Short description"
 msgstr "Kurzbeschreibung"
 
-#: templates/_form.php:153
-msgid "Variation of"
-msgstr "Variante von"
-
-#: templates/_form.php:155
-msgid "Standalone recipe"
-msgstr "Eigenständiges Rezept"
-
-#: templates/_form.php:167
-msgid "Choose a parent recipe to make this recipe a variation."
-msgstr ""
-"Wählen Sie ein übergeordnetes Rezept, um dieses Rezept als Variante "
-"anzulegen."
-
-#: templates/_form.php:171
+#: templates/_form.php:179
 msgid "Servings (default)"
 msgstr "Portionen (Standard)"
 
-#: templates/_form.php:175
+#: templates/_form.php:183
 msgid "Prep time (minutes)"
 msgstr "Vorbereitungszeit (Minuten)"
 
-#: templates/_form.php:179
+#: templates/_form.php:187
 msgid "Cook time (minutes)"
 msgstr "Kochzeit (Minuten)"
 
-#: templates/_form.php:183
+#: templates/_form.php:191
 msgid "Source URL (optional)"
 msgstr "Quell-URL (optional)"
 
-#: templates/_form.php:189
+#: templates/_form.php:197
 msgid ""
 "Amount + unit are optional. Enter \"1/2\", \"1.5\", or use fractions like ½. "
 "Recognised units convert automatically; \"piece\", \"clove\", \"pinch\" etc. "
@@ -1953,114 +2088,81 @@ msgstr ""
 "verwenden Sie Brüche wie ½. Erkannte Einheiten werden automatisch "
 "konvertiert; \"Stück\", \"Zehe\", \"Prise\" usw. bleiben unverändert."
 
-#: templates/_form.php:203 templates/_form.php:296
+#: templates/_form.php:211 templates/_form.php:301
 msgid "Section header"
 msgstr "Abschnittsüberschrift"
 
-#: templates/_form.php:204 templates/_form.php:298
+#: templates/_form.php:212 templates/_form.php:302
 msgid "Remove section header and merge ingredients"
 msgstr "Abschnittsüberschrift entfernen und Zutaten zusammenführen"
 
-#: templates/_form.php:212 templates/_form.php:304
+#: templates/_form.php:220 templates/_form.php:307
 msgid "chopped"
 msgstr "gehackt"
 
-#: templates/_form.php:225
-msgid "+ Section"
-msgstr "+ Abschnitt"
-
-#: templates/_form.php:232 templates/_form.php:295
+#: templates/_form.php:238 templates/_form.php:300
 msgid "Section title (optional)"
 msgstr "Abschnittstitel (optional)"
 
-#: templates/_form.php:233 templates/_form.php:297
-msgid "Remove section"
-msgstr "Abschnitt entfernen"
+#: templates/_form.php:239 templates/_form.php:303
+msgid "Remove section header and merge steps"
+msgstr ""
 
-#: templates/_form.php:246 templates/_form.php:300
-msgid "+ Add step"
-msgstr "+ Schritt hinzufügen"
-
-#: templates/_form.php:250
-msgid "+ Add instruction section"
-msgstr "+ Anleitungsabschnitt hinzufügen"
-
-#: templates/_form.php:252
+#: templates/_form.php:256
 msgid "Categorisation"
 msgstr "Kategorisierung"
 
-#: templates/_form.php:263
+#: templates/_form.php:267
 msgid "Or type new ones (comma-separated):"
 msgstr "Oder neue eingeben (durch Kommas getrennt):"
 
-#: templates/_form.php:263
+#: templates/_form.php:267
 msgid "Mains, Desserts"
 msgstr "Hauptgerichte, Desserts"
 
-#: templates/_form.php:274
+#: templates/_form.php:278
 msgid "Or type a new one:"
 msgstr "Oder eine neue eingeben:"
 
-#: templates/_form.php:274
+#: templates/_form.php:278
 msgid "Italian"
 msgstr "Italienisch"
 
-#: templates/_form.php:278
+#: templates/_form.php:282
 msgid "Tags (comma-separated)"
 msgstr "Schlagwörter (durch Kommas getrennt)"
 
-#: templates/_form.php:279
+#: templates/_form.php:283
 msgid "quick, vegetarian, weeknight"
 msgstr "schnell, vegetarisch, unter der Woche"
 
-#: templates/_form.php:281
+#: templates/_form.php:285
 msgid "Notes (optional)"
 msgstr "Notizen (optional)"
 
-#: templates/_form.php:299
-msgid "+ Add ingredient"
-msgstr "+ Zutat hinzufügen"
-
-#: templates/_form.php:307
+#: templates/_form.php:310
 msgid "Section"
 msgstr "Abschnitt"
 
-#: templates/_form.php:308
+#: templates/_form.php:311
 msgid "Step"
 msgstr "Schritt"
 
-#: templates/_header.php:30
+#: templates/_form.php:312
+msgid ""
+"Loading this recipe will replace the details you have entered. Continue?"
+msgstr ""
+"Beim Laden dieses Rezepts werden Ihre bisherigen Eingaben ersetzt. "
+"Fortfahren?"
+
+#: templates/_header.php:57
 msgid "Shopping"
 msgstr "Einkaufen"
 
-#: templates/_header.php:34
+#: templates/_header.php:61
 msgid "Planner"
 msgstr "Planer"
 
-#: templates/_header.php:51
-msgid "Cookbook sections"
-msgstr "Kochbuchbereiche"
-
-#: templates/new.php
-msgid "Enter a recipe below, choose and load an existing recipe as a variation, or <a href=\"%s\">import a URL or pasted text</a>."
-msgstr "Unten ein Rezept eingeben, ein vorhandenes Rezept als Variante auswählen und laden oder <a href=\"%s\">eine URL oder eingefügten Text importieren</a>."
-
-#: templates/_form.php
-msgid "Load recipe"
-msgstr "Rezept laden"
-
-#: templates/_form.php
-msgid "Select a recipe and load it to copy its details into a new variation."
-msgstr "Ein Rezept auswählen und laden, um seine Details in eine neue Variante zu übernehmen."
-
-#: templates/new.php
-msgid "Enter a recipe below, or <a href=\"%s\">import a URL or pasted text</a>."
-msgstr "Unten ein Rezept eingeben oder <a href=\"%s\">eine URL oder eingefügten Text importieren</a>."
-
-#: templates/_form.php
-msgid "Is this a variant of an existing recipe?"
-msgstr "Ist das eine Variante eines vorhandenen Rezepts?"
-
-#: templates/_form.php
-msgid "Loading this recipe will replace the details you have entered. Continue?"
-msgstr "Beim Laden dieses Rezepts werden Ihre bisherigen Eingaben ersetzt. Fortfahren?"
+#: templates/_header.php:78
+msgid "Cook App sections"
+msgstr ""

@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Cookbook App
- * Plugin URI: https://wpapps.kirk.at/apps/cookbook/
+ * Plugin Name: Cook App
+ * Plugin URI: https://wpapps.kirk.at/apps/cook-app/
  * Description: A personal cookbook for WordPress: store, import, categorize, scale, plan and shop from your own recipes.
  * Version: 1.0.0
  * Requires at least: 6.0
@@ -11,7 +11,7 @@
  * Author URI: https://alex.kirk.at/
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: cookbook
+ * Text Domain: cook-app
  * Domain Path: /languages
  */
 
@@ -21,7 +21,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+define( 'COOK_APP_PLUGIN_FILE', __FILE__ );
+define( 'COOK_APP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'COOK_APP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+require_once COOK_APP_PLUGIN_DIR . 'vendor/autoload.php';
 
 // Autoloader for plugin classes.
 spl_autoload_register( function( $class ) {
@@ -30,7 +34,7 @@ spl_autoload_register( function( $class ) {
     if ( strncmp( $prefix, $class, $len ) !== 0 ) {
         return;
     }
-    $file = __DIR__ . '/src/' . str_replace( '\\', '/', substr( $class, $len ) ) . '.php';
+    $file = COOK_APP_PLUGIN_DIR . 'src/' . str_replace( '\\', '/', substr( $class, $len ) ) . '.php';
     if ( file_exists( $file ) ) {
         require $file;
     }
@@ -41,11 +45,11 @@ add_action( 'init', function() {
     $app->init();
 } );
 
-register_activation_hook( __FILE__, function() {
+register_activation_hook( COOK_APP_PLUGIN_FILE, function() {
     $app = new App();
     $app->activate();
 } );
 
-register_deactivation_hook( __FILE__, function() {
+register_deactivation_hook( COOK_APP_PLUGIN_FILE, function() {
     flush_rewrite_rules();
 } );

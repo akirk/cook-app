@@ -8,13 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class AbilitiesService extends AbstractService {
     /**
-     * Tell AI Assistant which user topics should prefer Cookbook abilities.
+     * Tell AI Assistant which user topics should prefer Cook App abilities.
      *
      * @param array $domains Existing plugin domain hints.
      * @return array
      */
     public function register_ability_domains( array $domains ): array {
-        $domains['cookbook'] = implode( ', ', [
+        $domains['cook-app'] = implode( ', ', [
             'saved recipe collection',
             'URL/text recipe import',
             'ingredient-based recipe search',
@@ -28,7 +28,7 @@ class AbilitiesService extends AbstractService {
     }
 
     /**
-     * Register AI Assistant welcome tips for Cookbook pages.
+     * Register AI Assistant welcome tips for Cook App pages.
      *
      * @param array $tips Existing welcome tips.
      * @param array $context AI Assistant request context.
@@ -36,9 +36,9 @@ class AbilitiesService extends AbstractService {
      */
     public function register_welcome_tips( array $tips, array $context = [] ): array {
         $cookbook_tips = [
-            __( 'Ask me to find saved recipes by title, ingredient, category, or tag.', 'cookbook' ),
-            __( 'Ask me to import a recipe from a URL, create a recipe variation, or help plan meals for the week.', 'cookbook' ),
-            __( 'Ask me to review and tidy Cookbook ingredients, categories, cuisines, or tags.', 'cookbook' ),
+            __( 'Ask me to find saved recipes by title, ingredient, category, or tag.', 'cook-app' ),
+            __( 'Ask me to import a recipe from a URL, create a recipe variation, or help plan meals for the week.', 'cook-app' ),
+            __( 'Ask me to review and tidy Cook App ingredients, categories, cuisines, or tags.', 'cook-app' ),
         ];
 
         $existing = isset( $tips[ $this->get_url_path() ] ) ? $tips[ $this->get_url_path() ] : [];
@@ -50,7 +50,7 @@ class AbilitiesService extends AbstractService {
     }
 
     /**
-     * Tell AI Assistant how to present Cookbook ability results.
+     * Tell AI Assistant how to present Cook App ability results.
      *
      * @param string $instructions Existing instructions.
      * @param string $ability_id Ability ID.
@@ -64,22 +64,22 @@ class AbilitiesService extends AbstractService {
         }
 
         if ( in_array( $ability_id, [ 'cookbook/get-recipe', 'cookbook/save-recipe', 'cookbook/import-recipe', 'cookbook/create-recipe-variation' ], true ) ) {
-            return __( 'When presenting Cookbook recipes, include the recipe title and link it with view_url when present.', 'cookbook' );
+            return __( 'When presenting Cook App recipes, include the recipe title and link it with view_url when present.', 'cook-app' );
         }
 
         if ( $ability_id === 'cookbook/search-recipes' ) {
-            return __( 'When presenting Cookbook search results, show concise recipe matches and link each recipe with view_url when present. If no recipes match, say that no Cookbook recipe was found instead of guessing from the database.', 'cookbook' );
+            return __( 'When presenting Cook App search results, show concise recipe matches and link each recipe with view_url when present. If no recipes match, say that no Cook App recipe was found instead of guessing from the database.', 'cook-app' );
         }
 
         if ( in_array( $ability_id, [ 'cookbook/get-week-plan', 'cookbook/save-week-plan' ], true ) ) {
-            return __( 'When presenting Cookbook week plans, summarize planned meals by day and meal slot. Link planned recipes with their view_url when present, and link to the planner using the returned url.', 'cookbook' );
+            return __( 'When presenting Cook App week plans, summarize planned meals by day and meal slot. Link planned recipes with their view_url when present, and link to the planner using the returned url.', 'cook-app' );
         }
 
         return $instructions;
     }
 
     /**
-     * Register the Cookbook ability category.
+     * Register the Cook App ability category.
      */
     public function register_ability_categories(): void {
         if ( ! function_exists( 'wp_register_ability_category' ) ) {
@@ -87,10 +87,10 @@ class AbilitiesService extends AbstractService {
         }
 
         wp_register_ability_category(
-            'cookbook',
+            'cook-app',
             [
-                'label'       => __( 'Cookbook', 'cookbook' ),
-                'description' => __( 'Abilities for working with Cookbook recipes and week plans.', 'cookbook' ),
+                'label'       => __( 'Cook App', 'cook-app' ),
+                'description' => __( 'Abilities for working with Cook App recipes and week plans.', 'cook-app' ),
             ]
         );
     }
@@ -106,16 +106,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/search-recipes',
             [
-                'label'               => __( 'Search Cookbook Recipes', 'cookbook' ),
-                'description'         => __( 'Searches Cookbook recipes and returns matching recipe summaries.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Search Cook App Recipes', 'cook-app' ),
+                'description'         => __( 'Searches Cook App recipes and returns matching recipe summaries.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => $this->recipe_search_input_schema(),
                 'output_schema'       => $this->recipe_search_output_schema(),
                 'execute_callback'    => [ $this, 'ability_search_recipes' ],
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cookbook recipes. Call without input to list the latest 10 recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. Call without input to list the latest 10 recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -128,16 +128,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/get-recipe',
             [
-                'label'               => __( 'Get Cookbook Recipe', 'cookbook' ),
-                'description'         => __( 'Returns one structured Cookbook recipe by ID.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Get Cook App Recipe', 'cook-app' ),
+                'description'         => __( 'Returns one structured Cook App recipe by ID.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => [
                     'type'                 => 'object',
                     'required'             => [ 'id' ],
                     'properties'           => [
                         'id' => [
                             'type'        => 'integer',
-                            'description' => __( 'Recipe post ID.', 'cookbook' ),
+                            'description' => __( 'Recipe post ID.', 'cook-app' ),
                         ],
                     ],
                     'additionalProperties' => false,
@@ -147,7 +147,7 @@ class AbilitiesService extends AbstractService {
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks about one known Cookbook recipe. The response includes view_url for linking, flat compatibility ingredients/instructions, named parts for ingredient or instruction sections, notes, taxonomy terms, and variation family data.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks about one known Cook App recipe. The response includes view_url for linking, flat compatibility ingredients/instructions, named parts for ingredient or instruction sections, notes, taxonomy terms, and variation family data.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -160,16 +160,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/save-recipe',
             [
-                'label'               => __( 'Save Cookbook Recipe', 'cookbook' ),
-                'description'         => __( 'Creates a structured Cookbook recipe, or updates an existing recipe when an ID is provided.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Save Cook App Recipe', 'cook-app' ),
+                'description'         => __( 'Creates a structured Cook App recipe, or updates an existing recipe when an ID is provided.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => $this->recipe_create_input_schema(),
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_save_recipe' ],
                 'permission_callback' => [ $this, 'can_edit_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to save, create, or update a structured Cookbook recipe. Pass parts to preserve named ingredient or instruction sections; flat ingredients and instructions remain supported for unsectioned recipes. To add or replace a recipe photo, pass the existing recipe id with image_url. Prefer create-recipe-variation when adapting an existing recipe into a new variation. Link the result using view_url.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks to save, create, or update a structured Cook App recipe. Pass parts to preserve named ingredient or instruction sections; flat ingredients and instructions remain supported for unsectioned recipes. To add or replace a recipe photo, pass the existing recipe id with image_url. Prefer create-recipe-variation when adapting an existing recipe into a new variation. Link the result using view_url.', 'cook-app' ),
                         'readonly'    => false,
                         'destructive' => false,
                         'idempotent'  => false,
@@ -182,23 +182,23 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/import-recipe',
             [
-                'label'               => __( 'Import Cookbook Recipe', 'cookbook' ),
-                'description'         => __( 'Imports a recipe from source_url or pasted recipe text and publishes it.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Import Cook App Recipe', 'cook-app' ),
+                'description'         => __( 'Imports a recipe from source_url or pasted recipe text and publishes it.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => [
                     'type'                 => 'object',
                     'properties'           => [
                         'source_url' => [
                             'type'        => 'string',
-                            'description' => __( 'Recipe page URL to parse.', 'cookbook' ),
+                            'description' => __( 'Recipe page URL to parse.', 'cook-app' ),
                         ],
                         'paste'      => [
                             'type'        => 'string',
-                            'description' => __( 'Plain recipe text to parse if no URL can be parsed.', 'cookbook' ),
+                            'description' => __( 'Plain recipe text to parse if no URL can be parsed.', 'cook-app' ),
                         ],
                         'image_url'  => [
                             'type'        => 'string',
-                            'description' => __( 'Optional image URL to sideload as the recipe photo.', 'cookbook' ),
+                            'description' => __( 'Optional image URL to sideload as the recipe photo.', 'cook-app' ),
                         ],
                     ],
                     'additionalProperties' => false,
@@ -208,7 +208,7 @@ class AbilitiesService extends AbstractService {
                 'permission_callback' => [ $this, 'can_edit_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user provides a recipe URL, pasted recipe text, or an image URL to import into Cookbook. This publishes the recipe; link the result using view_url.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user provides a recipe URL, pasted recipe text, or an image URL to import into Cook App. This publishes the recipe; link the result using view_url.', 'cook-app' ),
                         'readonly'    => false,
                         'destructive' => false,
                         'idempotent'  => false,
@@ -221,16 +221,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/create-recipe-variation',
             [
-                'label'               => __( 'Create Cookbook Recipe Variation', 'cookbook' ),
-                'description'         => __( 'Creates a child recipe variation from an existing Cookbook recipe, copying omitted fields from the source.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Create Cook App Recipe Variation', 'cook-app' ),
+                'description'         => __( 'Creates a child recipe variation from an existing Cook App recipe, copying omitted fields from the source.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => $this->recipe_variation_input_schema(),
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_create_recipe_variation' ],
                 'permission_callback' => [ $this, 'can_edit_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks for an adapted version of an existing recipe, such as substituting an ingredient they do not have. First call get-recipe for the source, then pass the complete revised recipe fields here so omitted fields intentionally copy from the source. If the source has named parts, pass revised parts to preserve ingredient subsection headers. Link the created variation using view_url.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks for an adapted version of an existing recipe, such as substituting an ingredient they do not have. First call get-recipe for the source, then pass the complete revised recipe fields here so omitted fields intentionally copy from the source. If the source has named parts, pass revised parts to preserve ingredient subsection headers. Link the created variation using view_url.', 'cook-app' ),
                         'readonly'    => false,
                         'destructive' => false,
                         'idempotent'  => false,
@@ -243,16 +243,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/get-week-plan',
             [
-                'label'               => __( 'Get Cookbook Week Plan', 'cookbook' ),
-                'description'         => __( 'Returns the signed-in user\'s week planner for a normalized week.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Get Cook App Week Plan', 'cook-app' ),
+                'description'         => __( 'Returns the signed-in user\'s week planner for a normalized week.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => $this->week_plan_get_input_schema(),
                 'output_schema'       => $this->week_plan_output_schema(),
                 'execute_callback'    => [ $this, 'ability_get_week_plan' ],
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks what meals are planned for a week. The week_start input can be any date in the week; use the returned url to link to the planner.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks what meals are planned for a week. The week_start input can be any date in the week; use the returned url to link to the planner.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -265,16 +265,16 @@ class AbilitiesService extends AbstractService {
         wp_register_ability(
             'cookbook/save-week-plan',
             [
-                'label'               => __( 'Save Cookbook Week Plan', 'cookbook' ),
-                'description'         => __( 'Saves recipe IDs into the signed-in user\'s week planner meal slots.', 'cookbook' ),
-                'category'            => 'cookbook',
+                'label'               => __( 'Save Cook App Week Plan', 'cook-app' ),
+                'description'         => __( 'Saves recipe IDs into the signed-in user\'s week planner meal slots.', 'cook-app' ),
+                'category'            => 'cook-app',
                 'input_schema'        => $this->week_plan_save_input_schema(),
                 'output_schema'       => $this->week_plan_output_schema(),
                 'execute_callback'    => [ $this, 'ability_save_week_plan' ],
                 'permission_callback' => [ $this, 'can_plan_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to add, move, clear, or replace recipes in their week planner. This can clear slots with recipe ID 0 or replace the whole week when replace is true, so confirm ambiguous planner edits before executing.', 'cookbook' ),
+                        'instructions' => __( 'Use this when the user asks to add, move, clear, or replace recipes in their week planner. This can clear slots with recipe ID 0 or replace the whole week when replace is true, so confirm ambiguous planner edits before executing.', 'cook-app' ),
                         'readonly'    => false,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -391,13 +391,13 @@ class AbilitiesService extends AbstractService {
         $source_id = isset( $input['source_recipe_id'] ) ? absint( $input['source_recipe_id'] ) : 0;
         $source    = $source_id ? get_post( $source_id ) : null;
         if ( ! $source || $source->post_type !== App::POST_TYPE ) {
-            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
 
         $parent_id = isset( $input['parent_id'] ) ? absint( $input['parent_id'] ) : $source_id;
         $parent_id = $this->services->recipes()->sanitize_recipe_parent_id( $parent_id );
         if ( ! $parent_id ) {
-            return new \WP_Error( 'cookbook_variation_parent_not_found', __( 'Variation parent recipe not found.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_variation_parent_not_found', __( 'Variation parent recipe not found.', 'cook-app' ) );
         }
 
         return $this->services->recipes()->create_recipe_from_ability_input( $input, $parent_id, $source );
@@ -433,7 +433,7 @@ class AbilitiesService extends AbstractService {
 
         $plan_id = $this->services->planner()->get_user_week_plan_id( $week_start, true );
         if ( ! $plan_id ) {
-            return new \WP_Error( 'cookbook_week_plan_not_saved', __( 'Week plan could not be saved.', 'cookbook' ) );
+            return new \WP_Error( 'cookbook_week_plan_not_saved', __( 'Week plan could not be saved.', 'cook-app' ) );
         }
 
         $base  = $replace ? [] : $this->services->planner()->get_week_meals( $plan_id );
@@ -451,23 +451,23 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'search'     => [
                     'type'        => 'string',
-                    'description' => __( 'Optional search text for recipe title and content.', 'cookbook' ),
+                    'description' => __( 'Optional search text for recipe title and content.', 'cook-app' ),
                 ],
                 'category'   => [
                     'type'        => 'string',
-                    'description' => __( 'Optional category slug or term ID.', 'cookbook' ),
+                    'description' => __( 'Optional category slug or term ID.', 'cook-app' ),
                 ],
                 'tag'        => [
                     'type'        => 'string',
-                    'description' => __( 'Optional tag slug or term ID.', 'cookbook' ),
+                    'description' => __( 'Optional tag slug or term ID.', 'cook-app' ),
                 ],
                 'ingredient' => [
                     'type'        => 'string',
-                    'description' => __( 'Optional ingredient slug or term ID.', 'cookbook' ),
+                    'description' => __( 'Optional ingredient slug or term ID.', 'cook-app' ),
                 ],
                 'limit'      => [
                     'type'        => 'integer',
-                    'description' => __( 'Maximum number of recipes to return, from 1 to 100. Defaults to 10 when no search filters are supplied, otherwise 20.', 'cookbook' ),
+                    'description' => __( 'Maximum number of recipes to return, from 1 to 100. Defaults to 10 when no search filters are supplied, otherwise 20.', 'cook-app' ),
                     'minimum'     => 1,
                     'maximum'     => 100,
                 ],
@@ -483,7 +483,7 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'count'   => [
                     'type'        => 'integer',
-                    'description' => __( 'Number of recipes returned.', 'cookbook' ),
+                    'description' => __( 'Number of recipes returned.', 'cook-app' ),
                 ],
                 'recipes' => [
                     'type'  => 'array',
@@ -504,7 +504,7 @@ class AbilitiesService extends AbstractService {
                 'url'           => [ 'type' => 'string' ],
                 'view_url'      => [
                     'type'        => 'string',
-                    'description' => __( 'User-facing app URL for linking to the recipe.', 'cookbook' ),
+                    'description' => __( 'User-facing app URL for linking to the recipe.', 'cook-app' ),
                 ],
                 'edit_url'      => [ 'type' => 'string' ],
                 'variation_url' => [ 'type' => 'string' ],
@@ -546,7 +546,7 @@ class AbilitiesService extends AbstractService {
         ];
         $schema['properties']['parts'] = [
             'type'        => 'array',
-            'description' => __( 'Optional named recipe sections with their own ingredients and instructions.', 'cookbook' ),
+            'description' => __( 'Optional named recipe sections with their own ingredients and instructions.', 'cook-app' ),
             'items'       => $this->recipe_part_schema(),
         ];
         $schema['properties']['notes'] = [ 'type' => 'string' ];
@@ -561,7 +561,7 @@ class AbilitiesService extends AbstractService {
         $properties = $this->recipe_create_input_properties();
         $properties['id'] = [
             'type'        => 'integer',
-            'description' => __( 'Existing recipe post ID to update. Omit to create a new recipe.', 'cookbook' ),
+            'description' => __( 'Existing recipe post ID to update. Omit to create a new recipe.', 'cook-app' ),
             'minimum'     => 1,
         ];
 
@@ -576,15 +576,15 @@ class AbilitiesService extends AbstractService {
         $properties = $this->recipe_create_input_properties();
         $properties['source_recipe_id'] = [
             'type'        => 'integer',
-            'description' => __( 'Recipe post ID to copy as the source for the new variation.', 'cookbook' ),
+            'description' => __( 'Recipe post ID to copy as the source for the new variation.', 'cook-app' ),
         ];
         $properties['copy_source_thumbnail'] = [
             'type'        => 'boolean',
-            'description' => __( 'Whether to reuse the source recipe photo when image_url is omitted. Defaults to true.', 'cookbook' ),
+            'description' => __( 'Whether to reuse the source recipe photo when image_url is omitted. Defaults to true.', 'cook-app' ),
         ];
         $properties['change_summary'] = [
             'type'        => 'string',
-            'description' => __( 'Short note describing what changed in this variation.', 'cookbook' ),
+            'description' => __( 'Short note describing what changed in this variation.', 'cook-app' ),
         ];
 
         return [
@@ -599,61 +599,61 @@ class AbilitiesService extends AbstractService {
         return [
             'title'       => [
                 'type'        => 'string',
-                'description' => __( 'Recipe title.', 'cookbook' ),
+                'description' => __( 'Recipe title.', 'cook-app' ),
             ],
             'description' => [
                 'type'        => 'string',
-                'description' => __( 'Short recipe description.', 'cookbook' ),
+                'description' => __( 'Short recipe description.', 'cook-app' ),
             ],
             'ingredients' => [
                 'type'        => 'array',
-                'description' => __( 'Structured ingredient rows.', 'cookbook' ),
+                'description' => __( 'Structured ingredient rows.', 'cook-app' ),
                 'items'       => $this->ingredient_input_schema(),
             ],
             'instructions' => [
                 'type'        => 'array',
-                'description' => __( 'Recipe instruction steps.', 'cookbook' ),
+                'description' => __( 'Recipe instruction steps.', 'cook-app' ),
                 'items'       => [ 'type' => 'string' ],
             ],
             'parts'       => [
                 'type'        => 'array',
-                'description' => __( 'Optional named recipe sections. When supplied, ingredient and instruction rows inside parts are also flattened into the compatibility ingredients and instructions fields.', 'cookbook' ),
+                'description' => __( 'Optional named recipe sections. When supplied, ingredient and instruction rows inside parts are also flattened into the compatibility ingredients and instructions fields.', 'cook-app' ),
                 'items'       => $this->recipe_part_input_schema(),
             ],
             'servings'    => [
                 'type'        => 'integer',
-                'description' => __( 'Default serving count.', 'cookbook' ),
+                'description' => __( 'Default serving count.', 'cook-app' ),
                 'minimum'     => 1,
             ],
             'prep_time'   => [
                 'type'        => 'integer',
-                'description' => __( 'Prep time in minutes.', 'cookbook' ),
+                'description' => __( 'Prep time in minutes.', 'cook-app' ),
                 'minimum'     => 0,
             ],
             'cook_time'   => [
                 'type'        => 'integer',
-                'description' => __( 'Cook time in minutes.', 'cookbook' ),
+                'description' => __( 'Cook time in minutes.', 'cook-app' ),
                 'minimum'     => 0,
             ],
             'source_url'  => [
                 'type'        => 'string',
-                'description' => __( 'Optional source URL.', 'cookbook' ),
+                'description' => __( 'Optional source URL.', 'cook-app' ),
             ],
             'notes'       => [
                 'type'        => 'string',
-                'description' => __( 'Private recipe notes.', 'cookbook' ),
+                'description' => __( 'Private recipe notes.', 'cook-app' ),
             ],
             'parent_id'   => [
                 'type'        => 'integer',
-                'description' => __( 'Optional parent recipe ID to link this recipe as a variation.', 'cookbook' ),
+                'description' => __( 'Optional parent recipe ID to link this recipe as a variation.', 'cook-app' ),
                 'minimum'     => 0,
             ],
-            'categories'  => $this->taxonomy_values_input_schema( __( 'Category names, slugs, or IDs.', 'cookbook' ) ),
-            'cuisines'    => $this->taxonomy_values_input_schema( __( 'Cuisine names, slugs, or IDs.', 'cookbook' ) ),
-            'tags'        => $this->taxonomy_values_input_schema( __( 'Tag names, slugs, or IDs.', 'cookbook' ) ),
+            'categories'  => $this->taxonomy_values_input_schema( __( 'Category names, slugs, or IDs.', 'cook-app' ) ),
+            'cuisines'    => $this->taxonomy_values_input_schema( __( 'Cuisine names, slugs, or IDs.', 'cook-app' ) ),
+            'tags'        => $this->taxonomy_values_input_schema( __( 'Tag names, slugs, or IDs.', 'cook-app' ) ),
             'image_url'   => [
                 'type'        => 'string',
-                'description' => __( 'Optional image URL to sideload as the recipe photo.', 'cookbook' ),
+                'description' => __( 'Optional image URL to sideload as the recipe photo.', 'cook-app' ),
             ],
         ];
     }
@@ -664,7 +664,7 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'week_start' => [
                     'type'        => 'string',
-                    'description' => __( 'Any date in the requested week. The site week start is returned as YYYY-MM-DD.', 'cookbook' ),
+                    'description' => __( 'Any date in the requested week. The site week start is returned as YYYY-MM-DD.', 'cook-app' ),
                 ],
             ],
             'additionalProperties' => false,
@@ -676,11 +676,11 @@ class AbilitiesService extends AbstractService {
         $schema['required'] = [ 'meals' ];
         $schema['properties']['replace'] = [
             'type'        => 'boolean',
-            'description' => __( 'Whether omitted meal slots should be cleared. Defaults to false.', 'cookbook' ),
+            'description' => __( 'Whether omitted meal slots should be cleared. Defaults to false.', 'cook-app' ),
         ];
         $schema['properties']['meals'] = [
             'type'                 => 'object',
-            'description'          => __( 'Object keyed by YYYY-MM-DD, then breakfast, lunch, and dinner recipe IDs. Use 0 to clear a slot.', 'cookbook' ),
+            'description'          => __( 'Object keyed by YYYY-MM-DD, then breakfast, lunch, and dinner recipe IDs. Use 0 to clear a slot.', 'cook-app' ),
             'additionalProperties' => $this->week_plan_meal_ids_schema(),
         ];
         return $schema;
@@ -758,17 +758,17 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'breakfast' => [
                     'type'        => 'integer',
-                    'description' => __( 'Breakfast recipe ID, or 0 to clear.', 'cookbook' ),
+                    'description' => __( 'Breakfast recipe ID, or 0 to clear.', 'cook-app' ),
                     'minimum'     => 0,
                 ],
                 'lunch'     => [
                     'type'        => 'integer',
-                    'description' => __( 'Lunch recipe ID, or 0 to clear.', 'cookbook' ),
+                    'description' => __( 'Lunch recipe ID, or 0 to clear.', 'cook-app' ),
                     'minimum'     => 0,
                 ],
                 'dinner'    => [
                     'type'        => 'integer',
-                    'description' => __( 'Dinner recipe ID, or 0 to clear.', 'cookbook' ),
+                    'description' => __( 'Dinner recipe ID, or 0 to clear.', 'cook-app' ),
                     'minimum'     => 0,
                 ],
             ],
@@ -815,16 +815,16 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'title'        => [
                     'type'        => 'string',
-                    'description' => __( 'Optional section title, such as sauce, dough, or topping.', 'cookbook' ),
+                    'description' => __( 'Optional section title, such as sauce, dough, or topping.', 'cook-app' ),
                 ],
                 'ingredients'  => [
                     'type'        => 'array',
-                    'description' => __( 'Ingredient rows in this section.', 'cookbook' ),
+                    'description' => __( 'Ingredient rows in this section.', 'cook-app' ),
                     'items'       => $this->ingredient_input_schema(),
                 ],
                 'instructions' => [
                     'type'        => 'array',
-                    'description' => __( 'Instruction steps in this section.', 'cookbook' ),
+                    'description' => __( 'Instruction steps in this section.', 'cook-app' ),
                     'items'       => [ 'type' => 'string' ],
                 ],
             ],
@@ -864,7 +864,7 @@ class AbilitiesService extends AbstractService {
                 'url'       => [ 'type' => 'string' ],
                 'view_url'  => [
                     'type'        => 'string',
-                    'description' => __( 'User-facing app URL for linking to the variation.', 'cookbook' ),
+                    'description' => __( 'User-facing app URL for linking to the variation.', 'cook-app' ),
                 ],
                 'parent_id' => [ 'type' => 'integer' ],
                 'depth'     => [ 'type' => 'integer' ],

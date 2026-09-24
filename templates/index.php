@@ -17,14 +17,14 @@ if ( ! in_array( $view, [ 'images', 'compact', 'recent' ], true ) ) {
 if ( $search !== '' && preg_match( '~^https?://~i', $search ) && filter_var( $search, FILTER_VALIDATE_URL ) ) {
     $existing_recipe = App::find_recipe_by_source_url( $search );
     if ( $existing_recipe ) {
-        wp_safe_redirect( home_url( '/cookbook/recipe/' . $existing_recipe->ID ) );
+        wp_safe_redirect( home_url( '/cook-app/recipe/' . $existing_recipe->ID ) );
         exit;
     }
 
     wp_safe_redirect( add_query_arg( [
         'source_url' => $search,
         'autoimport' => 1,
-    ], home_url( '/cookbook/import' ) ) );
+    ], home_url( '/cook-app/import' ) ) );
     exit;
 }
 
@@ -131,39 +131,39 @@ $view_query_args = [];
 if ( $search !== '' ) {
     $view_query_args['s'] = $search;
 }
-$images_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'images' ] ), home_url( '/cookbook/' ) );
-$compact_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'compact' ] ), home_url( '/cookbook/' ) );
-$recent_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'recent' ] ), home_url( '/cookbook/' ) );
+$images_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'images' ] ), home_url( '/cook-app/' ) );
+$compact_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'compact' ] ), home_url( '/cook-app/' ) );
+$recent_view_url = add_query_arg( array_merge( $view_query_args, [ 'view' => 'recent' ] ), home_url( '/cook-app/' ) );
 $new_recipe_url = $search !== ''
-    ? add_query_arg( 'title', $search, home_url( '/cookbook/new' ) )
-    : home_url( '/cookbook/new' );
+    ? add_query_arg( 'title', $search, home_url( '/cook-app/new' ) )
+    : home_url( '/cook-app/new' );
 
-$page_title = __( 'Cookbook', 'cookbook' );
+$page_title = __( 'Cook App', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
 
-<?php cookbook_page_head( __( 'Cookbook', 'cookbook' ), [ 'current_section' => 'recipes' ] ); ?>
+<?php cookbook_page_head( __( 'Cook App', 'cook-app' ), [ 'current_section' => 'recipes' ] ); ?>
 
 <form method="get" action="" class="home-search">
-    <input id="cookbook-search" type="text" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search recipes or paste a URL to import…', 'cookbook' ); ?>">
+    <input id="cookbook-search" type="text" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search recipes or paste a URL to import…', 'cook-app' ); ?>">
     <input type="hidden" name="view" value="<?php echo esc_attr( $view ); ?>">
-    <button class="btn" type="submit"><?php esc_html_e( 'Search', 'cookbook' ); ?></button>
+    <button class="btn" type="submit"><?php esc_html_e( 'Search', 'cook-app' ); ?></button>
 </form>
 <?php if ( ! $is_searching ) : ?>
     <?php if ( $todays_plan ) : ?>
         <section class="home-today-plan">
             <div class="home-today-head">
                 <div>
-                    <h2><?php esc_html_e( "Today's plan", 'cookbook' ); ?></h2>
+                    <h2><?php esc_html_e( "Today's plan", 'cook-app' ); ?></h2>
                     <p class="subtitle"><?php echo esc_html( $today_label ); ?></p>
                 </div>
-                <a class="badge" href="<?php echo esc_url( home_url( '/cookbook/planner' ) ); ?>"><?php esc_html_e( 'Open week planner', 'cookbook' ); ?></a>
+                <a class="badge" href="<?php echo esc_url( home_url( '/cook-app/planner' ) ); ?>"><?php esc_html_e( 'Open week planner', 'cook-app' ); ?></a>
             </div>
             <div class="planned-strip">
                 <?php foreach ( $todays_plan as $entry ) :
                     $recipe = $entry['recipe'];
                     ?>
-                    <a class="planned-card" href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $recipe->ID ) ); ?>">
+                    <a class="planned-card" href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $recipe->ID ) ); ?>">
                         <?php if ( has_post_thumbnail( $recipe->ID ) ) : ?>
                             <?php echo get_the_post_thumbnail( $recipe->ID, 'thumbnail', [ 'alt' => '' ] ); ?>
                         <?php else : ?>
@@ -181,9 +181,9 @@ include __DIR__ . '/_header.php';
 <?php endif; ?>
 <?php if ( ! is_wp_error( $categories ) && $categories ) : ?>
     <div class="toolbar">
-        <strong><?php esc_html_e( 'Categories:', 'cookbook' ); ?></strong>
+        <strong><?php esc_html_e( 'Categories:', 'cook-app' ); ?></strong>
         <?php foreach ( $categories as $cat ) : ?>
-            <a class="badge" href="<?php echo esc_url( home_url( '/cookbook/category/' . $cat->slug ) ); ?>">
+            <a class="badge" href="<?php echo esc_url( home_url( '/cook-app/category/' . $cat->slug ) ); ?>">
                 <?php echo esc_html( $cat->name ); ?> (<?php echo (int) $cat->count; ?>)
             </a>
         <?php endforeach; ?>
@@ -191,12 +191,12 @@ include __DIR__ . '/_header.php';
 <?php endif; ?>
 
 <?php if ( $is_searching ) : ?>
-    <h2 style="margin-top:1.25rem"><?php esc_html_e( 'Search results', 'cookbook' ); ?></h2>
+    <h2 style="margin-top:1.25rem"><?php esc_html_e( 'Search results', 'cook-app' ); ?></h2>
 <?php endif; ?>
 
 <div class="recipe-index-row">
     <?php if ( $view === 'compact' && $recipes_by_letter ) : ?>
-        <nav class="recipe-index" aria-label="<?php esc_attr_e( 'Recipe index', 'cookbook' ); ?>">
+        <nav class="recipe-index" aria-label="<?php esc_attr_e( 'Recipe index', 'cook-app' ); ?>">
             <?php foreach ( range( 'A', 'Z' ) as $letter ) : ?>
                 <?php $letter_id = sanitize_title( $letter ); ?>
                 <?php if ( isset( $recipes_by_letter[ $letter ] ) ) : ?>
@@ -210,14 +210,14 @@ include __DIR__ . '/_header.php';
             <?php endif; ?>
         </nav>
     <?php endif; ?>
-    <nav class="recipe-view-switch" aria-label="<?php esc_attr_e( 'Recipe view', 'cookbook' ); ?>">
+    <nav class="recipe-view-switch" aria-label="<?php esc_attr_e( 'Recipe view', 'cook-app' ); ?>">
         <a class="<?php echo $view === 'images' ? 'is-active' : ''; ?>" href="<?php echo esc_url( $images_view_url ); ?>"<?php echo $view === 'images' ? ' aria-current="true"' : ''; ?>>
             <svg class="recipe-view-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <rect x="3" y="5" width="18" height="14" rx="2"></rect>
                 <circle cx="8.5" cy="10" r="1.4"></circle>
                 <path d="M21 15l-4.5-4.5L10 17l-2.5-2.5L3 19"></path>
             </svg>
-            <?php esc_html_e( 'Photos', 'cookbook' ); ?>
+            <?php esc_html_e( 'Photos', 'cook-app' ); ?>
         </a>
         <a class="<?php echo $view === 'compact' ? 'is-active' : ''; ?>" href="<?php echo esc_url( $compact_view_url ); ?>"<?php echo $view === 'compact' ? ' aria-current="true"' : ''; ?>>
             <svg class="recipe-view-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -228,7 +228,7 @@ include __DIR__ . '/_header.php';
                 <path d="M3 12h.01"></path>
                 <path d="M3 18h.01"></path>
             </svg>
-            <?php esc_html_e( 'Compact', 'cookbook' ); ?>
+            <?php esc_html_e( 'Compact', 'cook-app' ); ?>
         </a>
         <a class="<?php echo $view === 'recent' ? 'is-active' : ''; ?>" href="<?php echo esc_url( $recent_view_url ); ?>"<?php echo $view === 'recent' ? ' aria-current="true"' : ''; ?>>
             <svg class="recipe-view-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -236,10 +236,10 @@ include __DIR__ . '/_header.php';
                 <path d="M3.05 11a9 9 0 1 1 .5 4"></path>
                 <path d="M3 5v6h6"></path>
             </svg>
-            <?php esc_html_e( 'Recent', 'cookbook' ); ?>
+            <?php esc_html_e( 'Recent', 'cook-app' ); ?>
         </a>
     </nav>
-    <a class="btn secondary" href="<?php echo esc_url( home_url( '/cookbook/new' ) ); ?>"><?php esc_html_e( 'New recipe', 'cookbook' ); ?></a>
+    <a class="btn secondary" href="<?php echo esc_url( home_url( '/cook-app/new' ) ); ?>"><?php esc_html_e( 'New recipe', 'cook-app' ); ?></a>
 </div>
 
 <?php if ( ! $recipes ) : ?>
@@ -248,9 +248,9 @@ include __DIR__ . '/_header.php';
             <?php
             printf(
                 /* translators: 1: search text, 2: link to create a new recipe */
-                esc_html__( 'No recipes match "%1$s". %2$s', 'cookbook' ),
+                esc_html__( 'No recipes match "%1$s". %2$s', 'cook-app' ),
                 esc_html( $search ),
-                '<a href="' . esc_url( $new_recipe_url ) . '">' . esc_html__( 'Create a new recipe with that title.', 'cookbook' ) . '</a>'
+                '<a href="' . esc_url( $new_recipe_url ) . '">' . esc_html__( 'Create a new recipe with that title.', 'cook-app' ) . '</a>'
             );
             ?>
         </div>
@@ -258,10 +258,10 @@ include __DIR__ . '/_header.php';
         <div class="notice">
             <?php
             printf(
-                /* translators: 1: link to /cookbook/new, 2: link to /cookbook/import */
-                esc_html__( 'No recipes yet. %1$s or %2$s.', 'cookbook' ),
-                '<a href="' . esc_url( home_url( '/cookbook/new' ) ) . '">' . esc_html__( 'Create one', 'cookbook' ) . '</a>',
-                '<a href="' . esc_url( home_url( '/cookbook/import' ) ) . '">' . esc_html__( 'import from a URL', 'cookbook' ) . '</a>'
+                /* translators: 1: link to /cook-app/new, 2: link to /cook-app/import */
+                esc_html__( 'No recipes yet. %1$s or %2$s.', 'cook-app' ),
+                '<a href="' . esc_url( home_url( '/cook-app/new' ) ) . '">' . esc_html__( 'Create one', 'cook-app' ) . '</a>',
+                '<a href="' . esc_url( home_url( '/cook-app/import' ) ) . '">' . esc_html__( 'import from a URL', 'cook-app' ) . '</a>'
             );
             ?>
         </div>
@@ -272,15 +272,15 @@ include __DIR__ . '/_header.php';
                 <?php
                 echo esc_html(
                     $is_searching
-                        ? __( 'No recipes with photos match your search.', 'cookbook' )
-                        : __( 'No recipes with photos yet.', 'cookbook' )
+                        ? __( 'No recipes with photos match your search.', 'cook-app' )
+                        : __( 'No recipes with photos yet.', 'cook-app' )
                 );
                 ?>
             </div>
         <?php else : ?>
             <div class="recipe-photo-grid">
                 <?php foreach ( $image_recipes as $r ) : ?>
-                    <a class="recipe-photo-card" href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $r->ID ) ); ?>">
+                    <a class="recipe-photo-card" href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $r->ID ) ); ?>">
                         <?php echo get_the_post_thumbnail( $r->ID, 'medium_large', [ 'alt' => '' ] ); ?>
                         <span class="recipe-photo-title"><?php echo esc_html( get_the_title( $r ) ); ?></span>
                     </a>
@@ -295,18 +295,18 @@ include __DIR__ . '/_header.php';
                 $date_label  = $last_cooked
                     ? sprintf(
                         /* translators: %s: cooked date */
-                        __( 'Cooked %s', 'cookbook' ),
+                        __( 'Cooked %s', 'cook-app' ),
                         App::format_cooked_date( $last_cooked )
                     )
                     : sprintf(
                         /* translators: %s: recipe published date */
-                        __( 'Added %s', 'cookbook' ),
+                        __( 'Added %s', 'cook-app' ),
                         get_the_date( '', $r )
                     );
                 $datetime    = $last_cooked ? $last_cooked : get_the_date( 'Y-m-d', $r );
                 ?>
                 <li>
-                    <a href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $r->ID ) ); ?>">
+                    <a href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $r->ID ) ); ?>">
                         <span class="recipe-title"><?php echo esc_html( get_the_title( $r ) ); ?></span>
                         <time datetime="<?php echo esc_attr( $datetime ); ?>"><?php echo esc_html( $date_label ); ?></time>
                     </a>
@@ -321,7 +321,7 @@ include __DIR__ . '/_header.php';
                 <ul class="recipe-alpha-list">
                     <?php foreach ( $group as $r ) : ?>
                         <li>
-                            <a href="<?php echo esc_url( home_url( '/cookbook/recipe/' . $r->ID ) ); ?>">
+                            <a href="<?php echo esc_url( home_url( '/cook-app/recipe/' . $r->ID ) ); ?>">
                                 <span class="recipe-title">
                                     <?php echo esc_html( get_the_title( $r ) ); ?>
                                 </span>
@@ -341,7 +341,7 @@ include __DIR__ . '/_header.php';
 	        data-home-ingredients-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
 	        hidden
 	    >
-	        <h2 style="margin-top:1.75rem"><?php esc_html_e( 'Browse by ingredient', 'cookbook' ); ?></h2>
+	        <h2 style="margin-top:1.75rem"><?php esc_html_e( 'Browse by ingredient', 'cook-app' ); ?></h2>
 	        <div class="ingredient-cloud" data-home-ingredient-cloud></div>
 	    </section>
 	<?php endif; ?>

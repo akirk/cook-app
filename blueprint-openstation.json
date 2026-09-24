@@ -1,7 +1,7 @@
 {
 	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
 	"meta": {
-		"title": "Cookbook",
+		"title": "Cook App",
 		"description": "Store your recipes in your WordPress, with ingredients, steps, and prep/cook times. Paste a URL to pull a recipe in from the web.",
 		"author": "Alex Kirk",
 		"categories": [
@@ -60,7 +60,7 @@
 		},
 		{
 			"step": "activatePlugin",
-			"pluginPath": "cookbook/cookbook.php"
+			"pluginPath": "cookbook/cook-app.php"
 		}
 	]
 }

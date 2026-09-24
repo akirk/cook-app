@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class StaticArchiveService extends AbstractService {
     /**
-     * Opt Cookbook recipes into Static Archive without making the CPT public.
+     * Opt Cook App recipes into Static Archive without making the CPT public.
      */
     public function add_static_archive_post_type( array $post_types ): array {
         if ( ! in_array( App::POST_TYPE, $post_types, true ) ) {
@@ -19,7 +19,7 @@ class StaticArchiveService extends AbstractService {
     }
 
     /**
-     * Render Cookbook's structured recipe meta as Static Archive HTML.
+     * Render Cook App's structured recipe meta as Static Archive HTML.
      */
     public function static_archive_recipe_html( string $html, $post, $generator = null ): string {
         if ( ! $post instanceof \WP_Post || $post->post_type !== App::POST_TYPE ) {
@@ -30,7 +30,7 @@ class StaticArchiveService extends AbstractService {
     }
 
     /**
-     * Render Cookbook's structured recipe meta as Static Archive Markdown.
+     * Render Cook App's structured recipe meta as Static Archive Markdown.
      *
      * The incoming value is null when Static Archive would otherwise derive
      * Markdown from HTML.
@@ -71,21 +71,21 @@ class StaticArchiveService extends AbstractService {
         if ( $servings ) {
             $meta[] = sprintf(
                 /* translators: %d: servings */
-                _n( '%d serving', '%d servings', $servings, 'cookbook' ),
+                _n( '%d serving', '%d servings', $servings, 'cook-app' ),
                 $servings
             );
         }
         if ( $prep ) {
             $meta[] = sprintf(
                 /* translators: %d: prep time in minutes */
-                __( 'Prep: %d min', 'cookbook' ),
+                __( 'Prep: %d min', 'cook-app' ),
                 $prep
             );
         }
         if ( $cook ) {
             $meta[] = sprintf(
                 /* translators: %d: cook time in minutes */
-                __( 'Cook: %d min', 'cookbook' ),
+                __( 'Cook: %d min', 'cook-app' ),
                 $cook
             );
         }
@@ -93,7 +93,7 @@ class StaticArchiveService extends AbstractService {
             $source_label = wp_parse_url( $source_url, PHP_URL_HOST ) ?: $source_url;
             $meta[] = sprintf(
                 '%s <a href="%s">%s</a>',
-                esc_html__( 'Source:', 'cookbook' ),
+                esc_html__( 'Source:', 'cook-app' ),
                 esc_url( $source_url ),
                 esc_html( $source_label )
             );
@@ -103,9 +103,9 @@ class StaticArchiveService extends AbstractService {
         }
 
         $term_groups = [
-            __( 'Categories', 'cookbook' ) => wp_get_object_terms( $id, App::TAX_CATEGORY ),
-            __( 'Cuisines', 'cookbook' )   => wp_get_object_terms( $id, App::TAX_CUISINE ),
-            __( 'Tags', 'cookbook' )       => wp_get_object_terms( $id, App::TAX_TAG ),
+            __( 'Categories', 'cook-app' ) => wp_get_object_terms( $id, App::TAX_CATEGORY ),
+            __( 'Cuisines', 'cook-app' )   => wp_get_object_terms( $id, App::TAX_CUISINE ),
+            __( 'Tags', 'cook-app' )       => wp_get_object_terms( $id, App::TAX_TAG ),
         ];
         $term_lines = [];
         foreach ( $term_groups as $label => $terms ) {
@@ -122,26 +122,26 @@ class StaticArchiveService extends AbstractService {
             $html .= '<div class="recipe-description">' . wp_kses_post( wpautop( $post->post_content ) ) . '</div>';
         }
 
-        $html .= '<h2>' . esc_html__( 'Ingredients', 'cookbook' ) . '</h2>';
+        $html .= '<h2>' . esc_html__( 'Ingredients', 'cook-app' ) . '</h2>';
         if ( $this->parts_have_ingredients( $parts ) ) {
             $html .= $this->render_static_archive_ingredient_parts_html( $parts );
         } elseif ( $ingredients ) {
             $html .= $this->render_static_archive_ingredients_html( $ingredients );
         } else {
-            $html .= '<p>' . esc_html__( 'No ingredients yet.', 'cookbook' ) . '</p>';
+            $html .= '<p>' . esc_html__( 'No ingredients yet.', 'cook-app' ) . '</p>';
         }
 
-        $html .= '<h2>' . esc_html__( 'Instructions', 'cookbook' ) . '</h2>';
+        $html .= '<h2>' . esc_html__( 'Instructions', 'cook-app' ) . '</h2>';
         if ( $this->parts_have_instructions( $parts ) ) {
             $html .= $this->render_static_archive_instruction_parts_html( $parts );
         } elseif ( $instructions ) {
             $html .= $this->render_static_archive_instructions_html( $instructions );
         } else {
-            $html .= '<p>' . esc_html__( 'No instructions yet.', 'cookbook' ) . '</p>';
+            $html .= '<p>' . esc_html__( 'No instructions yet.', 'cook-app' ) . '</p>';
         }
 
         if ( $notes ) {
-            $html .= '<h2>' . esc_html__( 'Notes', 'cookbook' ) . '</h2>';
+            $html .= '<h2>' . esc_html__( 'Notes', 'cook-app' ) . '</h2>';
             $html .= '<div class="recipe-notes">' . wp_kses_post( Markdown::to_html( $notes ) ) . '</div>';
         }
 
@@ -170,26 +170,26 @@ class StaticArchiveService extends AbstractService {
         if ( $servings ) {
             $meta[] = sprintf(
                 /* translators: %d: servings */
-                _n( '%d serving', '%d servings', $servings, 'cookbook' ),
+                _n( '%d serving', '%d servings', $servings, 'cook-app' ),
                 $servings
             );
         }
         if ( $prep ) {
             $meta[] = sprintf(
                 /* translators: %d: prep time in minutes */
-                __( 'Prep: %d min', 'cookbook' ),
+                __( 'Prep: %d min', 'cook-app' ),
                 $prep
             );
         }
         if ( $cook ) {
             $meta[] = sprintf(
                 /* translators: %d: cook time in minutes */
-                __( 'Cook: %d min', 'cookbook' ),
+                __( 'Cook: %d min', 'cook-app' ),
                 $cook
             );
         }
         if ( $source_url ) {
-            $meta[] = __( 'Source:', 'cookbook' ) . ' ' . $source_url;
+            $meta[] = __( 'Source:', 'cook-app' ) . ' ' . $source_url;
         }
         if ( $meta ) {
             $sections[] = implode( "\n", array_map( fn( $line ) => '- ' . $this->static_archive_markdown_text( $line ), $meta ) );
@@ -203,16 +203,16 @@ class StaticArchiveService extends AbstractService {
         $ingredient_markdown = $this->parts_have_ingredients( $parts )
             ? $this->render_static_archive_ingredient_parts_markdown( $parts )
             : $this->render_static_archive_ingredients_markdown( $ingredients );
-        $sections[] = "## " . __( 'Ingredients', 'cookbook' ) . "\n\n" . ( $ingredient_markdown !== '' ? $ingredient_markdown : __( 'No ingredients yet.', 'cookbook' ) );
+        $sections[] = "## " . __( 'Ingredients', 'cook-app' ) . "\n\n" . ( $ingredient_markdown !== '' ? $ingredient_markdown : __( 'No ingredients yet.', 'cook-app' ) );
 
         $instruction_markdown = $this->parts_have_instructions( $parts )
             ? $this->render_static_archive_instruction_parts_markdown( $parts )
             : $this->render_static_archive_instructions_markdown( $instructions );
-        $sections[] = "## " . __( 'Instructions', 'cookbook' ) . "\n\n" . ( $instruction_markdown !== '' ? $instruction_markdown : __( 'No instructions yet.', 'cookbook' ) );
+        $sections[] = "## " . __( 'Instructions', 'cook-app' ) . "\n\n" . ( $instruction_markdown !== '' ? $instruction_markdown : __( 'No instructions yet.', 'cook-app' ) );
 
         $notes_text = $this->static_archive_markdown_text( Markdown::strip_images( $notes ) );
         if ( $notes_text !== '' ) {
-            $sections[] = "## " . __( 'Notes', 'cookbook' ) . "\n\n" . $notes_text;
+            $sections[] = "## " . __( 'Notes', 'cook-app' ) . "\n\n" . $notes_text;
         }
 
         return trim( implode( "\n\n", array_filter( $sections ) ) );

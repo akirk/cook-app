@@ -1,6 +1,6 @@
 {
     "name": "akirk/cookbook",
-    "description": "Cookbook - A WordPress app powered by WpApp",
+    "description": "Cook App - A WordPress app powered by WpApp",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "require": {
