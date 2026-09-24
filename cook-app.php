@@ -3,7 +3,7 @@
  * Plugin Name: Cook App
  * Plugin URI: https://wpapps.kirk.at/apps/cook-app/
  * Description: A personal cookbook for WordPress: store, import, categorize, scale, plan and shop from your own recipes.
- * Version: 1.0.0
+ * Version: 1.0.0+27f1e9b2defa
  * Requires at least: 6.0
  * Tested up to: 7.1
  * Requires PHP: 7.4
