@@ -1,6 +1,6 @@
 <?php
 
-use Cookbook\StaticArchiveService;
+use CookApp\StaticArchiveService;
 use PHPUnit\Framework\TestCase;
 
 class StaticArchiveServiceTest extends TestCase {
@@ -59,7 +59,7 @@ class StaticArchiveServiceTest extends TestCase {
     }
 
     public function test_notes_markdown_renders_basic_markup_without_images(): void {
-        $html = Cookbook\Markdown::to_html(
+        $html = CookApp\Markdown::to_html(
             "Keep it simple.\n\n## Variations\n\n- **Makhani:** add cream\n- [Source](https://example.com)\n- ![Photo](https://example.com/photo.jpg)"
         );
 
@@ -74,7 +74,7 @@ class StaticArchiveServiceTest extends TestCase {
     public function test_note_images_are_removed_from_markdown_exports(): void {
         $this->assertSame(
             'See Photo here.',
-            $this->invoke( 'static_archive_markdown_text', Cookbook\Markdown::strip_images( 'See ![Photo](https://example.com/photo.jpg) here.' ) )
+            $this->invoke( 'static_archive_markdown_text', CookApp\Markdown::strip_images( 'See ![Photo](https://example.com/photo.jpg) here.' ) )
         );
     }
 

@@ -11,7 +11,7 @@ namespace WpApp {
 }
 
 namespace {
-    use Cookbook\App;
+    use CookApp\App;
     use PHPUnit\Framework\TestCase;
 
     if ( ! function_exists( 'absint' ) ) {

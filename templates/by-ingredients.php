@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- idempotent read-only filter.
 $have_ids = isset( $_GET['have'] ) && is_array( $_GET['have'] )

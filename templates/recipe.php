@@ -3,10 +3,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
-use Cookbook\Importer;
-use Cookbook\Markdown;
-use Cookbook\Units;
+use CookApp\App;
+use CookApp\Importer;
+use CookApp\Markdown;
+use CookApp\Units;
 
 $id = (int) get_query_var( 'id' );
 $post = $id ? get_post( $id ) : null;

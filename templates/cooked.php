@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 $entries = App::get_user_cooked_entries();
 $entries_by_date = [];

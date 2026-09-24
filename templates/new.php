@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 if ( ! current_user_can( 'edit_posts' ) ) {
     wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );

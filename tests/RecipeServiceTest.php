@@ -1,6 +1,6 @@
 <?php
 
-use Cookbook\RecipeService;
+use CookApp\RecipeService;
 use PHPUnit\Framework\TestCase;
 
 class RecipeServiceTest extends TestCase {

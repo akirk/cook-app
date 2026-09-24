@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- idempotent read-only search.
 $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';

@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 if ( ! is_user_logged_in() || ! current_user_can( 'manage_categories' ) ) {
     status_header( 403 );

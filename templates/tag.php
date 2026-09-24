@@ -3,7 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-use Cookbook\App;
+use CookApp\App;
 
 $slug = (string) get_query_var( 'slug' );
 $term = $slug ? get_term_by( 'slug', $slug, App::TAX_TAG ) : null;

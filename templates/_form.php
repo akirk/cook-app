@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Shared recipe form. Variables expected:
  *   $id (int|0), $post (WP_Post|null), $is_new (bool)
  */
-use Cookbook\App;
-use Cookbook\Units;
+use CookApp\App;
+use CookApp\Units;
 
 $data_id      = $post ? (int) $post->ID : 0;
 $save_id      = $is_new ? 0 : (int) $id;

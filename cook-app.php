@@ -15,7 +15,7 @@
  * Domain Path: /languages
  */
 
-namespace Cookbook;
+namespace CookApp;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -29,7 +29,7 @@ require_once COOK_APP_PLUGIN_DIR . 'vendor/autoload.php';
 
 // Autoloader for plugin classes.
 spl_autoload_register( function( $class ) {
-    $prefix = 'Cookbook\\';
+    $prefix = 'CookApp\\';
     $len = strlen( $prefix );
     if ( strncmp( $prefix, $class, $len ) !== 0 ) {
         return;

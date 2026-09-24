@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Cookbook\\": "src/"
+            "CookApp\\": "src/"
         }
     },
     "authors": [
@@ -27,7 +27,7 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
-        "autoloader-suffix": "Cookbook"
+        "autoloader-suffix": "CookApp"
     },
     "scripts": {
         "lint": "phpcs -n",
