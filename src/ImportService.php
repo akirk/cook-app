@@ -52,7 +52,6 @@ class ImportService extends AbstractService {
             return;
         }
         $this->parsers_loaded = true;
-        $this->register_parser( SchemaOrgRecipeParser::SLUG, new SchemaOrgRecipeParser() );
         do_action( 'cook_app_load_recipe_parsers', $this );
     }
 

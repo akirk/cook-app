@@ -28,7 +28,38 @@ if ( ! function_exists( 'sanitize_key' ) ) {
     function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
 }
 if ( ! function_exists( 'do_action' ) ) {
-    function do_action( $hook_name, ...$args ) {}
+    $GLOBALS['cook_app_test_actions'] = [];
+    function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+        $GLOBALS['cook_app_test_actions'][ $hook_name ][ $priority ][] = [
+            'callback'      => $callback,
+            'accepted_args' => $accepted_args,
+        ];
+        return true;
+    }
+    function do_action( $hook_name, ...$args ) {
+        $callbacks = $GLOBALS['cook_app_test_actions'][ $hook_name ] ?? [];
+        ksort( $callbacks );
+        foreach ( $callbacks as $priority_callbacks ) {
+            foreach ( $priority_callbacks as $registered ) {
+                call_user_func_array( $registered['callback'], array_slice( $args, 0, $registered['accepted_args'] ) );
+            }
+        }
+    }
+}
+if ( ! function_exists( 'plugin_dir_path' ) ) {
+    function plugin_dir_path( $file ) { return trailingslashit( dirname( $file ) ); }
+}
+if ( ! function_exists( 'plugin_dir_url' ) ) {
+    function plugin_dir_url( $file ) { return 'https://example.com/wp-content/plugins/cook-app/'; }
+}
+if ( ! function_exists( 'trailingslashit' ) ) {
+    function trailingslashit( $value ) { return rtrim( $value, '/\\' ) . '/'; }
+}
+if ( ! function_exists( 'register_activation_hook' ) ) {
+    function register_activation_hook( $file, $callback ) {}
+}
+if ( ! function_exists( 'register_deactivation_hook' ) ) {
+    function register_deactivation_hook( $file, $callback ) {}
 }
 if ( ! function_exists( 'wp_kses_post' ) ) {
     function wp_kses_post( $text ) { return (string) $text; }
@@ -97,3 +128,4 @@ require_once dirname( __DIR__ ) . '/src/Importer.php';
 require_once dirname( __DIR__ ) . '/src/AbstractService.php';
 require_once dirname( __DIR__ ) . '/src/RecipeService.php';
 require_once dirname( __DIR__ ) . '/src/StaticArchiveService.php';
+require_once dirname( __DIR__ ) . '/cook-app.php';

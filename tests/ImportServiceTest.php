@@ -2,9 +2,19 @@
 
 use CookApp\ImportService;
 use CookApp\RecipeParser;
+use CookApp\SchemaOrgRecipeParser;
 use PHPUnit\Framework\TestCase;
 
 class ImportServiceTest extends TestCase {
+    public function test_bundled_parser_registers_through_parser_hook(): void {
+        $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
+
+        $this->assertSame(
+            SchemaOrgRecipeParser::NAME,
+            $imports->get_registered_parsers()[ SchemaOrgRecipeParser::SLUG ]
+        );
+    }
+
     public function test_registered_parser_can_handle_a_document(): void {
         $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
         $parser = new class() extends RecipeParser {
