@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use CookApp\Importer;
+use CookApp\SchemaOrgRecipeParser;
 
 class ImporterTest extends TestCase {
 
@@ -92,6 +93,21 @@ class ImporterTest extends TestCase {
         $this->assertSame( 'Öl',    $parsed['ingredients'][2]['name'] );
         // German "Stk" should normalize to piece.
         $this->assertSame( 'piece', $parsed['ingredients'][4]['unit'] );
+    }
+
+    public function test_schema_org_parser_only_accepts_json_ld_recipe_data(): void {
+        $parser = new SchemaOrgRecipeParser();
+        $html = '<script type="application/ld+json">' . json_encode( [
+            '@context' => 'https://schema.org',
+            '@type' => 'Recipe',
+            'name' => 'Registered Parser Recipe',
+            'recipeIngredient' => [ '1 cup flour' ],
+            'recipeInstructions' => [ 'Mix.' ],
+        ] ) . '</script>';
+
+        $this->assertSame( 10, $parser->support_confidence( 'https://example.com', 'text/html', $html ) );
+        $this->assertSame( 'Registered Parser Recipe', $parser->parse( 'https://example.com', 'text/html', $html )['title'] );
+        $this->assertSame( 0, $parser->support_confidence( 'https://example.com', 'text/html', '<h1>Recipe</h1>' ) );
     }
 
     public function test_microdata_ichkoche_kaesespaetzle(): void {

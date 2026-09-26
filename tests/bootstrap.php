@@ -24,6 +24,12 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
         return trim( wp_strip_all_tags( (string) $text ) );
     }
 }
+if ( ! function_exists( 'sanitize_key' ) ) {
+    function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
+}
+if ( ! function_exists( 'do_action' ) ) {
+    function do_action( $hook_name, ...$args ) {}
+}
 if ( ! function_exists( 'wp_kses_post' ) ) {
     function wp_kses_post( $text ) { return (string) $text; }
 }

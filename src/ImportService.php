@@ -7,6 +7,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class ImportService extends AbstractService {
+    /** @var array<string,RecipeParser> */
+    private array $parsers = [];
+
+    private bool $parsers_loaded = false;
+
+    public function register_parser( string $slug, RecipeParser $parser ) {
+        $slug = sanitize_key( $slug );
+        if ( $slug === '' ) {
+            return new \WP_Error( 'cook_app_invalid_parser_slug', __( 'The parser slug is invalid.', 'cook-app' ) );
+        }
+        if ( isset( $this->parsers[ $slug ] ) ) {
+            return new \WP_Error(
+                'cook_app_parser_already_registered',
+                sprintf( __( 'A recipe parser is already registered as "%s".', 'cook-app' ), $slug )
+            );
+        }
+        $this->parsers[ $slug ] = $parser;
+        return true;
+    }
+
+    public function unregister_parser( string $slug ): void {
+        unset( $this->parsers[ $slug ] );
+    }
+
+    public function get_parser( string $slug ): ?RecipeParser {
+        $this->load_parsers();
+        return $this->parsers[ $slug ] ?? null;
+    }
+
+    /** @return array<string,string> */
+    public function get_registered_parsers(): array {
+        $this->load_parsers();
+        $registered = [];
+        foreach ( $this->parsers as $slug => $parser ) {
+            $registered[ $slug ] = defined( get_class( $parser ) . '::NAME' ) ? $parser::NAME : $slug;
+        }
+        return $registered;
+    }
+
+    private function load_parsers(): void {
+        if ( $this->parsers_loaded ) {
+            return;
+        }
+        $this->parsers_loaded = true;
+        $this->register_parser( SchemaOrgRecipeParser::SLUG, new SchemaOrgRecipeParser() );
+        do_action( 'cook_app_load_recipe_parsers', $this );
+    }
+
     /**
      * Shared import flow used by the import form, browser extension, and abilities.
      *
@@ -37,10 +85,10 @@ class ImportService extends AbstractService {
 
         $parsed = null;
         if ( $html !== '' ) {
-            $parsed = Importer::from_html( $html );
+            $parsed = $this->parse_document( $url, 'text/html', $html );
         }
         if ( ! $parsed && $url !== '' ) {
-            $parsed = Importer::from_url( $url );
+            $parsed = $this->parse_url( $url );
         }
         if ( ! $parsed && trim( $paste ) !== '' ) {
             $parsed = Importer::from_text( $paste );
@@ -50,6 +98,35 @@ class ImportService extends AbstractService {
         }
 
         return $parsed;
+    }
+
+    public function parse_url( string $url ): ?array {
+        $document = Importer::fetch_url( $url );
+        if ( ! $document ) {
+            return null;
+        }
+
+        return $this->parse_document( $url, $document['content_type'], $document['content'] );
+    }
+
+    public function parse_document( string $url, string $content_type, string $content ): ?array {
+        $this->load_parsers();
+        $parsers = $this->parsers;
+        uasort( $parsers, function ( RecipeParser $first, RecipeParser $second ) use ( $url, $content_type, $content ): int {
+            return $second->support_confidence( $url, $content_type, $content )
+                <=> $first->support_confidence( $url, $content_type, $content );
+        } );
+
+        foreach ( $parsers as $parser ) {
+            if ( $parser->support_confidence( $url, $content_type, $content ) <= 0 ) {
+                continue;
+            }
+            $parsed = $parser->parse( $url, $content_type, $content );
+            if ( $parsed ) {
+                return $parsed;
+            }
+        }
+        return null;
     }
 
     /**
