@@ -31,6 +31,16 @@ class Importer {
     private const MAX_IMPORT_REDIRECTS = 5;
 
     public static function from_url( string $url ): ?array {
+        $document = self::fetch_url( $url );
+        return $document ? self::from_schema_org_json_ld( $document['content'] ) : null;
+    }
+
+    /**
+     * Fetch a URL once so registered parsers can inspect the same document.
+     *
+     * @return array{content:string,content_type:string}|null
+     */
+    public static function fetch_url( string $url ): ?array {
         if ( ! self::is_safe_import_url( $url ) ) {
             return null;
         }
@@ -71,7 +81,16 @@ class Importer {
 
             $body = wp_remote_retrieve_body( $response );
             if ( ! $body || strlen( $body ) >= self::MAX_IMPORT_BODY_BYTES ) return null;
-            return self::from_html( $body );
+            $content_type = function_exists( 'wp_remote_retrieve_header' )
+                ? wp_remote_retrieve_header( $response, 'content-type' )
+                : '';
+            if ( is_array( $content_type ) ) {
+                $content_type = reset( $content_type );
+            }
+            return [
+                'content'      => $body,
+                'content_type' => is_string( $content_type ) ? strtok( $content_type, ';' ) : '',
+            ];
         }
 
         return null;
@@ -200,6 +219,20 @@ class Importer {
         if ( ! $parsed ) return null;
 
         return $parsed;
+    }
+
+    /**
+     * Parse only schema.org Recipe JSON-LD from a document.
+     *
+     * Unlike from_html(), this does not inspect microdata, visible HTML, or
+     * site-specific recipe markup.
+     */
+    public static function from_schema_org_json_ld( string $html ): ?array {
+        if ( $html === '' ) {
+            return null;
+        }
+        $recipe = self::extract_jsonld_recipe( $html );
+        return $recipe ? self::normalize_jsonld( $recipe ) : null;
     }
 
     private static function has_recipe_section_markers( string $text ): bool {

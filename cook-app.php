@@ -40,6 +40,15 @@ spl_autoload_register( function( $class ) {
     }
 } );
 
+// Register bundled parsers through the same extension point used by parser plugins.
+add_action(
+    'cook_app_load_recipe_parsers',
+    function ( ImportService $imports ): void {
+        $imports->register_parser( SchemaOrgRecipeParser::SLUG, new SchemaOrgRecipeParser() );
+    },
+    9
+);
+
 add_action( 'init', function() {
     $app = new App();
     $app->init();
