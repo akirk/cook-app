@@ -20,6 +20,7 @@ class ImportService extends AbstractService {
         if ( isset( $this->parsers[ $slug ] ) ) {
             return new \WP_Error(
                 'cook_app_parser_already_registered',
+                // translators: %s: Recipe parser slug.
                 sprintf( __( 'A recipe parser is already registered as "%s".', 'cook-app' ), $slug )
             );
         }
