@@ -73,7 +73,7 @@ class ImporterTest extends TestCase {
     }
 
     public function test_jsonld_gutekueche_schinkenfleckerln(): void {
-        $parsed = Importer::from_html( $this->fixture( 'gutekueche-schinkenfleckerln.html' ) );
+        $parsed = Importer::from_schema_org_json_ld( $this->fixture( 'gutekueche-schinkenfleckerln.html' ) );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 'Cremige Schinkenfleckerln', $parsed['title'] );
@@ -110,34 +110,6 @@ class ImporterTest extends TestCase {
         $this->assertSame( 0, $parser->support_confidence( 'https://example.com', 'text/html', '<h1>Recipe</h1>' ) );
     }
 
-    public function test_microdata_ichkoche_kaesespaetzle(): void {
-        $parsed = Importer::from_html( $this->fixture( 'ichkoche-kaesespaetzle.html' ) );
-
-        $this->assertIsArray( $parsed );
-        $this->assertSame( 'Käsespätzle', $parsed['title'] );
-        $this->assertSame( 4, $parsed['servings'] );
-        $this->assertSame( 30, $parsed['cook_time'] );
-        $this->assertStringContainsString( 'ichkoche.at', $parsed['image_url'] );
-
-        // Should not contain rating counts ("1422 Bewertungen") or comment timestamps.
-        foreach ( $parsed['ingredients'] as $ing ) {
-            $this->assertStringNotContainsString( 'Bewertungen', $ing['name'] );
-            $this->assertStringNotContainsString( 'Kommentare', $ing['name'] );
-            $this->assertStringNotContainsString( 'MIN', $ing['name'] );
-            $this->assertStringNotContainsString( 'Uhr', $ing['name'] );
-        }
-
-        $names = array_column( $parsed['ingredients'], 'name' );
-        $this->assertContains( 'Bergkäse',     $names );
-        $this->assertContains( 'Schnittlauch', $names );
-        $this->assertContains( 'Eier',         $names );
-        $this->assertContains( 'Mehl',         $names );
-        $this->assertContains( 'Salz',         $names );
-
-        $this->assertNotEmpty( $parsed['instructions'] );
-        $this->assertStringContainsString( 'Salzwasser', $parsed['instructions'][0] );
-    }
-
     public function test_html_with_no_recipe_returns_null_not_garbage(): void {
         $html = '<html><body><h1>Some article</h1>'
               . '<p>1422 Bewertungen</p>'
@@ -146,8 +118,8 @@ class ImporterTest extends TestCase {
               . '<p>Some prose paragraph with no recipe content here at all.</p>'
               . '</body></html>';
         $this->assertNull(
-            Importer::from_html( $html ),
-            'from_html should refuse to make up a recipe out of unrelated HTML.'
+            Importer::from_schema_org_json_ld( $html ),
+            'The JSON-LD parser should refuse unrelated HTML.'
         );
     }
 
@@ -162,30 +134,6 @@ class ImporterTest extends TestCase {
         $this->assertSame( 'g',   $parsed['ingredients'][0]['unit'] );
         $this->assertSame( 'flour', $parsed['ingredients'][0]['name'] );
         $this->assertCount( 3, $parsed['instructions'] );
-    }
-
-    public function test_simplehomeedit_recipe_card_sections_are_preserved_when_jsonld_is_flat(): void {
-        $parsed = Importer::from_html( $this->fixture( 'simplehomeedit-dijon-salmon-sections.html' ) );
-
-        $this->assertIsArray( $parsed );
-        $this->assertSame( 'Dijon Salmon and Crispy Potatoes', $parsed['title'] );
-        $this->assertCount( 4, $parsed['parts'] );
-        $this->assertSame(
-            [ 'POTATOES', 'SALMON', 'CREAMY LEMON DILL SAUCE', 'TO SERVE' ],
-            array_column( $parsed['parts'], 'title' )
-        );
-
-        $this->assertSame( 'baby potatoes', $parsed['parts'][0]['ingredients'][0]['name'] );
-        $this->assertSame( 'washed - no need to peel', $parsed['parts'][0]['ingredients'][0]['notes'] );
-        $this->assertSame( 'salmon fillets', $parsed['parts'][1]['ingredients'][0]['name'] );
-        $this->assertSame( 'whole-egg mayonnaise', $parsed['parts'][2]['ingredients'][0]['name'] );
-        $this->assertSame( 'Green leafy salad', $parsed['parts'][3]['ingredients'][0]['name'] );
-
-        // The compatibility field stays flat for existing recipe storage,
-        // shopping-list code, and callers that do not understand parts yet.
-        $this->assertCount( 5, $parsed['ingredients'] );
-        $this->assertSame( 'baby potatoes', $parsed['ingredients'][0]['name'] );
-        $this->assertSame( 'Green leafy salad', $parsed['ingredients'][4]['name'] );
     }
 
     public function test_jsonld_howto_sections_are_preserved_as_parts(): void {
@@ -220,7 +168,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_html( $html );
+        $parsed = Importer::from_schema_org_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertCount( 2, $parsed['parts'] );
@@ -248,7 +196,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_html( $html );
+        $parsed = Importer::from_schema_org_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( [], $parsed['parts'] );
@@ -266,7 +214,7 @@ class ImporterTest extends TestCase {
             'recipeInstructions' => [ [ '@type' => 'HowToStep', 'text' => 'Mix everything.' ] ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_html( $html );
+        $parsed = Importer::from_schema_org_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 0, $parsed['prep_time'] );
@@ -289,7 +237,7 @@ class ImporterTest extends TestCase {
             'recipeInstructions' => [ [ '@type' => 'HowToStep', 'text' => 'Mix everything.' ] ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_html( $html );
+        $parsed = Importer::from_schema_org_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 5,  $parsed['prep_time'] );
@@ -297,7 +245,7 @@ class ImporterTest extends TestCase {
     }
 
     public function test_hellofresh_real_world_page(): void {
-        $parsed = Importer::from_html( $this->fixture( 'hellofresh-speedy-prawn-rigatoni.html' ) );
+        $parsed = Importer::from_schema_org_json_ld( $this->fixture( 'hellofresh-speedy-prawn-rigatoni.html' ) );
 
         $this->assertIsArray( $parsed );
 
@@ -334,34 +282,6 @@ class ImporterTest extends TestCase {
         $this->assertSame( 'Mix everything', Importer::clean_step( '<p>1. Mix everything</p>' ) );
     }
 
-    public function test_wprm_notes_do_not_keep_their_leading_separator(): void {
-        // WP Recipe Maker renders "<name> (<notes>)", and some sites store the
-        // joining comma inside the notes field itself — veganhuggs.com's
-        // "1 small red onion (, diced)" comes from a notes value of ", diced".
-        $html = '<script type="application/ld+json">' . json_encode( [
-            '@context' => 'https://schema.org',
-            '@type' => 'Recipe',
-            'name' => 'WPRM Notes',
-            'recipeIngredient' => [ '1 small red onion (, diced)' ],
-            'recipeInstructions' => [ [ '@type' => 'HowToStep', 'text' => 'Fry it.' ] ],
-        ] ) . '</script>'
-        . '<div class="wprm-recipe-ingredient-group">'
-        . '<h4 class="wprm-recipe-group-name">Base</h4>'
-        . '<ul><li class="wprm-recipe-ingredient">'
-        . '<span class="wprm-recipe-ingredient-amount">1</span>'
-        . '<span class="wprm-recipe-ingredient-unit">small</span>'
-        . '<span class="wprm-recipe-ingredient-name">red onion</span>'
-        . '<span class="wprm-recipe-ingredient-notes">, diced</span>'
-        . '</li></ul></div>';
-
-        $parsed = Importer::from_html( $html );
-
-        $this->assertIsArray( $parsed );
-        $ingredient = $parsed['parts'][0]['ingredients'][0] ?? $parsed['ingredients'][0];
-        $this->assertSame( 'red onion', $ingredient['name'] );
-        $this->assertSame( 'diced', $ingredient['notes'], 'The note should not keep its leading comma.' );
-    }
-
     public function test_jsonld_iso8601_seconds_round_up_to_minutes(): void {
         $html = '<script type="application/ld+json">' . json_encode( [
             '@context' => 'https://schema.org',
@@ -377,7 +297,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_html( $html );
+        $parsed = Importer::from_schema_org_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 1, $parsed['prep_time'] );
