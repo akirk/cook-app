@@ -85,15 +85,20 @@ class Importer {
 
             $body = wp_remote_retrieve_body( $response );
             if ( ! $body || strlen( $body ) >= self::MAX_IMPORT_BODY_BYTES ) return null;
-            $content_type = function_exists( 'wp_remote_retrieve_header' )
-                ? wp_remote_retrieve_header( $response, 'content-type' )
-                : '';
+            $content_type = '';
+            if ( function_exists( 'wp_remote_retrieve_header' ) ) {
+                $content_type = wp_remote_retrieve_header( $response, 'content-type' );
+            }
             if ( is_array( $content_type ) ) {
                 $content_type = reset( $content_type );
             }
+            $normalized_content_type = '';
+            if ( is_string( $content_type ) ) {
+                $normalized_content_type = strtok( $content_type, ';' );
+            }
             return [
                 'content'      => $body,
-                'content_type' => is_string( $content_type ) ? strtok( $content_type, ';' ) : '',
+                'content_type' => $normalized_content_type,
             ];
         }
 

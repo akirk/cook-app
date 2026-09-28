@@ -42,7 +42,11 @@ class ImportService extends AbstractService {
         $this->load_parsers();
         $registered = [];
         foreach ( $this->parsers as $slug => $parser ) {
-            $registered[ $slug ] = defined( get_class( $parser ) . '::NAME' ) ? $parser::NAME : $slug;
+            $name = $slug;
+            if ( defined( get_class( $parser ) . '::NAME' ) ) {
+                $name = $parser::NAME;
+            }
+            $registered[ $slug ] = $name;
         }
         return $registered;
     }

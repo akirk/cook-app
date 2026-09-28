@@ -19,7 +19,10 @@ class ImportServiceTest extends TestCase {
         $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
         $parser = new class() extends RecipeParser {
             public function support_confidence( string $url, string $content_type, string $content ): int {
-                return str_contains( $content, 'custom-recipe' ) ? 100 : 0;
+                if ( str_contains( $content, 'custom-recipe' ) ) {
+                    return 100;
+                }
+                return 0;
             }
 
             public function parse( string $url, string $content_type, string $content ): ?array {
