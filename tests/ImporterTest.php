@@ -6,6 +6,10 @@ use CookApp\SchemaOrgRecipeParser;
 
 class ImporterTest extends TestCase {
 
+    private function parse_json_ld( string $html ): ?array {
+        return ( new SchemaOrgRecipeParser() )->parse( '', 'text/html', $html );
+    }
+
     protected function setUp(): void {
         $GLOBALS['wp_remote_get_calls'] = [];
         unset( $GLOBALS['wp_remote_get_mock'] );
@@ -73,7 +77,7 @@ class ImporterTest extends TestCase {
     }
 
     public function test_jsonld_gutekueche_schinkenfleckerln(): void {
-        $parsed = Importer::from_schema_org_json_ld( $this->fixture( 'gutekueche-schinkenfleckerln.html' ) );
+        $parsed = $this->parse_json_ld( $this->fixture( 'gutekueche-schinkenfleckerln.html' ) );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 'Cremige Schinkenfleckerln', $parsed['title'] );
@@ -118,7 +122,7 @@ class ImporterTest extends TestCase {
               . '<p>Some prose paragraph with no recipe content here at all.</p>'
               . '</body></html>';
         $this->assertNull(
-            Importer::from_schema_org_json_ld( $html ),
+            $this->parse_json_ld( $html ),
             'The JSON-LD parser should refuse unrelated HTML.'
         );
     }
@@ -168,7 +172,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_schema_org_json_ld( $html );
+        $parsed = $this->parse_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertCount( 2, $parsed['parts'] );
@@ -196,7 +200,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_schema_org_json_ld( $html );
+        $parsed = $this->parse_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( [], $parsed['parts'] );
@@ -214,7 +218,7 @@ class ImporterTest extends TestCase {
             'recipeInstructions' => [ [ '@type' => 'HowToStep', 'text' => 'Mix everything.' ] ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_schema_org_json_ld( $html );
+        $parsed = $this->parse_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 0, $parsed['prep_time'] );
@@ -237,7 +241,7 @@ class ImporterTest extends TestCase {
             'recipeInstructions' => [ [ '@type' => 'HowToStep', 'text' => 'Mix everything.' ] ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_schema_org_json_ld( $html );
+        $parsed = $this->parse_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 5,  $parsed['prep_time'] );
@@ -245,7 +249,7 @@ class ImporterTest extends TestCase {
     }
 
     public function test_hellofresh_real_world_page(): void {
-        $parsed = Importer::from_schema_org_json_ld( $this->fixture( 'hellofresh-speedy-prawn-rigatoni.html' ) );
+        $parsed = $this->parse_json_ld( $this->fixture( 'hellofresh-speedy-prawn-rigatoni.html' ) );
 
         $this->assertIsArray( $parsed );
 
@@ -297,7 +301,7 @@ class ImporterTest extends TestCase {
             ],
         ] ) . '</script>';
 
-        $parsed = Importer::from_schema_org_json_ld( $html );
+        $parsed = $this->parse_json_ld( $html );
 
         $this->assertIsArray( $parsed );
         $this->assertSame( 1, $parsed['prep_time'] );
