@@ -31,7 +31,7 @@ $recipes = get_posts( [
 $page_title = ucfirst( $term->name );
 include __DIR__ . '/_header.php';
 ?>
-<?php cookbook_page_head( ucfirst( $term->name ), [
+<?php cook_app_page_head( ucfirst( $term->name ), [
     'current_section' => 'ingredients',
     'subtitle'        => sprintf(
         /* translators: %d: number of recipes using this ingredient */

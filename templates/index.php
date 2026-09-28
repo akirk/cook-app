@@ -142,7 +142,7 @@ $page_title = __( 'Cook App', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
 
-<?php cookbook_page_head( __( 'Cook App', 'cook-app' ), [ 'current_section' => 'recipes' ] ); ?>
+<?php cook_app_page_head( __( 'Cook App', 'cook-app' ), [ 'current_section' => 'recipes' ] ); ?>
 
 <form method="get" action="" class="home-search">
     <input id="cookbook-search" type="text" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search recipes or paste a URL to import…', 'cook-app' ); ?>">

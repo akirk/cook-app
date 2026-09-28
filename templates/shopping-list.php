@@ -74,7 +74,7 @@ include __DIR__ . '/_header.php';
     <?php endif; ?>
     <?php
     $shopping_actions = ob_get_clean();
-    cookbook_page_head( __( 'Shopping list', 'cook-app' ), [
+    cook_app_page_head( __( 'Shopping list', 'cook-app' ), [
         'current_section' => 'shopping',
         'subtitle'        => sprintf(
             /* translators: 1: total items, 2: checked items */
