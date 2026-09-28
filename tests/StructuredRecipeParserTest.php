@@ -5,16 +5,12 @@ use CookApp\RdfaRecipeParser;
 use PHPUnit\Framework\TestCase;
 
 class StructuredRecipeParserTest extends TestCase {
+    private function fixture( string $name ): string {
+        return file_get_contents( __DIR__ . '/fixtures/' . $name );
+    }
+
     public function test_parses_recipe_microdata(): void {
-        $html = '<article itemscope itemtype="https://schema.org/Recipe">'
-            . '<h1 itemprop="name">Microdata Soup</h1>'
-            . '<meta itemprop="recipeYield" content="2">'
-            . '<meta itemprop="prepTime" content="PT5M">'
-            . '<meta itemprop="cookTime" content="PT20M">'
-            . '<meta itemprop="recipeIngredient" content="2 cups stock">'
-            . '<meta itemprop="recipeIngredient" content="1 carrot">'
-            . '<p itemprop="recipeInstructions">Simmer until tender.</p>'
-            . '</article>';
+        $html = $this->fixture( 'schema-recipe-microdata.html' );
         $parser = new MicrodataRecipeParser();
 
         $this->assertSame( 10, $parser->support_confidence( 'https://example.com', 'text/html', $html ) );
@@ -26,18 +22,15 @@ class StructuredRecipeParserTest extends TestCase {
     }
 
     public function test_parses_recipe_rdfa(): void {
-        $html = '<article vocab="https://schema.org/" typeof="Recipe">'
-            . '<h1 property="name">RDFa Stew</h1>'
-            . '<meta property="recipeYield" content="3">'
-            . '<span property="recipeIngredient">500 g potatoes</span>'
-            . '<p property="recipeInstructions">Cook until tender.</p>'
-            . '</article>';
+        $html = $this->fixture( 'schema-recipe-rdfa.html' );
         $parser = new RdfaRecipeParser();
 
         $this->assertSame( 10, $parser->support_confidence( 'https://example.com', 'text/html', $html ) );
         $recipe = $parser->parse( 'https://example.com', 'text/html', $html );
         $this->assertSame( 'RDFa Stew', $recipe['title'] );
         $this->assertSame( 3, $recipe['servings'] );
+        $this->assertSame( 10, $recipe['prep_time'] );
+        $this->assertSame( 30, $recipe['cook_time'] );
         $this->assertSame( 'potatoes', $recipe['ingredients'][0]['name'] );
         $this->assertSame( 'Cook until tender.', $recipe['instructions'][0] );
     }
