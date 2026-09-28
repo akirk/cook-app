@@ -112,6 +112,19 @@ class ImporterTest extends TestCase {
         $this->assertSame( 10, $parser->support_confidence( 'https://example.com', 'text/html', $html ) );
         $this->assertSame( 'Registered Parser Recipe', $parser->parse( 'https://example.com', 'text/html', $html )['title'] );
         $this->assertSame( 0, $parser->support_confidence( 'https://example.com', 'text/html', '<h1>Recipe</h1>' ) );
+        $this->assertSame( 0, $parser->support_confidence( 'https://example.com', 'text/html', '<script type="application/ld+json">not json Recipe</script>' ) );
+        $this->assertSame(
+            0,
+            $parser->support_confidence(
+                'https://example.com',
+                'text/html',
+                '<script type="application/ld+json">{"@type":"WebSite","name":"Recipe index"}</script>'
+            )
+        );
+        $this->assertSame(
+            10,
+            $parser->support_confidence( 'https://example.com/recipe.json', 'application/ld+json', json_encode( [ '@type' => 'Recipe', 'name' => 'Direct Recipe' ] ) )
+        );
     }
 
     public function test_html_with_no_recipe_returns_null_not_garbage(): void {

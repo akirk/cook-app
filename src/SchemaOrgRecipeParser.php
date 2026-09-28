@@ -11,23 +11,45 @@ class SchemaOrgRecipeParser extends RecipeParser {
     public const SLUG = 'schema-org-json-ld';
     public const NAME = 'Schema.org Recipe JSON-LD';
 
+    private string $cached_document = '';
+
+    private ?array $cached_recipe = null;
+
     public function support_confidence( string $url, string $content_type, string $content ): int {
-        return stripos( $content, 'application/ld+json' ) !== false && stripos( $content, 'Recipe' ) !== false ? 10 : 0;
+        return $this->recipe_from_document( $content_type, $content ) ? 10 : 0;
     }
 
     public function parse( string $url, string $content_type, string $content ): ?array {
-        if ( ! preg_match_all( '#<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#si', $content, $matches ) ) {
-            return null;
+        $recipe = $this->recipe_from_document( $content_type, $content );
+        return $recipe ? $this->normalize_recipe( $recipe ) : null;
+    }
+
+    private function recipe_from_document( string $content_type, string $content ): ?array {
+        $document_key = hash( 'sha256', $content_type . "\n" . $content );
+        if ( $document_key === $this->cached_document ) {
+            return $this->cached_recipe;
         }
-        foreach ( $matches[1] as $json ) {
+
+        $this->cached_document = $document_key;
+        $this->cached_recipe = null;
+        $documents = [];
+        if ( strtolower( trim( strtok( $content_type, ';' ) ) ) === 'application/ld+json' ) {
+            $documents[] = $content;
+        } elseif ( preg_match_all( '#<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#si', $content, $matches ) ) {
+            $documents = $matches[1];
+        }
+
+        foreach ( $documents as $json ) {
             $json = preg_replace( '/[\x00-\x09\x0B\x0C\x0E-\x1F]/', ' ', trim( html_entity_decode( $json, ENT_QUOTES, 'UTF-8' ) ) );
             $data = json_decode( $json, true );
             $recipe = $data ? $this->find_recipe_node( $data ) : null;
             if ( $recipe ) {
-                return $this->normalize_recipe( $recipe );
+                $this->cached_recipe = $recipe;
+                break;
             }
         }
-        return null;
+
+        return $this->cached_recipe;
     }
 
     private function find_recipe_node( $node ): ?array {
