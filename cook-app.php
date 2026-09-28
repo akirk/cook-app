@@ -44,7 +44,9 @@ spl_autoload_register( function( $class ) {
 add_action(
     'cook_app_load_recipe_parsers',
     function ( ImportService $imports ): void {
-        $imports->register_parser( SchemaOrgRecipeParser::SLUG, new SchemaOrgRecipeParser() );
+        $imports->register_parser( JsonLdRecipeParser::SLUG, new JsonLdRecipeParser() );
+        $imports->register_parser( MicrodataRecipeParser::SLUG, new MicrodataRecipeParser() );
+        $imports->register_parser( RdfaRecipeParser::SLUG, new RdfaRecipeParser() );
     },
     9
 );

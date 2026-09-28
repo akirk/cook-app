@@ -7,9 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /** Parses machine-readable schema.org Recipe JSON-LD. */
-class SchemaOrgRecipeParser extends RecipeParser {
-    public const SLUG = 'schema-org-json-ld';
-    public const NAME = 'Schema.org Recipe JSON-LD';
+class JsonLdRecipeParser extends RecipeParser {
+    public const SLUG = 'json-ld';
+    public const NAME = 'Recipe JSON-LD';
 
     private string $cached_document = '';
 
@@ -49,7 +49,7 @@ class SchemaOrgRecipeParser extends RecipeParser {
             $json = preg_replace( '/[\x00-\x09\x0B\x0C\x0E-\x1F]/', ' ', trim( html_entity_decode( $json, ENT_QUOTES, 'UTF-8' ) ) );
             $data = json_decode( $json, true );
             $recipe = null;
-            if ( $data ) {
+            if ( $data && $this->uses_schema_vocabulary( $data ) ) {
                 $recipe = $this->find_recipe_node( $data );
             }
             if ( $recipe ) {
@@ -64,7 +64,12 @@ class SchemaOrgRecipeParser extends RecipeParser {
     private function find_recipe_node( $node ): ?array {
         if ( ! is_array( $node ) ) return null;
         foreach ( (array) ( $node['@type'] ?? [] ) as $type ) {
-            if ( is_string( $type ) && strcasecmp( $type, 'Recipe' ) === 0 ) return $node;
+            if ( ! is_string( $type ) ) {
+                continue;
+            }
+            if ( strcasecmp( $type, 'Recipe' ) === 0 || preg_match( '#^https?://schema\.org/Recipe$#i', $type ) ) {
+                return $node;
+            }
         }
         foreach ( $node as $value ) {
             $recipe = null;
@@ -74,6 +79,29 @@ class SchemaOrgRecipeParser extends RecipeParser {
             if ( $recipe ) return $recipe;
         }
         return null;
+    }
+
+    private function uses_schema_vocabulary( $node ): bool {
+        if ( is_string( $node ) ) {
+            return (bool) preg_match( '#^https?://schema\.org/?$#i', $node );
+        }
+        if ( ! is_array( $node ) ) {
+            return false;
+        }
+        if ( isset( $node['@context'] ) && $this->uses_schema_vocabulary( $node['@context'] ) ) {
+            return true;
+        }
+        foreach ( (array) ( $node['@type'] ?? [] ) as $type ) {
+            if ( is_string( $type ) && preg_match( '#^https?://schema\.org/#i', $type ) ) {
+                return true;
+            }
+        }
+        foreach ( $node as $value ) {
+            if ( $this->uses_schema_vocabulary( $value ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function normalize_recipe( array $recipe ): array {

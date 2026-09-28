@@ -2,12 +2,12 @@
 
 use PHPUnit\Framework\TestCase;
 use CookApp\Importer;
-use CookApp\SchemaOrgRecipeParser;
+use CookApp\JsonLdRecipeParser;
 
 class ImporterTest extends TestCase {
 
     private function parse_json_ld( string $html ): ?array {
-        $parser = new SchemaOrgRecipeParser();
+        $parser = new JsonLdRecipeParser();
         return $parser->parse( '', 'text/html', $html );
     }
 
@@ -101,7 +101,7 @@ class ImporterTest extends TestCase {
     }
 
     public function test_schema_org_parser_only_accepts_json_ld_recipe_data(): void {
-        $parser = new SchemaOrgRecipeParser();
+        $parser = new JsonLdRecipeParser();
         $html = '<script type="application/ld+json">' . json_encode( [
             '@context' => 'https://schema.org',
             '@type' => 'Recipe',
@@ -124,7 +124,11 @@ class ImporterTest extends TestCase {
         );
         $this->assertSame(
             10,
-            $parser->support_confidence( 'https://example.com/recipe.json', 'application/ld+json', json_encode( [ '@type' => 'Recipe', 'name' => 'Direct Recipe' ] ) )
+            $parser->support_confidence( 'https://example.com/recipe.json', 'application/ld+json', json_encode( [ '@context' => 'https://schema.org', '@type' => 'Recipe', 'name' => 'Direct Recipe' ] ) )
+        );
+        $this->assertSame(
+            0,
+            $parser->support_confidence( 'https://example.com/recipe.json', 'application/ld+json', json_encode( [ '@context' => 'https://example.com/vocabulary', '@type' => 'Recipe' ] ) )
         );
     }
 

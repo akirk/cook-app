@@ -25,7 +25,7 @@ Each recipe is stored as a `cb-recipes` custom post type with recipe taxonomies 
 
 ### Import recipes from the web
 
-Paste a recipe URL and Cook App looks for machine-readable schema.org `Recipe` JSON-LD. It supports recipe sections, ingredient groups, instruction sections, and recipe images where the structured data exposes them. If automatic parsing is not enough, paste recipe text and preview the detected title, ingredients, and instructions before saving.
+Paste a recipe URL and Cook App looks for machine-readable schema.org `Recipe` data expressed as JSON-LD, Microdata, or RDFa. It supports recipe sections, ingredient groups, instruction sections, and recipe images where the structured data exposes them. If automatic parsing is not enough, paste recipe text and preview the detected title, ingredients, and instructions before saving.
 
 Recipe parsers are extensible through the `cook_app_load_recipe_parsers` action. Optional parser plugins can add support for other source formats without changing Cook App.
 
@@ -92,7 +92,7 @@ Visit `/cook-app/` on your site after activating the plugin. The app uses WordPr
 
 ### Can I import recipes from any website?
 
-Cook App imports pages that expose schema.org `Recipe` JSON-LD. Optional parser plugins can support additional formats. If a site cannot be parsed automatically, you can paste the recipe text and use the preview before saving.
+Cook App imports pages that expose schema.org `Recipe` data as JSON-LD, Microdata, or RDFa. Optional parser plugins can support additional formats. If a site cannot be parsed automatically, you can paste the recipe text and use the preview before saving.
 
 ### Does Cook App publish my recipes publicly?
 

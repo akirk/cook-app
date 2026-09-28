@@ -2,7 +2,9 @@
 
 use CookApp\ImportService;
 use CookApp\RecipeParser;
-use CookApp\SchemaOrgRecipeParser;
+use CookApp\JsonLdRecipeParser;
+use CookApp\MicrodataRecipeParser;
+use CookApp\RdfaRecipeParser;
 use PHPUnit\Framework\TestCase;
 
 class ImportServiceTest extends TestCase {
@@ -10,9 +12,11 @@ class ImportServiceTest extends TestCase {
         $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
 
         $this->assertSame(
-            SchemaOrgRecipeParser::NAME,
-            $imports->get_registered_parsers()[ SchemaOrgRecipeParser::SLUG ]
+            JsonLdRecipeParser::NAME,
+            $imports->get_registered_parsers()[ JsonLdRecipeParser::SLUG ]
         );
+        $this->assertArrayHasKey( MicrodataRecipeParser::SLUG, $imports->get_registered_parsers() );
+        $this->assertArrayHasKey( RdfaRecipeParser::SLUG, $imports->get_registered_parsers() );
     }
 
     public function test_registered_parser_can_handle_a_document(): void {
