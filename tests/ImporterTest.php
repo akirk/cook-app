@@ -7,7 +7,8 @@ use CookApp\SchemaOrgRecipeParser;
 class ImporterTest extends TestCase {
 
     private function parse_json_ld( string $html ): ?array {
-        return ( new SchemaOrgRecipeParser() )->parse( '', 'text/html', $html );
+        $parser = new SchemaOrgRecipeParser();
+        return $parser->parse( '', 'text/html', $html );
     }
 
     protected function setUp(): void {

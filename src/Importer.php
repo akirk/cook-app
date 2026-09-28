@@ -35,7 +35,8 @@ class Importer {
         if ( ! $document ) {
             return null;
         }
-        return ( new SchemaOrgRecipeParser() )->parse( $url, $document['content_type'], $document['content'] );
+        $parser = new SchemaOrgRecipeParser();
+        return $parser->parse( $url, $document['content_type'], $document['content'] );
     }
 
     /**
@@ -196,7 +197,8 @@ class Importer {
 
         $parsed = null;
 
-        $schema_recipe = ( new SchemaOrgRecipeParser() )->parse( '', 'text/html', $html );
+        $schema_parser = new SchemaOrgRecipeParser();
+        $schema_recipe = $schema_parser->parse( '', 'text/html', $html );
         if ( $schema_recipe ) {
             $parsed = self::merge_html_parts_into_parsed( $schema_recipe, $html );
         }
