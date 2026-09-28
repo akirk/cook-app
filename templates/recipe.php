@@ -104,7 +104,7 @@ $recent_cooked_entries = array_slice( $cooked_entries, 0, 5 );
 
 include __DIR__ . '/_header.php';
 ?>
-<?php cookbook_page_head( get_the_title( $post ), [ 'current_section' => 'recipes' ] ); ?>
+<?php cook_app_page_head( get_the_title( $post ), [ 'current_section' => 'recipes' ] ); ?>
 
 <?php if ( has_post_thumbnail( $id ) ) : ?>
     <?php echo get_the_post_thumbnail( $id, 'large', [

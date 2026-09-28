@@ -85,7 +85,7 @@ foreach ( $all_terms as $t ) { $max_count = max( $max_count, (int) $t->count ); 
 $page_title = __( 'Find recipes by ingredients', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
-<?php cookbook_page_head( __( 'Find recipes by ingredients', 'cook-app' ), [
+<?php cook_app_page_head( __( 'Find recipes by ingredients', 'cook-app' ), [
     'current_section' => 'ingredients',
     'subtitle'        => __( 'Click the ingredients you have, then search.', 'cook-app' ),
 ] ); ?>

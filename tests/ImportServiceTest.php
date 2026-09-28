@@ -1,0 +1,44 @@
+<?php
+
+use CookApp\ImportService;
+use CookApp\RecipeParser;
+use CookApp\JsonLdRecipeParser;
+use CookApp\MicrodataRecipeParser;
+use CookApp\RdfaRecipeParser;
+use PHPUnit\Framework\TestCase;
+
+class ImportServiceTest extends TestCase {
+    public function test_bundled_parser_registers_through_parser_hook(): void {
+        $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
+
+        $this->assertSame(
+            JsonLdRecipeParser::NAME,
+            $imports->get_registered_parsers()[ JsonLdRecipeParser::SLUG ]
+        );
+        $this->assertArrayHasKey( MicrodataRecipeParser::SLUG, $imports->get_registered_parsers() );
+        $this->assertArrayHasKey( RdfaRecipeParser::SLUG, $imports->get_registered_parsers() );
+    }
+
+    public function test_registered_parser_can_handle_a_document(): void {
+        $imports = ( new ReflectionClass( ImportService::class ) )->newInstanceWithoutConstructor();
+        $parser = new class() extends RecipeParser {
+            public function support_confidence( string $url, string $content_type, string $content ): int {
+                if ( str_contains( $content, 'custom-recipe' ) ) {
+                    return 100;
+                }
+                return 0;
+            }
+
+            public function parse( string $url, string $content_type, string $content ): ?array {
+                return [ 'title' => 'Extension Recipe' ];
+            }
+        };
+
+        $this->assertTrue( $imports->register_parser( 'extension', $parser ) );
+        $this->assertSame(
+            'Extension Recipe',
+            $imports->parse_document( 'https://example.com', 'text/html', '<custom-recipe>')['title']
+        );
+        $this->assertSame( 'extension', array_key_first( $imports->get_registered_parsers() ) );
+    }
+}

@@ -173,7 +173,7 @@ class App extends BaseApp {
 
     protected function setup_menu(): void {
         $home = home_url( '/' . $this->get_url_path() . '/' );
-        // The sections come first, in the order cookbook_page_head() lists them,
+        // The sections come first, in the order cook_app_page_head() lists them,
         // so the admin bar and the in-page section nav read the same way.
         $this->app->add_menu_item( 'all', __( 'Recipes', 'cook-app' ), $home );
         $this->app->add_menu_item( 'shopping-list', __( 'Shopping list', 'cook-app' ), $home . 'shopping-list' );

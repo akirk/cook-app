@@ -142,7 +142,7 @@ ob_start();
 <button class="btn fresh" type="submit" form="planner-form"><?php esc_html_e( 'Save week', 'cook-app' ); ?></button>
 <?php
 $planner_actions = ob_get_clean();
-cookbook_page_head( __( 'Week planner', 'cook-app' ), [
+cook_app_page_head( __( 'Week planner', 'cook-app' ), [
     'current_section' => 'planner',
     'subtitle'        => sprintf(
         /* translators: %s: formatted date */

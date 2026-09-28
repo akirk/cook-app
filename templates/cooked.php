@@ -33,7 +33,7 @@ foreach ( $entries as $entry ) {
 $page_title = __( 'Cooking history', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
-<?php cookbook_page_head( __( 'Cooking history', 'cook-app' ), [ 'current_section' => 'cooked' ] ); ?>
+<?php cook_app_page_head( __( 'Cooking history', 'cook-app' ), [ 'current_section' => 'cooked' ] ); ?>
 
 <?php if ( $cooked_status === 'updated' && $cooked_flash_date ) : ?>
     <div class="notice success">

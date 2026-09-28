@@ -3,8 +3,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-if ( ! function_exists( 'cookbook_page_head' ) ) {
-    function cookbook_page_actions_allowed_html(): array {
+if ( ! function_exists( 'cook_app_page_head' ) ) {
+    function cook_app_page_actions_allowed_html(): array {
         return [
             'a'      => [
                 'aria-current' => true,
@@ -43,7 +43,7 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
      *     @type bool   $nav             Whether to show section navigation. Default true.
      * }
      */
-    function cookbook_page_head( string $title, array $args = [] ): void {
+    function cook_app_page_head( string $title, array $args = [] ): void {
         $show_nav = array_key_exists( 'nav', $args ) ? (bool) $args['nav'] : true;
         $current_section = isset( $args['current_section'] ) ? (string) $args['current_section'] : '';
         $subtitle = isset( $args['subtitle'] ) ? (string) $args['subtitle'] : '';
@@ -89,7 +89,7 @@ if ( ! function_exists( 'cookbook_page_head' ) ) {
             </div>
             <?php if ( $actions_html !== '' ) : ?>
                 <div class="page-actions">
-                    <?php echo wp_kses( $actions_html, cookbook_page_actions_allowed_html() ); ?>
+                    <?php echo wp_kses( $actions_html, cook_app_page_actions_allowed_html() ); ?>
                 </div>
             <?php endif; ?>
         </div>

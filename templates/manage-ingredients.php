@@ -40,7 +40,7 @@ include __DIR__ . '/_header.php';
 ?>
 
 
-<?php cookbook_page_head( __( 'Manage ingredients', 'cook-app' ), [
+<?php cook_app_page_head( __( 'Manage ingredients', 'cook-app' ), [
     'current_section' => 'ingredients',
     'subtitle'        => __( 'Tick duplicates and merge them into one canonical term, or group similar ingredients under a parent. Merging rewrites the linked recipes; grouping just sets a hierarchy.', 'cook-app' ),
 ] ); ?>

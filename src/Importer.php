@@ -31,6 +31,20 @@ class Importer {
     private const MAX_IMPORT_REDIRECTS = 5;
 
     public static function from_url( string $url ): ?array {
+        $document = self::fetch_url( $url );
+        if ( ! $document ) {
+            return null;
+        }
+        $parser = new JsonLdRecipeParser();
+        return $parser->parse( $url, $document['content_type'], $document['content'] );
+    }
+
+    /**
+     * Fetch a URL once so registered parsers can inspect the same document.
+     *
+     * @return array{content:string,content_type:string}|null
+     */
+    public static function fetch_url( string $url ): ?array {
         if ( ! self::is_safe_import_url( $url ) ) {
             return null;
         }
@@ -71,7 +85,21 @@ class Importer {
 
             $body = wp_remote_retrieve_body( $response );
             if ( ! $body || strlen( $body ) >= self::MAX_IMPORT_BODY_BYTES ) return null;
-            return self::from_html( $body );
+            $content_type = '';
+            if ( function_exists( 'wp_remote_retrieve_header' ) ) {
+                $content_type = wp_remote_retrieve_header( $response, 'content-type' );
+            }
+            if ( is_array( $content_type ) ) {
+                $content_type = reset( $content_type );
+            }
+            $normalized_content_type = '';
+            if ( is_string( $content_type ) ) {
+                $normalized_content_type = strtok( $content_type, ';' );
+            }
+            return [
+                'content'      => $body,
+                'content_type' => $normalized_content_type,
+            ];
         }
 
         return null;
@@ -163,8 +191,8 @@ class Importer {
      * Parse a recipe from a chunk of HTML — used for the browser-extension
      * import where the page body has already been captured client-side.
      *
-     * Tries JSON-LD first, then HTML microdata. Falls back to text-parsing
-     * the stripped page only if it has explicit "Ingredients" / "Method"
+     * Tries JSON-LD first. Falls back to text-parsing the stripped page only
+     * if it has explicit "Ingredients" / "Method"
      * section markers — without them the heuristic line classifier
      * mis-identifies things like rating counts and comment timestamps as
      * ingredients.
@@ -174,19 +202,10 @@ class Importer {
 
         $parsed = null;
 
-        $recipe = self::extract_jsonld_recipe( $html );
-        if ( $recipe ) {
-            $normalized = self::normalize_jsonld( $recipe );
-            if ( $normalized ) {
-                $parsed = self::merge_html_parts_into_parsed( $normalized, $html );
-            }
-        }
-
-        if ( ! $parsed ) {
-            $micro = self::extract_microdata_recipe( $html );
-            if ( $micro ) {
-                $parsed = self::merge_html_parts_into_parsed( $micro, $html );
-            }
+        $schema_parser = new JsonLdRecipeParser();
+        $schema_recipe = $schema_parser->parse( '', 'text/html', $html );
+        if ( $schema_recipe ) {
+            $parsed = self::merge_html_parts_into_parsed( $schema_recipe, $html );
         }
 
         if ( ! $parsed ) {
@@ -397,397 +416,6 @@ class Importer {
                    'chopped', 'diced', 'sliced', 'halved', 'quartered', 'trimmed',
                    'shredded', 'toasted', 'cubed', 'washed' ];
         return in_array( mb_strtolower( $text ), $words, true );
-    }
-
-    /**
-     * Pull a Recipe from HTML microdata (itemtype="...Recipe" + itemprop="...").
-     */
-    private static function extract_microdata_recipe( string $html ): ?array {
-        if ( ! class_exists( '\\DOMDocument' ) ) return null;
-
-        $doc = self::load_html_document( $html );
-        if ( ! $doc ) return null;
-
-        $xpath = new \DOMXPath( $doc );
-        $recipe_nodes = $xpath->query( "//*[contains(@itemtype, '/Recipe')]" );
-        if ( ! $recipe_nodes || $recipe_nodes->length === 0 ) return null;
-        $recipe = $recipe_nodes->item( 0 );
-
-        $name = self::microdata_first_value( $xpath, $recipe, 'name' );
-        $description = self::microdata_first_value( $xpath, $recipe, 'description' );
-
-        $servings = 0;
-        $yield = self::microdata_first_value( $xpath, $recipe, 'recipeYield' );
-        if ( is_numeric( $yield ) ) {
-            $servings = (int) $yield;
-        } elseif ( $yield !== '' && preg_match( '/(\d+)/', $yield, $m ) ) {
-            $servings = (int) $m[1];
-        }
-        if ( ! $servings ) $servings = 4;
-
-        $prep_iso = self::microdata_first_value( $xpath, $recipe, 'prepTime' );
-        $cook_iso = self::microdata_first_value( $xpath, $recipe, 'cookTime' );
-        $total_iso = self::microdata_first_value( $xpath, $recipe, 'totalTime' );
-        $prep = self::iso8601_to_minutes( $prep_iso );
-        $cook = self::iso8601_to_minutes( $cook_iso );
-        if ( ! $prep && ! $cook && $total_iso ) {
-            $cook = self::iso8601_to_minutes( $total_iso );
-        }
-
-        $ingredients = [];
-        foreach ( self::microdata_all_values( $xpath, $recipe, 'recipeIngredient' ) as $line ) {
-            if ( $line !== '' ) {
-                $ingredients[] = self::parse_ingredient_line( $line );
-            }
-        }
-
-        $instructions = [];
-        foreach ( self::microdata_all_values( $xpath, $recipe, 'recipeInstructions' ) as $step ) {
-            $step = self::clean_step( $step );
-            if ( $step !== '' ) $instructions[] = $step;
-        }
-
-        $image_url = self::microdata_first_value( $xpath, $recipe, 'image' );
-
-        if ( ! $ingredients && ! $instructions ) {
-            return null;
-        }
-
-        return [
-            'title'        => $name,
-            'description'  => $description,
-            'servings'     => $servings,
-            'prep_time'    => $prep,
-            'cook_time'    => $cook,
-            'ingredients'  => $ingredients,
-            'instructions' => $instructions,
-            'parts'        => [],
-            'image_url'    => $image_url,
-        ];
-    }
-
-    /**
-     * Get a single value for an itemprop within $scope, ignoring matches that
-     * sit inside a nested itemscope (e.g. an author's name vs the recipe's name).
-     */
-    private static function microdata_first_value( \DOMXPath $xpath, \DOMNode $scope, string $prop ): string {
-        foreach ( self::microdata_owned_nodes( $xpath, $scope, $prop ) as $node ) {
-            $value = self::microdata_node_value( $node );
-            if ( $value !== '' ) return $value;
-        }
-        return '';
-    }
-
-    private static function microdata_all_values( \DOMXPath $xpath, \DOMNode $scope, string $prop ): array {
-        $out = [];
-        foreach ( self::microdata_owned_nodes( $xpath, $scope, $prop ) as $node ) {
-            // For HowToStep wrappers prefer the inner [itemprop=text].
-            $inner = $xpath->query( ".//*[@itemprop='text']", $node );
-            if ( $inner && $inner->length > 0 ) {
-                $value = self::microdata_node_value( $inner->item( 0 ) );
-            } else {
-                $value = self::microdata_node_value( $node );
-            }
-            if ( $value !== '' ) $out[] = $value;
-        }
-        return $out;
-    }
-
-    private static function microdata_owned_nodes( \DOMXPath $xpath, \DOMNode $scope, string $prop ): array {
-        $nodes = $xpath->query( ".//*[@itemprop='" . $prop . "']", $scope );
-        if ( ! $nodes ) return [];
-        $owned = [];
-        foreach ( $nodes as $node ) {
-            // Skip if any intervening ancestor (between $node and $scope) is itself an itemscope.
-            $a = $node->parentNode;
-            $clean = true;
-            while ( $a && $a !== $scope ) {
-                if ( $a instanceof \DOMElement && $a->hasAttribute( 'itemscope' ) ) {
-                    $clean = false;
-                    break;
-                }
-                $a = $a->parentNode;
-            }
-            if ( $clean ) $owned[] = $node;
-        }
-        return $owned;
-    }
-
-    private static function microdata_node_value( \DOMNode $node ): string {
-        if ( ! $node instanceof \DOMElement ) {
-            return trim( (string) $node->nodeValue );
-        }
-        $tag = strtolower( $node->tagName );
-        switch ( $tag ) {
-            case 'meta':
-                return trim( $node->getAttribute( 'content' ) );
-            case 'img':
-                return trim( $node->getAttribute( 'src' ) );
-            case 'link':
-            case 'a':
-                return trim( $node->getAttribute( 'href' ) ) ?: trim( $node->nodeValue );
-            case 'time':
-                $dt = trim( $node->getAttribute( 'datetime' ) );
-                return $dt !== '' ? $dt : trim( $node->nodeValue );
-            default:
-                $content = trim( $node->getAttribute( 'content' ) );
-                if ( $content !== '' ) return $content;
-                return trim( preg_replace( '/\s+/', ' ', (string) $node->nodeValue ) );
-        }
-    }
-
-    private static function extract_jsonld_recipe( string $html ): ?array {
-        if ( ! preg_match_all( '#<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>#si', $html, $matches ) ) {
-            return null;
-        }
-        foreach ( $matches[1] as $json ) {
-            $json = trim( html_entity_decode( $json, ENT_QUOTES, 'UTF-8' ) );
-            // Strip control chars that break json_decode.
-            $json = preg_replace( '/[\x00-\x09\x0B\x0C\x0E-\x1F]/', ' ', $json );
-            $data = json_decode( $json, true );
-            if ( ! $data ) continue;
-            $found = self::find_recipe_node( $data );
-            if ( $found ) return $found;
-        }
-        return null;
-    }
-
-    private static function find_recipe_node( $node ): ?array {
-        if ( ! is_array( $node ) ) return null;
-        $type = $node['@type'] ?? null;
-        if ( $type ) {
-            $types = (array) $type;
-            foreach ( $types as $t ) {
-                if ( strcasecmp( $t, 'Recipe' ) === 0 ) return $node;
-            }
-        }
-        if ( isset( $node['@graph'] ) && is_array( $node['@graph'] ) ) {
-            foreach ( $node['@graph'] as $sub ) {
-                $r = self::find_recipe_node( $sub );
-                if ( $r ) return $r;
-            }
-        }
-        // Some sites put it as a top-level array.
-        foreach ( $node as $v ) {
-            if ( is_array( $v ) ) {
-                $r = self::find_recipe_node( $v );
-                if ( $r ) return $r;
-            }
-        }
-        return null;
-    }
-
-    private static function normalize_jsonld( array $r ): ?array {
-        $title = is_string( $r['name'] ?? null ) ? trim( $r['name'] ) : '';
-        $description = is_string( $r['description'] ?? null ) ? trim( $r['description'] ) : '';
-        $image_url = self::extract_image_url( $r['image'] ?? '' );
-
-        $servings = 0;
-        if ( isset( $r['recipeYield'] ) ) {
-            $y = is_array( $r['recipeYield'] ) ? reset( $r['recipeYield'] ) : $r['recipeYield'];
-            if ( is_numeric( $y ) ) {
-                $servings = (int) $y;
-            } elseif ( is_string( $y ) && preg_match( '/(\d+)/', $y, $m ) ) {
-                $servings = (int) $m[1];
-            }
-        }
-        if ( ! $servings ) $servings = 4;
-
-        $raw_ingredients = $r['recipeIngredient'] ?? ( $r['ingredients'] ?? [] );
-        $ingredient_parts = self::extract_jsonld_ingredient_parts( $raw_ingredients );
-        $ingredients = $ingredient_parts
-            ? self::flatten_part_ingredients( $ingredient_parts )
-            : self::parse_jsonld_ingredients( $raw_ingredients );
-
-        $instructions = [];
-        $instruction_parts = [];
-        if ( isset( $r['recipeInstructions'] ) ) {
-            $instruction_parts = self::extract_jsonld_instruction_parts( $r['recipeInstructions'] );
-            $instructions = $instruction_parts
-                ? self::flatten_part_instructions( $instruction_parts )
-                : self::flatten_instructions( $r['recipeInstructions'] );
-        }
-        $parts = self::merge_recipe_parts( $ingredient_parts, $instruction_parts );
-
-        $prep_min = self::iso8601_to_minutes( $r['prepTime'] ?? '' );
-        $cook_min = self::iso8601_to_minutes( $r['cookTime'] ?? '' );
-        if ( ! $prep_min && ! $cook_min && ! empty( $r['totalTime'] ) ) {
-            $cook_min = self::iso8601_to_minutes( $r['totalTime'] );
-        }
-
-        return [
-            'title'        => $title,
-            'description'  => $description,
-            'servings'     => $servings,
-            'prep_time'    => $prep_min,
-            'cook_time'    => $cook_min,
-            'ingredients'  => $ingredients,
-            'instructions' => $instructions,
-            'parts'        => $parts,
-            'image_url'    => $image_url,
-        ];
-    }
-
-    private static function parse_jsonld_ingredients( $raw_ingredients ): array {
-        $ingredients = [];
-        if ( is_string( $raw_ingredients ) ) {
-            $raw_ingredients = preg_split( '/(?:\r?\n)+/', $raw_ingredients );
-        }
-        if ( ! is_array( $raw_ingredients ) ) {
-            return $ingredients;
-        }
-
-        if ( self::jsonld_has_list_items( $raw_ingredients ) ) {
-            $raw_ingredients = $raw_ingredients['itemListElement'];
-        }
-
-        foreach ( $raw_ingredients as $line ) {
-            if ( is_array( $line ) && self::jsonld_has_list_items( $line ) ) {
-                $ingredients = array_merge( $ingredients, self::parse_jsonld_ingredients( $line['itemListElement'] ) );
-                continue;
-            }
-            if ( is_array( $line ) && isset( $line['item'] ) ) {
-                $line = $line['item'];
-            }
-
-            $text = self::jsonld_ingredient_text( $line );
-            if ( $text !== '' ) {
-                $ingredients[] = self::parse_ingredient_line( $text );
-            }
-        }
-
-        return $ingredients;
-    }
-
-    private static function extract_jsonld_ingredient_parts( $raw_ingredients ): array {
-        $parts = [];
-        if ( ! is_array( $raw_ingredients ) ) {
-            return $parts;
-        }
-
-        $items = self::jsonld_has_list_items( $raw_ingredients )
-            ? $raw_ingredients['itemListElement']
-            : $raw_ingredients;
-        if ( ! is_array( $items ) ) {
-            return $parts;
-        }
-
-        foreach ( $items as $item ) {
-            if ( is_array( $item ) && isset( $item['item'] ) && is_array( $item['item'] ) ) {
-                $item = $item['item'];
-            }
-            if ( ! is_array( $item ) || ! self::jsonld_has_list_items( $item ) ) {
-                continue;
-            }
-
-            $type = $item['@type'] ?? '';
-            if (
-                $type
-                && ! self::jsonld_is_type( $type, 'ItemList' )
-                && ! self::jsonld_is_type( $type, 'ListItem' )
-                && ! self::jsonld_is_type( $type, 'HowToSection' )
-            ) {
-                continue;
-            }
-
-            $ingredients = self::parse_jsonld_ingredients( $item['itemListElement'] );
-            $title       = self::jsonld_scalar_text( $item['name'] ?? '' );
-            if ( $title !== '' || $ingredients ) {
-                $parts[] = [
-                    'title'        => $title,
-                    'ingredients'  => $ingredients,
-                    'instructions' => [],
-                ];
-            }
-        }
-
-        return self::normalize_recipe_parts( $parts );
-    }
-
-    private static function extract_jsonld_instruction_parts( $instructions ): array {
-        if ( ! is_array( $instructions ) ) {
-            return [];
-        }
-
-        $items = self::jsonld_has_list_items( $instructions )
-            ? $instructions['itemListElement']
-            : $instructions;
-        if ( ! is_array( $items ) ) {
-            return [];
-        }
-
-        $parts = [];
-        foreach ( $items as $step ) {
-            if ( is_array( $step ) && isset( $step['item'] ) && is_array( $step['item'] ) ) {
-                $step = $step['item'];
-            }
-            if ( ! is_array( $step ) ) {
-                continue;
-            }
-            $type = $step['@type'] ?? '';
-            if ( ! self::jsonld_is_type( $type, 'HowToSection' ) ) {
-                continue;
-            }
-
-            $title = self::jsonld_scalar_text( $step['name'] ?? '' );
-            $items = $step['itemListElement'] ?? ( $step['steps'] ?? [] );
-            $part_steps = self::flatten_instructions( $items );
-            if ( $title !== '' || $part_steps ) {
-                $parts[] = [
-                    'title'        => $title,
-                    'ingredients'  => [],
-                    'instructions' => $part_steps,
-                ];
-            }
-        }
-
-        return self::normalize_recipe_parts( $parts );
-    }
-
-    private static function jsonld_has_list_items( array $node ): bool {
-        return isset( $node['itemListElement'] ) && is_array( $node['itemListElement'] );
-    }
-
-    private static function jsonld_is_type( $type, string $expected ): bool {
-        foreach ( (array) $type as $candidate ) {
-            $candidate = is_string( $candidate ) ? $candidate : '';
-            if ( $candidate !== '' && strcasecmp( $candidate, $expected ) === 0 ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static function jsonld_scalar_text( $value ): string {
-        if ( is_scalar( $value ) ) {
-            return trim( (string) $value );
-        }
-        return '';
-    }
-
-    private static function jsonld_ingredient_text( $ingredient ): string {
-        if ( is_string( $ingredient ) ) {
-            return trim( $ingredient );
-        }
-        if ( ! is_array( $ingredient ) ) {
-            return '';
-        }
-        if ( isset( $ingredient['@value'] ) ) {
-            return self::jsonld_scalar_text( $ingredient['@value'] );
-        }
-        if ( isset( $ingredient['text'] ) ) {
-            return self::jsonld_scalar_text( $ingredient['text'] );
-        }
-        if ( isset( $ingredient['value'] ) || isset( $ingredient['name'] ) ) {
-            $amount = self::jsonld_scalar_text( $ingredient['value'] ?? '' );
-            $unit   = self::jsonld_scalar_text( $ingredient['unitText'] ?? '' );
-            $name   = self::jsonld_scalar_text( $ingredient['name'] ?? '' );
-            return trim( preg_replace( '/\s+/', ' ', trim( $amount . ' ' . $unit . ' ' . $name ) ) );
-        }
-        if ( isset( $ingredient['item'] ) ) {
-            return self::jsonld_ingredient_text( $ingredient['item'] );
-        }
-        return '';
     }
 
     private static function merge_html_parts_into_parsed( array $parsed, string $html ): array {
@@ -1087,67 +715,6 @@ class Importer {
             $instructions = array_merge( $instructions, $part['instructions'] );
         }
         return $instructions;
-    }
-
-    /**
-     * schema.org "image" can be a string URL, an array of URLs, or an
-     * ImageObject (or array of those). Walk it and return the first usable URL.
-     */
-    private static function extract_image_url( $image ): string {
-        if ( is_string( $image ) ) {
-            $image = trim( $image );
-            return filter_var( $image, FILTER_VALIDATE_URL ) ? $image : '';
-        }
-        if ( ! is_array( $image ) ) return '';
-        if ( isset( $image['url'] ) && is_string( $image['url'] ) ) {
-            return self::extract_image_url( $image['url'] );
-        }
-        if ( isset( $image['contentUrl'] ) && is_string( $image['contentUrl'] ) ) {
-            return self::extract_image_url( $image['contentUrl'] );
-        }
-        foreach ( $image as $candidate ) {
-            $url = self::extract_image_url( $candidate );
-            if ( $url !== '' ) return $url;
-        }
-        return '';
-    }
-
-    private static function flatten_instructions( $instructions ): array {
-        $out = [];
-        if ( is_string( $instructions ) ) {
-            $parts = preg_split( '/(?:\r?\n)+|(?<=[.!?])\s+(?=[A-Z])/', $instructions );
-            foreach ( $parts as $p ) {
-                $p = self::clean_step( $p );
-                if ( $p !== '' ) $out[] = $p;
-            }
-            return $out;
-        }
-        if ( ! is_array( $instructions ) ) return $out;
-
-        foreach ( $instructions as $step ) {
-            if ( is_string( $step ) ) {
-                $step = self::clean_step( $step );
-                if ( $step !== '' ) $out[] = $step;
-                continue;
-            }
-            if ( ! is_array( $step ) ) continue;
-            $type = $step['@type'] ?? '';
-            if ( strcasecmp( (string) $type, 'HowToSection' ) === 0 ) {
-                $name = isset( $step['name'] ) ? trim( $step['name'] ) : '';
-                if ( $name !== '' ) $out[] = $name . ':';
-                $sub = self::flatten_instructions( $step['itemListElement'] ?? [] );
-                $out = array_merge( $out, $sub );
-                continue;
-            }
-            if ( isset( $step['text'] ) && is_string( $step['text'] ) ) {
-                $t = self::clean_step( $step['text'] );
-                if ( $t !== '' ) $out[] = $t;
-            } elseif ( isset( $step['name'] ) && is_string( $step['name'] ) ) {
-                $t = self::clean_step( $step['name'] );
-                if ( $t !== '' ) $out[] = $t;
-            }
-        }
-        return $out;
     }
 
     /**
