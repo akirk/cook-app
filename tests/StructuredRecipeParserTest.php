@@ -21,6 +21,21 @@ class StructuredRecipeParserTest extends TestCase {
         $this->assertSame( 'Simmer until tender.', $recipe['instructions'][0] );
     }
 
+    public function test_parses_real_world_recipe_microdata(): void {
+        $html = $this->fixture( 'ichkoche-kaesespaetzle.html' );
+        $parser = new MicrodataRecipeParser();
+        $url = 'https://www.ichkoche.at/kaesespaetzle-rezept-2215';
+
+        $this->assertSame( 10, $parser->support_confidence( $url, 'text/html', $html ) );
+        $recipe = $parser->parse( $url, 'text/html', $html );
+        $this->assertSame( 'Käsespätzle', $recipe['title'] );
+        $this->assertSame( 4, $recipe['servings'] );
+        $this->assertSame( 30, $recipe['cook_time'] );
+        $this->assertCount( 10, $recipe['ingredients'] );
+        $this->assertSame( 'Bergkäse', $recipe['ingredients'][0]['name'] );
+        $this->assertStringContainsString( 'Einen großen Topf Salzwasser', $recipe['instructions'][0] );
+    }
+
     public function test_parses_recipe_rdfa(): void {
         $html = $this->fixture( 'schema-recipe-rdfa.html' );
         $parser = new RdfaRecipeParser();

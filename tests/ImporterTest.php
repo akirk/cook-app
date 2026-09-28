@@ -290,6 +290,16 @@ class ImporterTest extends TestCase {
         $this->assertStringContainsString( 'Boil a large pot of salted water', $parsed['instructions'][0] );
     }
 
+    public function test_json_ld_import_does_not_infer_wprm_sections(): void {
+        $parsed = $this->parse_json_ld( $this->fixture( 'simplehomeedit-dijon-salmon-sections.html' ) );
+
+        $this->assertIsArray( $parsed );
+        $this->assertSame( 'Dijon Salmon and Crispy Potatoes', $parsed['title'] );
+        $this->assertSame( [], $parsed['parts'] );
+        $this->assertCount( 5, $parsed['ingredients'] );
+        $this->assertCount( 3, $parsed['instructions'] );
+    }
+
     public function test_clean_step_strips_html_markup(): void {
         $this->assertSame(
             'Boil a large pot of salted water. Cook until softened, 12 mins.',
