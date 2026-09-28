@@ -32,7 +32,10 @@ class Importer {
 
     public static function from_url( string $url ): ?array {
         $document = self::fetch_url( $url );
-        return $document ? ( new SchemaOrgRecipeParser() )->parse( $url, $document['content_type'], $document['content'] ) : null;
+        if ( ! $document ) {
+            return null;
+        }
+        return ( new SchemaOrgRecipeParser() )->parse( $url, $document['content_type'], $document['content'] );
     }
 
     /**

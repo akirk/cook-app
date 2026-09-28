@@ -16,12 +16,18 @@ class SchemaOrgRecipeParser extends RecipeParser {
     private ?array $cached_recipe = null;
 
     public function support_confidence( string $url, string $content_type, string $content ): int {
-        return $this->recipe_from_document( $content_type, $content ) ? 10 : 0;
+        if ( $this->recipe_from_document( $content_type, $content ) ) {
+            return 10;
+        }
+        return 0;
     }
 
     public function parse( string $url, string $content_type, string $content ): ?array {
         $recipe = $this->recipe_from_document( $content_type, $content );
-        return $recipe ? $this->normalize_recipe( $recipe ) : null;
+        if ( ! $recipe ) {
+            return null;
+        }
+        return $this->normalize_recipe( $recipe );
     }
 
     private function recipe_from_document( string $content_type, string $content ): ?array {
@@ -42,7 +48,10 @@ class SchemaOrgRecipeParser extends RecipeParser {
         foreach ( $documents as $json ) {
             $json = preg_replace( '/[\x00-\x09\x0B\x0C\x0E-\x1F]/', ' ', trim( html_entity_decode( $json, ENT_QUOTES, 'UTF-8' ) ) );
             $data = json_decode( $json, true );
-            $recipe = $data ? $this->find_recipe_node( $data ) : null;
+            $recipe = null;
+            if ( $data ) {
+                $recipe = $this->find_recipe_node( $data );
+            }
             if ( $recipe ) {
                 $this->cached_recipe = $recipe;
                 break;
@@ -58,7 +67,10 @@ class SchemaOrgRecipeParser extends RecipeParser {
             if ( is_string( $type ) && strcasecmp( $type, 'Recipe' ) === 0 ) return $node;
         }
         foreach ( $node as $value ) {
-            $recipe = is_array( $value ) ? $this->find_recipe_node( $value ) : null;
+            $recipe = null;
+            if ( is_array( $value ) ) {
+                $recipe = $this->find_recipe_node( $value );
+            }
             if ( $recipe ) return $recipe;
         }
         return null;
@@ -67,19 +79,38 @@ class SchemaOrgRecipeParser extends RecipeParser {
     private function normalize_recipe( array $recipe ): array {
         $raw_ingredients = $recipe['recipeIngredient'] ?? ( $recipe['ingredients'] ?? [] );
         $ingredient_parts = $this->ingredient_parts( $raw_ingredients );
-        $ingredients = $ingredient_parts ? $this->flatten_parts( $ingredient_parts, 'ingredients' ) : $this->ingredients( $raw_ingredients );
+        $ingredients = $this->ingredients( $raw_ingredients );
+        if ( $ingredient_parts ) {
+            $ingredients = $this->flatten_parts( $ingredient_parts, 'ingredients' );
+        }
         $instruction_parts = $this->instruction_parts( $recipe['recipeInstructions'] ?? [] );
-        $instructions = $instruction_parts ? $this->flatten_parts( $instruction_parts, 'instructions' ) : $this->instructions( $recipe['recipeInstructions'] ?? [] );
+        $instructions = $this->instructions( $recipe['recipeInstructions'] ?? [] );
+        if ( $instruction_parts ) {
+            $instructions = $this->flatten_parts( $instruction_parts, 'instructions' );
+        }
         $prep_time = $this->duration_to_minutes( $recipe['prepTime'] ?? '' );
         $cook_time = $this->duration_to_minutes( $recipe['cookTime'] ?? '' );
         if ( ! $prep_time && ! $cook_time && ! empty( $recipe['totalTime'] ) ) {
             $cook_time = $this->duration_to_minutes( $recipe['totalTime'] );
         }
 
+        $title = '';
+        if ( is_string( $recipe['name'] ?? null ) ) {
+            $title = trim( $recipe['name'] );
+        }
+        $description = '';
+        if ( is_string( $recipe['description'] ?? null ) ) {
+            $description = trim( $recipe['description'] );
+        }
+        $servings = $this->servings( $recipe['recipeYield'] ?? null );
+        if ( ! $servings ) {
+            $servings = 4;
+        }
+
         return [
-            'title'        => is_string( $recipe['name'] ?? null ) ? trim( $recipe['name'] ) : '',
-            'description'  => is_string( $recipe['description'] ?? null ) ? trim( $recipe['description'] ) : '',
-            'servings'     => $this->servings( $recipe['recipeYield'] ?? null ) ?: 4,
+            'title'        => $title,
+            'description'  => $description,
+            'servings'     => $servings,
             'prep_time'    => $prep_time,
             'cook_time'    => $cook_time,
             'ingredients'  => $ingredients,
@@ -90,9 +121,14 @@ class SchemaOrgRecipeParser extends RecipeParser {
     }
 
     private function servings( $yield ): int {
-        $yield = is_array( $yield ) ? reset( $yield ) : $yield;
+        if ( is_array( $yield ) ) {
+            $yield = reset( $yield );
+        }
         if ( is_numeric( $yield ) ) return (int) $yield;
-        return is_string( $yield ) && preg_match( '/(\d+)/', $yield, $matches ) ? (int) $matches[1] : 0;
+        if ( is_string( $yield ) && preg_match( '/(\d+)/', $yield, $matches ) ) {
+            return (int) $matches[1];
+        }
+        return 0;
     }
 
     private function ingredients( $raw ): array {
@@ -114,7 +150,10 @@ class SchemaOrgRecipeParser extends RecipeParser {
 
     private function ingredient_parts( $raw ): array {
         if ( ! is_array( $raw ) ) return [];
-        $items = $this->has_list_items( $raw ) ? $raw['itemListElement'] : $raw;
+        $items = $raw;
+        if ( $this->has_list_items( $raw ) ) {
+            $items = $raw['itemListElement'];
+        }
         $parts = [];
         foreach ( $items as $item ) {
             if ( is_array( $item ) && isset( $item['item'] ) && is_array( $item['item'] ) ) $item = $item['item'];
@@ -129,7 +168,10 @@ class SchemaOrgRecipeParser extends RecipeParser {
 
     private function instruction_parts( $raw ): array {
         if ( ! is_array( $raw ) ) return [];
-        $items = $this->has_list_items( $raw ) ? $raw['itemListElement'] : $raw;
+        $items = $raw;
+        if ( $this->has_list_items( $raw ) ) {
+            $items = $raw['itemListElement'];
+        }
         $parts = [];
         foreach ( $items as $item ) {
             if ( is_array( $item ) && isset( $item['item'] ) && is_array( $item['item'] ) ) $item = $item['item'];
@@ -195,11 +237,20 @@ class SchemaOrgRecipeParser extends RecipeParser {
         if ( isset( $ingredient['value'] ) || isset( $ingredient['name'] ) ) {
             return trim( preg_replace( '/\s+/', ' ', $this->scalar_text( $ingredient['value'] ?? '' ) . ' ' . $this->scalar_text( $ingredient['unitText'] ?? '' ) . ' ' . $this->scalar_text( $ingredient['name'] ?? '' ) ) );
         }
-        return isset( $ingredient['item'] ) ? $this->ingredient_text( $ingredient['item'] ) : '';
+        if ( isset( $ingredient['item'] ) ) {
+            return $this->ingredient_text( $ingredient['item'] );
+        }
+        return '';
     }
 
     private function image_url( $image ): string {
-        if ( is_string( $image ) ) return filter_var( trim( $image ), FILTER_VALIDATE_URL ) ? trim( $image ) : '';
+        if ( is_string( $image ) ) {
+            $image = trim( $image );
+            if ( filter_var( $image, FILTER_VALIDATE_URL ) ) {
+                return $image;
+            }
+            return '';
+        }
         if ( ! is_array( $image ) ) return '';
         foreach ( [ 'url', 'contentUrl' ] as $field ) {
             if ( isset( $image[ $field ] ) ) return $this->image_url( $image[ $field ] );
@@ -223,14 +274,26 @@ class SchemaOrgRecipeParser extends RecipeParser {
     }
 
     private function scalar_text( $value ): string {
-        return is_scalar( $value ) ? trim( (string) $value ) : '';
+        if ( is_scalar( $value ) ) {
+            return trim( (string) $value );
+        }
+        return '';
     }
 
     private function duration_to_minutes( $duration ): int {
         if ( ! is_string( $duration ) || ! preg_match( '/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/', $duration, $matches ) ) return 0;
-        $hours = isset( $matches[1] ) && $matches[1] !== '' ? (int) $matches[1] : 0;
-        $minutes = isset( $matches[2] ) && $matches[2] !== '' ? (int) $matches[2] : 0;
-        $seconds = isset( $matches[3] ) && $matches[3] !== '' ? (int) $matches[3] : 0;
+        $hours = 0;
+        if ( isset( $matches[1] ) && $matches[1] !== '' ) {
+            $hours = (int) $matches[1];
+        }
+        $minutes = 0;
+        if ( isset( $matches[2] ) && $matches[2] !== '' ) {
+            $minutes = (int) $matches[2];
+        }
+        $seconds = 0;
+        if ( isset( $matches[3] ) && $matches[3] !== '' ) {
+            $seconds = (int) $matches[3];
+        }
         return $hours * 60 + $minutes + (int) ceil( $seconds / 60 );
     }
 }
