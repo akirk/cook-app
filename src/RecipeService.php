@@ -49,7 +49,9 @@ class RecipeService extends AbstractService {
             $args['tax_query'] = $tax_query;
         }
 
-        return get_posts( $args );
+        return array_values( array_filter( get_posts( $args ), function( $recipe ): bool {
+            return $recipe instanceof \WP_Post && current_user_can( 'read_post', $recipe->ID );
+        } ) );
     }
 
     /**
@@ -139,13 +141,26 @@ class RecipeService extends AbstractService {
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
             return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
+        if ( ! current_user_can( 'read_post', $id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
+        }
 
         return $this->recipe_payload( $post, $include_details );
     }
 
     public function create_recipe_from_ability_input( array $input, int $parent_id = 0, $source = null ) {
+        if ( ! current_user_can( 'publish_posts' ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to publish recipes.', 'cook-app' ) );
+        }
+        if ( $parent_id && ! current_user_can( 'read_post', $parent_id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the parent recipe.', 'cook-app' ) );
+        }
+
         $source = $source instanceof \WP_Post && $source->post_type === App::POST_TYPE ? $source : null;
         $source_id = $source ? (int) $source->ID : 0;
+        if ( $source_id && ! current_user_can( 'read_post', $source_id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the source recipe.', 'cook-app' ) );
+        }
 
         $title = $this->ability_text_input(
             $input,
@@ -258,6 +273,13 @@ class RecipeService extends AbstractService {
         }
         if ( ! current_user_can( 'edit_post', $id ) ) {
             return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to edit this recipe.', 'cook-app' ) );
+        }
+        if (
+            array_key_exists( 'parent_id', $input )
+            && absint( $input['parent_id'] )
+            && ! current_user_can( 'read_post', absint( $input['parent_id'] ) )
+        ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the parent recipe.', 'cook-app' ) );
         }
 
         $postarr = [

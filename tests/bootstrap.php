@@ -19,6 +19,19 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 if ( ! function_exists( 'absint' ) ) {
     function absint( $value ) { return abs( (int) $value ); }
 }
+if ( ! function_exists( 'is_user_logged_in' ) ) {
+    function is_user_logged_in() { return ! empty( $GLOBALS['cook_app_test_user_logged_in'] ); }
+}
+if ( ! function_exists( 'current_user_can' ) ) {
+    function current_user_can( $capability, ...$args ) {
+        $key = $capability . ( $args ? ':' . implode( ':', array_map( 'strval', $args ) ) : '' );
+        return ! empty( $GLOBALS['cook_app_test_user_caps'][ $key ] )
+            || ! empty( $GLOBALS['cook_app_test_user_caps'][ $capability ] );
+    }
+}
+if ( ! function_exists( 'get_post' ) ) {
+    function get_post( $post_id ) { return $GLOBALS['cook_app_test_posts'][ (int) $post_id ] ?? null; }
+}
 if ( ! function_exists( 'sanitize_text_field' ) ) {
     function sanitize_text_field( $text ) {
         return trim( wp_strip_all_tags( (string) $text ) );
