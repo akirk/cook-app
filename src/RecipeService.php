@@ -49,7 +49,9 @@ class RecipeService extends AbstractService {
             $args['tax_query'] = $tax_query;
         }
 
-        return get_posts( $args );
+        return array_values( array_filter( get_posts( $args ), function( $recipe ): bool {
+            return $recipe instanceof \WP_Post && current_user_can( 'read_post', $recipe->ID );
+        } ) );
     }
 
     /**
@@ -139,13 +141,26 @@ class RecipeService extends AbstractService {
         if ( ! $post || $post->post_type !== App::POST_TYPE ) {
             return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
         }
+        if ( ! current_user_can( 'read_post', $id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
+        }
 
         return $this->recipe_payload( $post, $include_details );
     }
 
     public function create_recipe_from_ability_input( array $input, int $parent_id = 0, $source = null ) {
+        if ( ! current_user_can( 'publish_posts' ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to publish recipes.', 'cook-app' ) );
+        }
+        if ( $parent_id && ! current_user_can( 'read_post', $parent_id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the parent recipe.', 'cook-app' ) );
+        }
+
         $source = $source instanceof \WP_Post && $source->post_type === App::POST_TYPE ? $source : null;
         $source_id = $source ? (int) $source->ID : 0;
+        if ( $source_id && ! current_user_can( 'read_post', $source_id ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the source recipe.', 'cook-app' ) );
+        }
 
         $title = $this->ability_text_input(
             $input,
@@ -258,6 +273,13 @@ class RecipeService extends AbstractService {
         }
         if ( ! current_user_can( 'edit_post', $id ) ) {
             return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to edit this recipe.', 'cook-app' ) );
+        }
+        if (
+            array_key_exists( 'parent_id', $input )
+            && absint( $input['parent_id'] )
+            && ! current_user_can( 'read_post', absint( $input['parent_id'] ) )
+        ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to read the parent recipe.', 'cook-app' ) );
         }
 
         $postarr = [
@@ -387,16 +409,32 @@ class RecipeService extends AbstractService {
                 continue;
             }
 
-            $name = isset( $row['name'] ) ? sanitize_text_field( (string) $row['name'] ) : '';
+            $name = '';
+            if ( isset( $row['name'] ) && is_scalar( $row['name'] ) ) {
+                $name = sanitize_text_field( (string) $row['name'] );
+            }
             if ( $name === '' ) {
                 continue;
             }
 
+            $amount = '';
+            if ( isset( $row['amount'] ) && is_scalar( $row['amount'] ) ) {
+                $amount = sanitize_text_field( (string) $row['amount'] );
+            }
+            $unit = '';
+            if ( isset( $row['unit'] ) && is_scalar( $row['unit'] ) ) {
+                $unit = sanitize_text_field( (string) $row['unit'] );
+            }
+            $notes = '';
+            if ( isset( $row['notes'] ) && is_scalar( $row['notes'] ) ) {
+                $notes = sanitize_text_field( (string) $row['notes'] );
+            }
+
             $ingredients[] = [
-                'amount' => isset( $row['amount'] ) ? sanitize_text_field( (string) $row['amount'] ) : '',
-                'unit'   => isset( $row['unit'] ) ? sanitize_text_field( (string) $row['unit'] ) : '',
+                'amount' => $amount,
+                'unit'   => $unit,
                 'name'   => $name,
-                'notes'  => isset( $row['notes'] ) ? sanitize_text_field( (string) $row['notes'] ) : '',
+                'notes'  => $notes,
             ];
         }
 
@@ -1234,6 +1272,66 @@ class RecipeService extends AbstractService {
     }
 
     /**
+     * Sanitize the normalized output of built-in and third-party recipe parsers.
+     *
+     * Raw source documents must remain intact while parsers inspect JSON-LD,
+     * Microdata, and RDFa. This method is the trust boundary between parser
+     * output and values that may be returned or persisted by Cook App.
+     */
+    public function sanitize_parsed_payload( array $parsed ): array {
+        $clean = [];
+
+        if ( array_key_exists( 'title', $parsed ) ) {
+            $clean['title'] = '';
+            if ( is_scalar( $parsed['title'] ) ) {
+                $clean['title'] = sanitize_text_field( (string) $parsed['title'] );
+            }
+        }
+        if ( array_key_exists( 'description', $parsed ) ) {
+            $clean['description'] = '';
+            if ( is_scalar( $parsed['description'] ) ) {
+                $clean['description'] = wp_kses_post( (string) $parsed['description'] );
+            }
+        }
+
+        foreach ( [ 'servings', 'prep_time', 'cook_time' ] as $field ) {
+            if ( array_key_exists( $field, $parsed ) ) {
+                $clean[ $field ] = 0;
+                if ( is_scalar( $parsed[ $field ] ) ) {
+                    $clean[ $field ] = absint( $parsed[ $field ] );
+                }
+            }
+        }
+
+        if ( array_key_exists( 'ingredients', $parsed ) ) {
+            $clean['ingredients'] = [];
+            if ( is_array( $parsed['ingredients'] ) ) {
+                $clean['ingredients'] = $this->sanitize_recipe_ingredient_rows( $parsed['ingredients'] );
+            }
+        }
+        if ( array_key_exists( 'instructions', $parsed ) ) {
+            $clean['instructions'] = [];
+            if ( is_array( $parsed['instructions'] ) ) {
+                $clean['instructions'] = $this->sanitize_recipe_instruction_rows( $parsed['instructions'] );
+            }
+        }
+        if ( array_key_exists( 'parts', $parsed ) ) {
+            $clean['parts'] = [];
+            if ( is_array( $parsed['parts'] ) ) {
+                $clean['parts'] = $this->normalize_recipe_parts_array( $parsed['parts'], false );
+            }
+        }
+        if ( array_key_exists( 'image_url', $parsed ) ) {
+            $clean['image_url'] = '';
+            if ( is_scalar( $parsed['image_url'] ) ) {
+                $clean['image_url'] = esc_url_raw( (string) $parsed['image_url'] );
+            }
+        }
+
+        return $clean;
+    }
+
+    /**
      * Write the parts of a parsed-recipe payload that we store on the post.
      *
      * @param bool $only_if_present  When true, skip writes for fields the parser
@@ -1241,6 +1339,8 @@ class RecipeService extends AbstractService {
      *                               parse doesn't wipe existing data.
      */
     public function apply_parsed_payload( int $post_id, array $parsed, string $url, bool $only_if_present ): void {
+        $parsed = $this->sanitize_parsed_payload( $parsed );
+
         if ( ! $only_if_present || ! empty( $parsed['servings'] ) ) {
             update_post_meta( $post_id, App::META_SERVINGS, (int) ( $parsed['servings'] ?? 4 ) );
         }
@@ -1260,7 +1360,7 @@ class RecipeService extends AbstractService {
             $this->persist_recipe_parts( $post_id, is_array( $parsed['parts'] ?? null ) ? $parsed['parts'] : [] );
         }
         if ( $url !== '' ) {
-            update_post_meta( $post_id, App::META_SOURCE_URL, $url );
+            update_post_meta( $post_id, App::META_SOURCE_URL, esc_url_raw( $url ) );
         }
         if ( ! empty( $parsed['image_url'] ) ) {
             $this->sideload_image_to_post( $post_id, (string) $parsed['image_url'] );

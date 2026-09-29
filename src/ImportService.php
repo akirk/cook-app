@@ -101,7 +101,7 @@ class ImportService extends AbstractService {
             return new \WP_Error( 'cookbook_import_parse_failed', __( 'Could not parse a recipe from that input.', 'cook-app' ) );
         }
 
-        return $parsed;
+        return $this->services->recipes()->sanitize_parsed_payload( $parsed );
     }
 
     public function parse_url( string $url ): ?array {
@@ -139,10 +139,15 @@ class ImportService extends AbstractService {
      * @return int|\WP_Error
      */
     private function create_recipe_from_parsed( array $parsed, string $url = '' ) {
+        $title = __( 'Imported recipe', 'cook-app' );
+        if ( ! empty( $parsed['title'] ) ) {
+            $title = $parsed['title'];
+        }
+
         $post_id = wp_insert_post( [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => $parsed['title'] ?: __( 'Imported recipe', 'cook-app' ),
+            'post_title'   => $title,
             'post_content' => $parsed['description'] ?? '',
             'post_author'  => get_current_user_id(),
         ], true );
@@ -238,58 +243,77 @@ class ImportService extends AbstractService {
      * endpoint with the URL as a query arg. We parse it server-side using the
      * same Importer used for the manual import form.
      *
-     * @see https://github.com/akirk/browser-extension
+     * @see https://github.com/akirk/friends-browser-extension/
      */
-    public function register_browser_extension_action( $actions ) {
+    public function register_browser_extension_action( $actions, $current_user = null, $context = null ) {
         if ( ! is_array( $actions ) ) $actions = [];
+
+        $browser_key = is_array( $context ) && isset( $context['browser_extension_key'] )
+            ? sanitize_text_field( (string) $context['browser_extension_key'] )
+            : '';
+        if ( $browser_key === '' || ! method_exists( '\\Friends\\REST', 'rest_extension_action' ) ) {
+            return $actions;
+        }
+
         $actions[] = [
-            'name'     => __( 'Save as Recipe', 'cook-app' ),
-            'url'      => home_url( '/?cookbook-collect={current_url}' ),
-            'method'   => 'POST',
-            'fields'   => [ 'body' => '{page_html}' ],
-            'category' => __( 'Recipes', 'cook-app' ),
+            'id'               => 'cook-app-save-recipe',
+            'name'             => __( 'Save as Recipe', 'cook-app' ),
+            'url'              => rest_url( 'friends/v1/extension/action' ),
+            'method'           => 'POST',
+            'run'              => 'inline',
+            'progress_message' => __( 'Saving recipe...', 'cook-app' ),
+            'success_message'  => __( 'Recipe saved.', 'cook-app' ),
+            'fields'           => [
+                'action' => 'cook_app_save_recipe',
+                'key'    => $browser_key,
+                'url'    => '{current_url}',
+                'html'   => '{page_html}',
+            ],
+            'category'         => __( 'Recipes', 'cook-app' ),
         ];
         return $actions;
     }
 
-    public function handle_extension_save(): void {
-        // The browser extension authenticates via the user's logged-in session
-        // (cookies); there is no nonce to verify here, hence the phpcs ignores.
-        if ( empty( $_REQUEST['cookbook-collect'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            return;
-        }
-        $request_method = isset( $_SERVER['REQUEST_METHOD'] )
-            ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) )
-            : '';
-        if ( 'POST' !== $request_method ) {
-            return;
-        }
-        if ( ! is_user_logged_in() ) {
-            auth_redirect();
+    public function handle_extension_save( $response, \WP_REST_Request $request, \WP_User $current_user, $context ) {
+        if ( null !== $response ) {
+            return $response;
         }
         if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
+            return new \WP_Error(
+                'cookbook_extension_not_allowed',
+                __( 'You are not allowed to save recipes.', 'cook-app' ),
+                [ 'status' => 403 ]
+            );
         }
 
-        $url = esc_url_raw( wp_unslash( $_REQUEST['cookbook-collect'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $url = esc_url_raw( (string) wp_unslash( $request->get_param( 'url' ) ) );
         // Raw page HTML; passed to Importer::from_html which extracts JSON-LD or strips tags.
-        $html = isset( $_POST['body'] ) ? (string) wp_unslash( $_POST['body'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $html = (string) wp_unslash( $request->get_param( 'html' ) );
         $existing = $url !== '' ? $this->services->recipes()->find_recipe_by_source_url( $url ) : null;
         if ( $existing ) {
-            wp_safe_redirect( home_url( '/' . $this->get_url_path() . '/recipe/' . $existing->ID ) );
-            exit;
+            return [
+                'success'    => true,
+                'created'    => false,
+                'message'    => __( 'This recipe is already saved.', 'cook-app' ),
+                'url'        => home_url( '/' . $this->get_url_path() . '/recipe/' . $existing->ID ),
+                'edit_url'   => home_url( '/' . $this->get_url_path() . '/recipe/' . $existing->ID . '/edit' ),
+                'link_label' => __( 'View recipe', 'cook-app' ),
+            ];
         }
 
         $post_id = $this->import_recipe( $url, '', '', $html );
-        if ( is_wp_error( $post_id ) && in_array( $post_id->get_error_code(), [ 'cookbook_import_empty', 'cookbook_import_parse_failed' ], true ) ) {
-            $this->redirect_import_parse_error( $url );
-        }
         if ( is_wp_error( $post_id ) ) {
-            wp_die( esc_html( $post_id->get_error_message() ) );
+            return $post_id;
         }
 
-        wp_safe_redirect( home_url( '/' . $this->get_url_path() . '/recipe/' . $post_id . '/edit' ) );
-        exit;
+        return [
+            'success'    => true,
+            'created'    => true,
+            'message'    => __( 'Recipe saved.', 'cook-app' ),
+            'url'        => home_url( '/' . $this->get_url_path() . '/recipe/' . $post_id ),
+            'edit_url'   => home_url( '/' . $this->get_url_path() . '/recipe/' . $post_id . '/edit' ),
+            'link_label' => __( 'View recipe', 'cook-app' ),
+        ];
     }
 
     public function ajax_lookup_source_url(): void {

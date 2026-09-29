@@ -144,7 +144,7 @@ class AbilitiesService extends AbstractService {
                 ],
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_get_recipe' ],
-                'permission_callback' => [ $this, 'can_read_abilities' ],
+                'permission_callback' => [ $this, 'can_read_recipe_ability' ],
                 'meta'                => [
                     'annotations'  => [
                         'instructions' => __( 'Use this when the user asks about one known Cook App recipe. The response includes view_url for linking, flat compatibility ingredients/instructions, named parts for ingredient or instruction sections, notes, taxonomy terms, and variation family data.', 'cook-app' ),
@@ -166,7 +166,7 @@ class AbilitiesService extends AbstractService {
                 'input_schema'        => $this->recipe_create_input_schema(),
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_save_recipe' ],
-                'permission_callback' => [ $this, 'can_edit_abilities' ],
+                'permission_callback' => [ $this, 'can_save_recipe_ability' ],
                 'meta'                => [
                     'annotations'  => [
                         'instructions' => __( 'Use this when the user asks to save, create, or update a structured Cook App recipe. Pass parts to preserve named ingredient or instruction sections; flat ingredients and instructions remain supported for unsectioned recipes. To add or replace a recipe photo, pass the existing recipe id with image_url. Prefer create-recipe-variation when adapting an existing recipe into a new variation. Link the result using view_url.', 'cook-app' ),
@@ -205,7 +205,7 @@ class AbilitiesService extends AbstractService {
                 ],
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_import_recipe' ],
-                'permission_callback' => [ $this, 'can_edit_abilities' ],
+                'permission_callback' => [ $this, 'can_publish_recipe_abilities' ],
                 'meta'                => [
                     'annotations'  => [
                         'instructions' => __( 'Use this when the user provides a recipe URL, pasted recipe text, or an image URL to import into Cook App. This publishes the recipe; link the result using view_url.', 'cook-app' ),
@@ -227,7 +227,7 @@ class AbilitiesService extends AbstractService {
                 'input_schema'        => $this->recipe_variation_input_schema(),
                 'output_schema'       => $this->recipe_output_schema(),
                 'execute_callback'    => [ $this, 'ability_create_recipe_variation' ],
-                'permission_callback' => [ $this, 'can_edit_abilities' ],
+                'permission_callback' => [ $this, 'can_create_recipe_variation_ability' ],
                 'meta'                => [
                     'annotations'  => [
                         'instructions' => __( 'Use this when the user asks for an adapted version of an existing recipe, such as substituting an ingredient they do not have. First call get-recipe for the source, then pass the complete revised recipe fields here so omitted fields intentionally copy from the source. If the source has named parts, pass revised parts to preserve ingredient subsection headers. Link the created variation using view_url.', 'cook-app' ),
@@ -295,10 +295,103 @@ class AbilitiesService extends AbstractService {
     }
 
     /**
-     * Permission callback for write abilities.
+     * Permission callback for an ability that publishes a new recipe.
      */
-    public function can_edit_abilities(): bool {
-        return is_user_logged_in() && current_user_can( 'edit_posts' );
+    public function can_publish_recipe_abilities(): bool {
+        return is_user_logged_in() && current_user_can( 'publish_posts' );
+    }
+
+    /**
+     * Permission callback for reading one recipe.
+     *
+     * @param array $input Ability input.
+     */
+    public function can_read_recipe_ability( $input = [] ): bool {
+        $id = 0;
+        if ( is_array( $input ) && isset( $input['id'] ) ) {
+            $id = absint( $input['id'] );
+        }
+        $post = null;
+        if ( $id ) {
+            $post = get_post( $id );
+        }
+
+        return is_user_logged_in()
+            && $post
+            && App::POST_TYPE === $post->post_type
+            && current_user_can( 'read_post', $id );
+    }
+
+    /**
+     * Permission callback for creating or updating one recipe.
+     *
+     * @param array $input Ability input.
+     */
+    public function can_save_recipe_ability( $input = [] ): bool {
+        if ( ! is_user_logged_in() ) {
+            return false;
+        }
+
+        if ( ! is_array( $input ) ) {
+            $input = [];
+        }
+        $id = 0;
+        if ( isset( $input['id'] ) ) {
+            $id = absint( $input['id'] );
+        }
+        $parent_id = 0;
+        if ( isset( $input['parent_id'] ) ) {
+            $parent_id = absint( $input['parent_id'] );
+        }
+        if ( $parent_id ) {
+            $parent = get_post( $parent_id );
+            if ( ! $parent || App::POST_TYPE !== $parent->post_type || ! current_user_can( 'read_post', $parent_id ) ) {
+                return false;
+            }
+        }
+        if ( $id ) {
+            $post = get_post( $id );
+            return $post
+                && App::POST_TYPE === $post->post_type
+                && current_user_can( 'edit_post', $id );
+        }
+
+        return current_user_can( 'publish_posts' );
+    }
+
+    /**
+     * Permission callback for creating a variation from a readable recipe.
+     *
+     * @param array $input Ability input.
+     */
+    public function can_create_recipe_variation_ability( $input = [] ): bool {
+        if ( ! $this->can_publish_recipe_abilities() ) {
+            return false;
+        }
+
+        $source_id = 0;
+        if ( is_array( $input ) && isset( $input['source_recipe_id'] ) ) {
+            $source_id = absint( $input['source_recipe_id'] );
+        }
+        $source = null;
+        if ( $source_id ) {
+            $source = get_post( $source_id );
+        }
+
+        $parent_id = 0;
+        if ( is_array( $input ) && isset( $input['parent_id'] ) ) {
+            $parent_id = absint( $input['parent_id'] );
+        }
+        if ( $parent_id ) {
+            $parent = get_post( $parent_id );
+            if ( ! $parent || App::POST_TYPE !== $parent->post_type || ! current_user_can( 'read_post', $parent_id ) ) {
+                return false;
+            }
+        }
+
+        return $source
+            && App::POST_TYPE === $source->post_type
+            && current_user_can( 'read_post', $source_id );
     }
 
     /**
@@ -333,6 +426,9 @@ class AbilitiesService extends AbstractService {
      */
     public function ability_get_recipe( $input = [] ) {
         $id = is_array( $input ) && isset( $input['id'] ) ? absint( $input['id'] ) : 0;
+        if ( ! $this->can_read_recipe_ability( $input ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_found', __( 'Recipe not found.', 'cook-app' ) );
+        }
         return $this->services->recipes()->get_recipe_payload( $id, true );
     }
 
@@ -343,6 +439,10 @@ class AbilitiesService extends AbstractService {
      * @return array|\WP_Error
      */
     public function ability_import_recipe( $input = [] ) {
+        if ( ! $this->can_publish_recipe_abilities() ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to publish recipes.', 'cook-app' ) );
+        }
+
         $input = is_array( $input ) ? $input : [];
         $url   = isset( $input['source_url'] ) ? esc_url_raw( (string) $input['source_url'] ) : '';
         $paste = isset( $input['paste'] ) ? wp_kses_post( (string) $input['paste'] ) : '';
@@ -370,6 +470,9 @@ class AbilitiesService extends AbstractService {
     public function ability_save_recipe( $input = [] ) {
         $input     = is_array( $input ) ? $input : [];
         $id        = isset( $input['id'] ) ? absint( $input['id'] ) : 0;
+        if ( ! $this->can_save_recipe_ability( $input ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to save this recipe.', 'cook-app' ) );
+        }
         if ( $id ) {
             return $this->services->recipes()->update_recipe_from_ability_input( $id, $input );
         }
@@ -388,6 +491,9 @@ class AbilitiesService extends AbstractService {
      */
     public function ability_create_recipe_variation( $input = [] ) {
         $input     = is_array( $input ) ? $input : [];
+        if ( ! $this->can_create_recipe_variation_ability( $input ) ) {
+            return new \WP_Error( 'cookbook_recipe_not_allowed', __( 'Not allowed to create a variation from this recipe.', 'cook-app' ) );
+        }
         $source_id = isset( $input['source_recipe_id'] ) ? absint( $input['source_recipe_id'] ) : 0;
         $source    = $source_id ? get_post( $source_id ) : null;
         if ( ! $source || $source->post_type !== App::POST_TYPE ) {
