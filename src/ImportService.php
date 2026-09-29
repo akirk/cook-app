@@ -101,7 +101,7 @@ class ImportService extends AbstractService {
             return new \WP_Error( 'cookbook_import_parse_failed', __( 'Could not parse a recipe from that input.', 'cook-app' ) );
         }
 
-        return $parsed;
+        return $this->services->recipes()->sanitize_parsed_payload( $parsed );
     }
 
     public function parse_url( string $url ): ?array {
@@ -142,7 +142,7 @@ class ImportService extends AbstractService {
         $post_id = wp_insert_post( [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => $parsed['title'] ?: __( 'Imported recipe', 'cook-app' ),
+            'post_title'   => ! empty( $parsed['title'] ) ? $parsed['title'] : __( 'Imported recipe', 'cook-app' ),
             'post_content' => $parsed['description'] ?? '',
             'post_author'  => get_current_user_id(),
         ], true );

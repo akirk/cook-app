@@ -387,16 +387,18 @@ class RecipeService extends AbstractService {
                 continue;
             }
 
-            $name = isset( $row['name'] ) ? sanitize_text_field( (string) $row['name'] ) : '';
+            $name = isset( $row['name'] ) && is_scalar( $row['name'] )
+                ? sanitize_text_field( (string) $row['name'] )
+                : '';
             if ( $name === '' ) {
                 continue;
             }
 
             $ingredients[] = [
-                'amount' => isset( $row['amount'] ) ? sanitize_text_field( (string) $row['amount'] ) : '',
-                'unit'   => isset( $row['unit'] ) ? sanitize_text_field( (string) $row['unit'] ) : '',
+                'amount' => isset( $row['amount'] ) && is_scalar( $row['amount'] ) ? sanitize_text_field( (string) $row['amount'] ) : '',
+                'unit'   => isset( $row['unit'] ) && is_scalar( $row['unit'] ) ? sanitize_text_field( (string) $row['unit'] ) : '',
                 'name'   => $name,
-                'notes'  => isset( $row['notes'] ) ? sanitize_text_field( (string) $row['notes'] ) : '',
+                'notes'  => isset( $row['notes'] ) && is_scalar( $row['notes'] ) ? sanitize_text_field( (string) $row['notes'] ) : '',
             ];
         }
 
@@ -1234,6 +1236,57 @@ class RecipeService extends AbstractService {
     }
 
     /**
+     * Sanitize the normalized output of built-in and third-party recipe parsers.
+     *
+     * Raw source documents must remain intact while parsers inspect JSON-LD,
+     * Microdata, and RDFa. This method is the trust boundary between parser
+     * output and values that may be returned or persisted by Cook App.
+     */
+    public function sanitize_parsed_payload( array $parsed ): array {
+        $clean = [];
+
+        if ( array_key_exists( 'title', $parsed ) ) {
+            $clean['title'] = is_scalar( $parsed['title'] )
+                ? sanitize_text_field( (string) $parsed['title'] )
+                : '';
+        }
+        if ( array_key_exists( 'description', $parsed ) ) {
+            $clean['description'] = is_scalar( $parsed['description'] )
+                ? wp_kses_post( (string) $parsed['description'] )
+                : '';
+        }
+
+        foreach ( [ 'servings', 'prep_time', 'cook_time' ] as $field ) {
+            if ( array_key_exists( $field, $parsed ) ) {
+                $clean[ $field ] = is_scalar( $parsed[ $field ] ) ? absint( $parsed[ $field ] ) : 0;
+            }
+        }
+
+        if ( array_key_exists( 'ingredients', $parsed ) ) {
+            $clean['ingredients'] = is_array( $parsed['ingredients'] )
+                ? $this->sanitize_recipe_ingredient_rows( $parsed['ingredients'] )
+                : [];
+        }
+        if ( array_key_exists( 'instructions', $parsed ) ) {
+            $clean['instructions'] = is_array( $parsed['instructions'] )
+                ? $this->sanitize_recipe_instruction_rows( $parsed['instructions'] )
+                : [];
+        }
+        if ( array_key_exists( 'parts', $parsed ) ) {
+            $clean['parts'] = is_array( $parsed['parts'] )
+                ? $this->normalize_recipe_parts_array( $parsed['parts'], false )
+                : [];
+        }
+        if ( array_key_exists( 'image_url', $parsed ) ) {
+            $clean['image_url'] = is_scalar( $parsed['image_url'] )
+                ? esc_url_raw( (string) $parsed['image_url'] )
+                : '';
+        }
+
+        return $clean;
+    }
+
+    /**
      * Write the parts of a parsed-recipe payload that we store on the post.
      *
      * @param bool $only_if_present  When true, skip writes for fields the parser
@@ -1241,6 +1294,8 @@ class RecipeService extends AbstractService {
      *                               parse doesn't wipe existing data.
      */
     public function apply_parsed_payload( int $post_id, array $parsed, string $url, bool $only_if_present ): void {
+        $parsed = $this->sanitize_parsed_payload( $parsed );
+
         if ( ! $only_if_present || ! empty( $parsed['servings'] ) ) {
             update_post_meta( $post_id, App::META_SERVINGS, (int) ( $parsed['servings'] ?? 4 ) );
         }
@@ -1260,7 +1315,7 @@ class RecipeService extends AbstractService {
             $this->persist_recipe_parts( $post_id, is_array( $parsed['parts'] ?? null ) ? $parsed['parts'] : [] );
         }
         if ( $url !== '' ) {
-            update_post_meta( $post_id, App::META_SOURCE_URL, $url );
+            update_post_meta( $post_id, App::META_SOURCE_URL, esc_url_raw( $url ) );
         }
         if ( ! empty( $parsed['image_url'] ) ) {
             $this->sideload_image_to_post( $post_id, (string) $parsed['image_url'] );

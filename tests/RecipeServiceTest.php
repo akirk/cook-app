@@ -104,6 +104,45 @@ class RecipeServiceTest extends TestCase {
         $this->assertSame( [], $parts );
     }
 
+    public function test_sanitize_parsed_payload_cleans_nested_parser_output(): void {
+        $parsed = $this->recipes->sanitize_parsed_payload( [
+            'title'        => '<script>alert(1)</script> Soup',
+            'description'  => '<p>Good description</p>',
+            'servings'     => '4',
+            'prep_time'    => [ 'invalid' ],
+            'ingredients'  => [
+                [ 'amount' => '<b>2</b>', 'unit' => 'cups', 'name' => '<em>carrots</em>', 'notes' => 'diced' ],
+                [ 'name' => [ 'invalid' ] ],
+            ],
+            'instructions' => [ '1. <strong>Mix</strong>', [ 'invalid' ] ],
+            'parts'        => [
+                [
+                    'title'        => '<b>Soup</b>',
+                    'ingredients'  => [ [ 'name' => '<i>stock</i>' ] ],
+                    'instructions' => [ '2. Simmer' ],
+                ],
+            ],
+            'unknown'      => 'discard me',
+        ] );
+
+        $this->assertSame( 'Soup', $parsed['title'] );
+        $this->assertSame( 4, $parsed['servings'] );
+        $this->assertSame( 0, $parsed['prep_time'] );
+        $this->assertSame( '2', $parsed['ingredients'][0]['amount'] );
+        $this->assertSame( 'carrots', $parsed['ingredients'][0]['name'] );
+        $this->assertCount( 1, $parsed['ingredients'] );
+        $this->assertSame( 'Soup', $parsed['parts'][0]['title'] );
+        $this->assertSame( 'stock', $parsed['parts'][0]['ingredients'][0]['name'] );
+        $this->assertArrayNotHasKey( 'unknown', $parsed );
+    }
+
+    public function test_sanitize_parsed_payload_preserves_omitted_fields(): void {
+        $this->assertSame(
+            [ 'title' => 'Only a title' ],
+            $this->recipes->sanitize_parsed_payload( [ 'title' => 'Only a title' ] )
+        );
+    }
+
     private function invoke( string $method, ...$args ) {
         $reflection = new ReflectionMethod( RecipeService::class, $method );
         $reflection->setAccessible( true );
