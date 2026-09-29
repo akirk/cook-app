@@ -5,7 +5,6 @@
  * Description: A personal cookbook for WordPress: store, import, categorize, scale, plan and shop from your own recipes.
  * Version: 1.0.0
  * Requires at least: 6.0
- * Tested up to: 7.1
  * Requires PHP: 7.4
  * Author: Alex Kirk
  * Author URI: https://alex.kirk.at/

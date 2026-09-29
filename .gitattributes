@@ -9,6 +9,9 @@
 # WordPress.org assets (deployed to the SVN assets/ directory, not shipped)
 .wordpress-org export-ignore
 
+# Translations are provided by translate.wordpress.org
+languages export-ignore
+
 # Testing/linting
 .phpunit.* export-ignore
 phpunit.xml.dist export-ignore
