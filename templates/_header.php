@@ -111,7 +111,7 @@ wp_app_enqueue_style(
 );
 ?>
 <!DOCTYPE html>
-<html <?php echo wp_app_language_attributes( false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- language attributes are escaped by WordPress. ?>>
+<html <?php wp_app_language_attributes(); ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
