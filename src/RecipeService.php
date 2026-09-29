@@ -409,18 +409,32 @@ class RecipeService extends AbstractService {
                 continue;
             }
 
-            $name = isset( $row['name'] ) && is_scalar( $row['name'] )
-                ? sanitize_text_field( (string) $row['name'] )
-                : '';
+            $name = '';
+            if ( isset( $row['name'] ) && is_scalar( $row['name'] ) ) {
+                $name = sanitize_text_field( (string) $row['name'] );
+            }
             if ( $name === '' ) {
                 continue;
             }
 
+            $amount = '';
+            if ( isset( $row['amount'] ) && is_scalar( $row['amount'] ) ) {
+                $amount = sanitize_text_field( (string) $row['amount'] );
+            }
+            $unit = '';
+            if ( isset( $row['unit'] ) && is_scalar( $row['unit'] ) ) {
+                $unit = sanitize_text_field( (string) $row['unit'] );
+            }
+            $notes = '';
+            if ( isset( $row['notes'] ) && is_scalar( $row['notes'] ) ) {
+                $notes = sanitize_text_field( (string) $row['notes'] );
+            }
+
             $ingredients[] = [
-                'amount' => isset( $row['amount'] ) && is_scalar( $row['amount'] ) ? sanitize_text_field( (string) $row['amount'] ) : '',
-                'unit'   => isset( $row['unit'] ) && is_scalar( $row['unit'] ) ? sanitize_text_field( (string) $row['unit'] ) : '',
+                'amount' => $amount,
+                'unit'   => $unit,
                 'name'   => $name,
-                'notes'  => isset( $row['notes'] ) && is_scalar( $row['notes'] ) ? sanitize_text_field( (string) $row['notes'] ) : '',
+                'notes'  => $notes,
             ];
         }
 
@@ -1268,41 +1282,50 @@ class RecipeService extends AbstractService {
         $clean = [];
 
         if ( array_key_exists( 'title', $parsed ) ) {
-            $clean['title'] = is_scalar( $parsed['title'] )
-                ? sanitize_text_field( (string) $parsed['title'] )
-                : '';
+            $clean['title'] = '';
+            if ( is_scalar( $parsed['title'] ) ) {
+                $clean['title'] = sanitize_text_field( (string) $parsed['title'] );
+            }
         }
         if ( array_key_exists( 'description', $parsed ) ) {
-            $clean['description'] = is_scalar( $parsed['description'] )
-                ? wp_kses_post( (string) $parsed['description'] )
-                : '';
+            $clean['description'] = '';
+            if ( is_scalar( $parsed['description'] ) ) {
+                $clean['description'] = wp_kses_post( (string) $parsed['description'] );
+            }
         }
 
         foreach ( [ 'servings', 'prep_time', 'cook_time' ] as $field ) {
             if ( array_key_exists( $field, $parsed ) ) {
-                $clean[ $field ] = is_scalar( $parsed[ $field ] ) ? absint( $parsed[ $field ] ) : 0;
+                $clean[ $field ] = 0;
+                if ( is_scalar( $parsed[ $field ] ) ) {
+                    $clean[ $field ] = absint( $parsed[ $field ] );
+                }
             }
         }
 
         if ( array_key_exists( 'ingredients', $parsed ) ) {
-            $clean['ingredients'] = is_array( $parsed['ingredients'] )
-                ? $this->sanitize_recipe_ingredient_rows( $parsed['ingredients'] )
-                : [];
+            $clean['ingredients'] = [];
+            if ( is_array( $parsed['ingredients'] ) ) {
+                $clean['ingredients'] = $this->sanitize_recipe_ingredient_rows( $parsed['ingredients'] );
+            }
         }
         if ( array_key_exists( 'instructions', $parsed ) ) {
-            $clean['instructions'] = is_array( $parsed['instructions'] )
-                ? $this->sanitize_recipe_instruction_rows( $parsed['instructions'] )
-                : [];
+            $clean['instructions'] = [];
+            if ( is_array( $parsed['instructions'] ) ) {
+                $clean['instructions'] = $this->sanitize_recipe_instruction_rows( $parsed['instructions'] );
+            }
         }
         if ( array_key_exists( 'parts', $parsed ) ) {
-            $clean['parts'] = is_array( $parsed['parts'] )
-                ? $this->normalize_recipe_parts_array( $parsed['parts'], false )
-                : [];
+            $clean['parts'] = [];
+            if ( is_array( $parsed['parts'] ) ) {
+                $clean['parts'] = $this->normalize_recipe_parts_array( $parsed['parts'], false );
+            }
         }
         if ( array_key_exists( 'image_url', $parsed ) ) {
-            $clean['image_url'] = is_scalar( $parsed['image_url'] )
-                ? esc_url_raw( (string) $parsed['image_url'] )
-                : '';
+            $clean['image_url'] = '';
+            if ( is_scalar( $parsed['image_url'] ) ) {
+                $clean['image_url'] = esc_url_raw( (string) $parsed['image_url'] );
+            }
         }
 
         return $clean;

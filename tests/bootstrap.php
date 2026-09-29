@@ -24,7 +24,10 @@ if ( ! function_exists( 'is_user_logged_in' ) ) {
 }
 if ( ! function_exists( 'current_user_can' ) ) {
     function current_user_can( $capability, ...$args ) {
-        $key = $capability . ( $args ? ':' . implode( ':', array_map( 'strval', $args ) ) : '' );
+        $key = $capability;
+        if ( $args ) {
+            $key .= ':' . implode( ':', array_map( 'strval', $args ) );
+        }
         return ! empty( $GLOBALS['cook_app_test_user_caps'][ $key ] )
             || ! empty( $GLOBALS['cook_app_test_user_caps'][ $capability ] );
     }

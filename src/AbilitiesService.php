@@ -307,8 +307,14 @@ class AbilitiesService extends AbstractService {
      * @param array $input Ability input.
      */
     public function can_read_recipe_ability( $input = [] ): bool {
-        $id   = is_array( $input ) && isset( $input['id'] ) ? absint( $input['id'] ) : 0;
-        $post = $id ? get_post( $id ) : null;
+        $id = 0;
+        if ( is_array( $input ) && isset( $input['id'] ) ) {
+            $id = absint( $input['id'] );
+        }
+        $post = null;
+        if ( $id ) {
+            $post = get_post( $id );
+        }
 
         return is_user_logged_in()
             && $post
@@ -326,9 +332,17 @@ class AbilitiesService extends AbstractService {
             return false;
         }
 
-        $input = is_array( $input ) ? $input : [];
-        $id    = isset( $input['id'] ) ? absint( $input['id'] ) : 0;
-        $parent_id = isset( $input['parent_id'] ) ? absint( $input['parent_id'] ) : 0;
+        if ( ! is_array( $input ) ) {
+            $input = [];
+        }
+        $id = 0;
+        if ( isset( $input['id'] ) ) {
+            $id = absint( $input['id'] );
+        }
+        $parent_id = 0;
+        if ( isset( $input['parent_id'] ) ) {
+            $parent_id = absint( $input['parent_id'] );
+        }
         if ( $parent_id ) {
             $parent = get_post( $parent_id );
             if ( ! $parent || App::POST_TYPE !== $parent->post_type || ! current_user_can( 'read_post', $parent_id ) ) {
@@ -355,14 +369,19 @@ class AbilitiesService extends AbstractService {
             return false;
         }
 
-        $source_id = is_array( $input ) && isset( $input['source_recipe_id'] )
-            ? absint( $input['source_recipe_id'] )
-            : 0;
-        $source = $source_id ? get_post( $source_id ) : null;
+        $source_id = 0;
+        if ( is_array( $input ) && isset( $input['source_recipe_id'] ) ) {
+            $source_id = absint( $input['source_recipe_id'] );
+        }
+        $source = null;
+        if ( $source_id ) {
+            $source = get_post( $source_id );
+        }
 
-        $parent_id = is_array( $input ) && isset( $input['parent_id'] )
-            ? absint( $input['parent_id'] )
-            : 0;
+        $parent_id = 0;
+        if ( is_array( $input ) && isset( $input['parent_id'] ) ) {
+            $parent_id = absint( $input['parent_id'] );
+        }
         if ( $parent_id ) {
             $parent = get_post( $parent_id );
             if ( ! $parent || App::POST_TYPE !== $parent->post_type || ! current_user_can( 'read_post', $parent_id ) ) {

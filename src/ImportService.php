@@ -139,10 +139,15 @@ class ImportService extends AbstractService {
      * @return int|\WP_Error
      */
     private function create_recipe_from_parsed( array $parsed, string $url = '' ) {
+        $title = __( 'Imported recipe', 'cook-app' );
+        if ( ! empty( $parsed['title'] ) ) {
+            $title = $parsed['title'];
+        }
+
         $post_id = wp_insert_post( [
             'post_type'    => App::POST_TYPE,
             'post_status'  => 'publish',
-            'post_title'   => ! empty( $parsed['title'] ) ? $parsed['title'] : __( 'Imported recipe', 'cook-app' ),
+            'post_title'   => $title,
             'post_content' => $parsed['description'] ?? '',
             'post_author'  => get_current_user_id(),
         ], true );
