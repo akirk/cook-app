@@ -124,8 +124,8 @@ class App extends BaseApp {
         add_action( 'wp_ajax_cookbook_parse_text', [ $imports, 'ajax_parse_text' ] );
         add_action( 'rest_api_init', [ $registry, 'register_rest_routes' ] );
 
-        add_action( 'wp_loaded', [ $imports, 'handle_extension_save' ], 100 );
-        add_filter( 'friends_browser_extension_actions', [ $imports, 'register_browser_extension_action' ] );
+        add_filter( 'friends_browser_extension_actions', [ $imports, 'register_browser_extension_action' ], 10, 3 );
+        add_filter( 'friends_browser_extension_action_cook_app_save_recipe', [ $imports, 'handle_extension_save' ], 10, 4 );
         add_filter( 'static_archive_post_types', [ $static_archive, 'add_static_archive_post_type' ] );
         add_filter( 'static_archive_post_html', [ $static_archive, 'static_archive_recipe_html' ], 10, 3 );
         add_filter( 'static_archive_post_markdown', [ $static_archive, 'static_archive_recipe_markdown' ], 10, 3 );
