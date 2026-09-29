@@ -238,7 +238,7 @@ class ImportService extends AbstractService {
      * endpoint with the URL as a query arg. We parse it server-side using the
      * same Importer used for the manual import form.
      *
-     * @see https://github.com/akirk/browser-extension
+     * @see https://github.com/akirk/friends-browser-extension/
      */
     public function register_browser_extension_action( $actions ) {
         if ( ! is_array( $actions ) ) $actions = [];

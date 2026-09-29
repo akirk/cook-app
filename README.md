@@ -51,7 +51,7 @@ Recipe variations let you link adapted recipes to their originals. Use "Edit as 
 
 ### Browser extension import
 
-Cook App integrates with the [Friends browser extension](https://github.com/akirk/browser-extension). After authorizing the extension for your site, use the "Save as Recipe" action on a recipe page and Cook App will import the current page HTML.
+Cook App integrates with the [Friends browser extension](https://github.com/akirk/friends-browser-extension/). After authorizing the extension for your site, use the "Save as Recipe" action on a recipe page and Cook App will import the current page HTML.
 
 ### AI and automation
 
