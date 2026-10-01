@@ -13,6 +13,7 @@ class ServiceContainer {
     private AccessService $access;
     private CookedHistoryService $cooked_history;
     private ImportService $imports;
+    private BackupService $backups;
     private IngredientAdminService $ingredient_admin;
     private PlannerService $planner;
     private RecipeService $recipes;
@@ -29,6 +30,7 @@ class ServiceContainer {
         $this->shopping_list    = new ShoppingListService( $this );
         $this->cooked_history   = new CookedHistoryService( $this );
         $this->imports          = new ImportService( $this );
+        $this->backups          = new BackupService( $this );
         $this->abilities        = new AbilitiesService( $this );
         $this->registry         = new RegistryService( $this );
         $this->static_archive   = new StaticArchiveService( $this );
@@ -53,6 +55,10 @@ class ServiceContainer {
 
     public function cookedHistory(): CookedHistoryService {
         return $this->cooked_history;
+    }
+
+    public function backups(): BackupService {
+        return $this->backups;
     }
 
     public function imports(): ImportService {

@@ -31,6 +31,14 @@ Recipe parsers are extensible through the `cook_app_load_recipe_parsers` action.
 
 Photos can be sideloaded into the WordPress media library and used as the recipe's featured image.
 
+### Cookbook backup and restore
+
+In Settings, download a JSON-LD file and restore it on another Cook App installation. Standard schema.org Recipe entries live in `@graph`; a versioned `cookApp:backup` section preserves the extra Cook App data and exact recipe metadata. The same importer also accepts schema.org Recipe JSON-LD files without the Cook App section, reusing the web recipe parser for every recipe in the file.
+
+Backups include your authored recipes, shopping lists (including checked items), meal plans, cooking history, recipe taxonomies and ingredient groups, unit preference, and household ingredients. References between restored entries are remapped to their new IDs.
+
+Restore adds copies under the signed-in user without replacing existing content; repeating a restore creates duplicates. The unit preference is restored and household ingredients are merged. Backups are limited to 10 MB. Photos are recorded as URLs, not embedded image files; restored recipes link to the original photo so you can upload it again. Backups are not offline media archives. CSV and proprietary recipe apps' file formats are not supported yet; recipe apps that export schema.org JSON-LD can already supply files for import.
+
 ### Cook with scaled ingredients
 
 Recipe pages include live portion scaling. Enter the number of servings you want and Cook App rescales parsed ingredient amounts immediately. Unit display can be switched between metric and imperial globally in settings or per recipe while viewing it.
