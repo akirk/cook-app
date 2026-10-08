@@ -71,8 +71,8 @@ if ( $restored !== null ) : ?>
     <?php wp_nonce_field( 'cookbook_restore_backup' ); ?>
     <input type="hidden" name="action" value="cookbook_restore_backup">
     <label for="cookbook-backup"><?php esc_html_e( 'Import recipes or restore a Cook App backup', 'cook-app' ); ?></label>
-    <p class="help"><?php esc_html_e( 'Accepts schema.org Recipe JSON-LD files and Cook App backups. Maximum 10 MB. Restore adds new copies without replacing existing recipes, lists, plans, or history. Repeated restores create duplicates. Your unit preference is restored and household ingredients are merged. Photo URLs are retained for reference; upload photos again after restoring.', 'cook-app' ); ?></p>
-    <input id="cookbook-backup" type="file" name="backup" accept=".json,.jsonld,application/json,application/ld+json" required>
+    <p class="help"><?php esc_html_e( 'Accepts schema.org Recipe JSON-LD files, Cook App backups, and Mealie recipe-export ZIPs. Maximum 10 MB. Restore adds new copies without replacing existing recipes, lists, plans, or history. Repeated restores create duplicates. Your unit preference is restored and household ingredients are merged. Mealie ZIP photos are imported into the media library. JSON-LD photo URLs are retained for reference; upload those photos again after restoring.', 'cook-app' ); ?></p>
+    <input id="cookbook-backup" type="file" name="backup" accept=".json,.jsonld,.zip,application/json,application/ld+json,application/zip" required>
     <div class="toolbar"><button class="btn" type="submit"><?php esc_html_e( 'Import file', 'cook-app' ); ?></button></div>
 </form>
 <?php endif; ?>

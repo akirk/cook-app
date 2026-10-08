@@ -37,6 +37,8 @@ php tests/compatibility/export_recipes.php > /tmp/cook-app-recipes.json
 /tmp/cook-app-mealie-check/bin/python tests/compatibility/check_mealie.py /tmp/cook-app-recipes.json
 ```
 
+For migration from Mealie to Cook App, use the [native recipe ZIP importer](mealie-import.md), which preserves structured ingredient quantities and bundled photos.
+
 The fixture in `tests/fixtures/recipesage-export.json` is synthetic, modeled on the referenced exporter; it contains no user data.
 
 To repeat the HTTP integration check, start a **disposable** instance of Mealie’s latest stable release and run:

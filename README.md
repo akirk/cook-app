@@ -33,13 +33,13 @@ Photos can be sideloaded into the WordPress media library and used as the recipe
 
 ### Cookbook backup and restore
 
-In Settings, export recipes as standard schema.org Recipe JSON-LD for transfer to other recipe apps, or download a full Cook App backup for restoration on another installation. The [recipe export documentation](docs/recipe-interchange.md) explains compatibility and includes an example. Standard schema.org Recipe entries live in `@graph`; a versioned `cookApp:backup` section preserves the extra Cook App data and exact recipe metadata. The same importer also accepts schema.org Recipe JSON-LD files without the Cook App section, reusing the web recipe parser for every recipe in the file.
+In Settings, export recipes as standard schema.org Recipe JSON-LD for transfer to other recipe apps, or download a full Cook App backup for restoration on another installation. The [recipe export documentation](docs/recipe-interchange.md) explains compatibility and includes an example. Full backups store standard schema.org Recipe entries in `@graph`; a versioned `cookApp:backup` section preserves the extra Cook App data and exact recipe metadata. The same importer also accepts schema.org Recipe JSON-LD files without the Cook App section, reusing the web recipe parser for every recipe in the file. It also accepts [Mealie recipe-export ZIPs](docs/mealie-import.md), including bundled photos.
 
 The [version 1 backup format and vocabulary](docs/backup-format-v1.md) documents the Cook App namespace, fields, and reference handling, with a [complete example export](docs/examples/cook-app-backup-v1.json).
 
 Backups include your authored recipes, shopping lists (including checked items), meal plans, cooking history, recipe taxonomies and ingredient groups, unit preference, and household ingredients. References between restored entries are remapped to their new IDs.
 
-Restore adds copies under the signed-in user without replacing existing content; repeating a restore creates duplicates. The unit preference is restored and household ingredients are merged. Backups are limited to 10 MB. Photos are recorded as URLs, not embedded image files; restored recipes link to the original photo so you can upload it again. Backups are not offline media archives. CSV and proprietary recipe apps' file formats are not supported yet; recipe apps that export schema.org JSON-LD can already supply files for import.
+Restore adds copies under the signed-in user without replacing existing content; repeating a restore creates duplicates. The unit preference is restored and household ingredients are merged. Backups are limited to 10 MB. JSON-LD photos are recorded as URLs, not embedded image files; restored recipes link to the original photo so you can upload it again. Backups are not offline media archives. CSV and other recipe apps' native file formats are not supported yet; recipe apps that export schema.org JSON-LD can already supply files for import.
 
 ### Cook with scaled ingredients
 

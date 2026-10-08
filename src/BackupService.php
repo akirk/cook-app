@@ -456,12 +456,13 @@ class BackupService extends AbstractService {
         return is_string( $value ) ? wp_kses_post( $value ) : $value;
     }
 
-    public function restore_data( array $data, int $user_id ): int {
+    public function restore_data( array $data, int $user_id, ?callable $import_image = null ): int {
         $this->validate_relationships( $data );
         $term_map = [];
         $created_terms = [];
         $post_map = [];
         $recipe_map = [];
+        $created_images = [];
         try {
             foreach ( $data['terms'] as $term ) {
                 $name = sanitize_text_field( $term['name'] );
@@ -544,8 +545,17 @@ class BackupService extends AbstractService {
                 if ( ! empty( $post['image_url'] ) && $post['type'] === App::POST_TYPE ) {
                     update_post_meta( $id, '_cookbook_backup_image_url', esc_url_raw( $post['image_url'] ) );
                 }
+                if ( $import_image && $post['type'] === App::POST_TYPE ) {
+                    $attachment_id = $import_image( $id, $post['id'] );
+                    if ( $attachment_id ) {
+                        $created_images[] = $attachment_id;
+                    }
+                }
             }
         } catch ( \Throwable $error ) {
+            foreach ( $created_images as $attachment_id ) {
+                wp_delete_attachment( $attachment_id, true );
+            }
             foreach ( array_reverse( $post_map ) as $id ) {
                 wp_delete_post( $id, true );
             }
@@ -571,12 +581,17 @@ class BackupService extends AbstractService {
         if ( ! isset( $file['error'], $file['tmp_name'] ) || $file['error'] !== UPLOAD_ERR_OK || ! is_string( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
             wp_die( esc_html__( 'Choose a valid backup file.', 'cook-app' ) );
         }
-        $json = file_get_contents( $file['tmp_name'], false, null, 0, self::MAX_BYTES + 1 );
         try {
-            if ( false === $json || strlen( $json ) > self::MAX_BYTES ) {
-                throw new \RuntimeException( 'Could not read the backup.' );
+            $signature = file_get_contents( $file['tmp_name'], false, null, 0, 4 );
+            if ( $signature === "PK\x03\x04" || $signature === "PK\x05\x06" ) {
+                $count = ( new MealieImportService( $this->services ) )->import_archive( $file['tmp_name'], get_current_user_id() );
+            } else {
+                $json = file_get_contents( $file['tmp_name'], false, null, 0, self::MAX_BYTES + 1 );
+                if ( false === $json || strlen( $json ) > self::MAX_BYTES ) {
+                    throw new \RuntimeException( 'Could not read the backup.' );
+                }
+                $count = $this->restore_data( $this->decode_backup( $json ), get_current_user_id() );
             }
-            $count = $this->restore_data( $this->decode_backup( $json ), get_current_user_id() );
         } catch ( \Throwable $error ) {
             wp_die( esc_html( $error->getMessage() ) );
         }
