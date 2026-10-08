@@ -1,0 +1,29 @@
+{
+    "id": "76f21169-a523-4ca5-9324-99f7eacb93f4",
+    "name": "Flour pancakes",
+    "slug": "flour-pancakes",
+    "description": "Weekend breakfast",
+    "recipe_servings": 2,
+    "recipe_yield": "servings",
+    "prep_time": "5 minutes",
+    "perform_time": "10 minutes",
+    "total_time": "15 minutes",
+    "org_url": "https://example.com/pancakes",
+    "image": "example-cache-key",
+    "recipe_ingredient": [
+        {"title": "Batter", "quantity": 200, "unit": {"name": "gram", "abbreviation": "g"}, "food": {"name": "flour"}, "note": "sifted", "display": "200 g flour sifted"},
+        {"quantity": 0.5, "unit": {"name": "cup", "abbreviation": ""}, "food": {"name": "milk"}, "note": "", "display": "1/2 cup milk"},
+        {"title": "Topping", "quantity": 0, "unit": null, "food": null, "note": "1 tomato", "display": "1 tomato"}
+    ],
+    "recipe_instructions": [
+        {"title": "Batter", "summary": "Mix", "text": "Combine the ingredients."},
+        {"summary": "", "text": "Cook in a pan."},
+        {"title": "Topping", "text": "Slice the tomato."}
+    ],
+    "recipe_category": [{"name": "Breakfast", "slug": "breakfast"}],
+    "tags": [{"name": "Quick", "slug": "quick"}],
+    "notes": [{"title": "Serving", "text": "Serve warm."}],
+    "settings": {"public": false},
+    "nutrition": null,
+    "assets": []
+}
