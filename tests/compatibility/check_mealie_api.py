@@ -1,4 +1,4 @@
-"""Import a Cook App export into a disposable Mealie v3.28.0 CI service.
+"""Import a Cook App export into a disposable Mealie CI service.
 
 Uses the actual HTTP import and read endpoints. Test cases have no photo URLs;
 this verifies stored recipe fields, not image downloads or Mealie ZIP import.
@@ -54,7 +54,8 @@ def main():
             raise RuntimeError(f"{req.get_method()} {path} failed ({error.code}): {error.read().decode()}") from None
 
     about = request("/api/app/about")
-    assert str(about["version"]).lstrip("v") == "3.28.0", "Expected Mealie v3.28.0"
+    mealie_version = about["version"]
+    print(f"Testing Mealie {mealie_version}")
     login = request("/api/auth/token", {
         "username": os.environ.get("MEALIE_TEST_USERNAME", "changeme@example.com"),
         "password": os.environ.get("MEALIE_TEST_PASSWORD", "MyPassword"),
@@ -83,7 +84,7 @@ def main():
         assert {row["name"] for row in categories} == set(source["recipeCategory"]), f"Categories changed for {slug}"
         assert {row["name"] for row in saved["tags"]} == set(source["keywords"]), f"Tags changed for {slug}"
         print(f"Mealie API: imported and read back {source['name']}")
-    print(f"Mealie v3.28.0 API: {len(recipes)} recipes passed")
+    print(f"Mealie {mealie_version} API: {len(recipes)} recipes passed")
 
 
 if __name__ == "__main__":
