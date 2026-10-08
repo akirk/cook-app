@@ -39,7 +39,14 @@ class JsonLdRecipeParser extends RecipeParser {
         return array_map( function( array $node ): array {
             $recipe = $this->normalize_recipe( $node );
             $recipe['@id'] = $this->scalar_text( $node['@id'] ?? '' );
-            $recipe['source_url'] = $this->scalar_text( $node['url'] ?? '' );
+            $recipe['source_url'] = $this->scalar_text( $node['isBasedOn'] ?? '' ) ?: $this->scalar_text( $node['url'] ?? '' );
+            $recipe['notes'] = '';
+            foreach ( (array) ( $node['comment'] ?? [] ) as $comment ) {
+                if ( is_array( $comment ) && ( $comment['name'] ?? '' ) === 'Author Notes' ) {
+                    $recipe['notes'] = $this->scalar_text( $comment['text'] ?? '' );
+                    break;
+                }
+            }
             foreach ( [ 'recipeCategory' => 'categories', 'recipeCuisine' => 'cuisines', 'keywords' => 'tags' ] as $field => $target ) {
                 $values = $node[ $field ] ?? [];
                 if ( is_string( $values ) ) {

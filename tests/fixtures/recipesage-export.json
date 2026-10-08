@@ -1,0 +1,33 @@
+[
+    {
+        "@context": "http://schema.org",
+        "@type": "Recipe",
+        "identifier": "example-pancakes",
+        "name": "Pancakes",
+        "description": "Weekend breakfast",
+        "recipeYield": "2 servings",
+        "prepTime": "PT5M",
+        "totalTime": "PT15M",
+        "image": [],
+        "recipeCategory": ["Breakfast"],
+        "recipeIngredient": ["200 g flour"],
+        "recipeInstructions": [
+            {"@type": "HowToStep", "text": "Mix."},
+            {"@type": "HowToStep", "text": "Cook."}
+        ],
+        "creditText": "Example recipe",
+        "isBasedOn": "https://example.com/pancakes",
+        "comment": [{"@type": "Comment", "name": "Author Notes", "text": "Serve warm."}]
+    },
+    {
+        "@context": "http://schema.org",
+        "@type": "Recipe",
+        "identifier": "example-salad",
+        "name": "Salad",
+        "recipeYield": "1 serving",
+        "image": [],
+        "recipeCategory": [],
+        "recipeIngredient": ["1 tomato"],
+        "recipeInstructions": [{"@type": "HowToStep", "text": "Slice and serve."}]
+    }
+]

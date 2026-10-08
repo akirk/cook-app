@@ -33,7 +33,9 @@ Photos can be sideloaded into the WordPress media library and used as the recipe
 
 ### Cookbook backup and restore
 
-In Settings, download a JSON-LD file and restore it on another Cook App installation. Standard schema.org Recipe entries live in `@graph`; a versioned `cookApp:backup` section preserves the extra Cook App data and exact recipe metadata. The same importer also accepts schema.org Recipe JSON-LD files without the Cook App section, reusing the web recipe parser for every recipe in the file.
+In Settings, export recipes as standard schema.org Recipe JSON-LD for transfer to other recipe apps, or download a full Cook App backup for restoration on another installation. The [recipe export documentation](docs/recipe-interchange.md) explains compatibility and includes an example. Standard schema.org Recipe entries live in `@graph`; a versioned `cookApp:backup` section preserves the extra Cook App data and exact recipe metadata. The same importer also accepts schema.org Recipe JSON-LD files without the Cook App section, reusing the web recipe parser for every recipe in the file.
+
+The [version 1 backup format and vocabulary](docs/backup-format-v1.md) documents the Cook App namespace, fields, and reference handling, with a [complete example export](docs/examples/cook-app-backup-v1.json).
 
 Backups include your authored recipes, shopping lists (including checked items), meal plans, cooking history, recipe taxonomies and ingredient groups, unit preference, and household ingredients. References between restored entries are remapped to their new IDs.
 

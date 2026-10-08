@@ -1,0 +1,43 @@
+[
+    {
+        "@type": "Recipe",
+        "@id": "urn:cook-app:recipe:12",
+        "name": "Scrambled eggs",
+        "description": "A quick breakfast.",
+        "recipeYield": "2",
+        "prepTime": "PT2M",
+        "cookTime": "PT5M",
+        "recipeIngredient": [
+            "4 eggs"
+        ],
+        "recipeInstructions": [
+            {
+                "@type": "HowToStep",
+                "text": "Beat the eggs."
+            },
+            {
+                "@type": "HowToStep",
+                "text": "Cook gently in a pan, stirring until set."
+            }
+        ],
+        "image": [
+            "https://example.com/scrambled-eggs.jpg"
+        ],
+        "url": "https://example.com/scrambled-eggs",
+        "recipeCategory": [
+            "Breakfast"
+        ],
+        "recipeCuisine": [],
+        "keywords": [],
+        "@context": "https://schema.org",
+        "isBasedOn": "https://example.com/scrambled-eggs",
+        "totalTime": "PT7M",
+        "comment": [
+            {
+                "@type": "Comment",
+                "name": "Author Notes",
+                "text": "**Serve warm.**"
+            }
+        ]
+    }
+]

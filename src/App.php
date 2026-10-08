@@ -108,6 +108,7 @@ class App extends BaseApp {
         add_action( 'admin_post_cookbook_delete', [ $recipes, 'handle_delete' ] );
         add_action( 'admin_post_cookbook_settings', [ $recipes, 'handle_settings' ] );
         add_action( 'admin_post_cookbook_export_backup', [ $this->services->backups(), 'handle_export' ] );
+        add_action( 'admin_post_cookbook_export_recipes', [ $this->services->backups(), 'handle_recipe_export' ] );
         add_action( 'admin_post_cookbook_restore_backup', [ $this->services->backups(), 'handle_restore' ] );
         add_action( 'admin_post_cookbook_import', [ $imports, 'handle_import' ] );
         add_action( 'admin_post_cookbook_refetch', [ $imports, 'handle_refetch' ] );

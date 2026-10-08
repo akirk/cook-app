@@ -68,6 +68,48 @@ class BackupServiceTest extends TestCase {
         $this->assertSame( [ 'quick', 'lunch' ], array_column( $data['terms'], 'name' ) );
     }
 
+    public function test_recipe_export_is_standalone_and_preserves_interchange_fields(): void {
+        $data = $this->data();
+        $data['posts'][0]['meta'][ App::META_PARTS ] = [ [ 'title' => 'Batter',
+            'ingredients' => $data['posts'][0]['meta'][ App::META_INGREDIENTS ],
+            'instructions' => [ 'Mix.', 'Cook.' ],
+        ] ];
+        $document = $this->backups->to_document( $data );
+        $recipes = $this->backups->recipe_document( $document );
+        $this->assertCount( 1, $recipes );
+        $recipe = $recipes[0];
+        $this->assertSame( 'https://schema.org', $recipe['@context'] );
+        $this->assertSame( [ 'https://example.com/photo.jpg' ], $recipe['image'] );
+        $this->assertSame( 'PT15M', $recipe['totalTime'] );
+        $this->assertSame( 'https://example.com/pancakes', $recipe['isBasedOn'] );
+        $this->assertSame( '**Serve warm.**', $recipe['comment'][0]['text'] );
+        $this->assertSame( [ 'Batter: Mix.', 'Cook.' ], array_column( $recipe['recipeInstructions'], 'text' ) );
+        $this->assertSame( [ 'HowToStep', 'HowToStep' ], array_column( $recipe['recipeInstructions'], '@type' ) );
+        $this->assertStringNotContainsString( 'cookApp', json_encode( $recipes ) );
+        $restored = $this->backups->decode_backup( json_encode( $recipes ) );
+        $this->assertTrue( $restored['portable'] );
+        $this->assertSame( 'https://example.com/pancakes', $restored['posts'][0]['meta'][ App::META_SOURCE_URL ] );
+        $this->assertSame( '**Serve warm.**', $restored['posts'][0]['meta'][ App::META_NOTES ] );
+        $this->assertSame( 'HowToSection', $document['@graph'][0]['recipeInstructions'][0]['@type'] );
+    }
+
+    public function test_recipe_export_handles_empty_cookbooks_and_missing_photos(): void {
+        $this->assertSame( [], $this->backups->recipe_document( $this->backups->to_document( [ 'posts' => [], 'terms' => [] ] ) ) );
+        $data = $this->data();
+        $data['posts'][0]['image_url'] = '';
+        $recipes = $this->backups->recipe_document( $this->backups->to_document( $data ) );
+        $this->assertSame( [], $recipes[0]['image'] );
+    }
+
+    public function test_recipesage_style_export_imports_source_notes_and_multiple_recipes(): void {
+        $data = $this->backups->decode_backup( file_get_contents( __DIR__ . '/fixtures/recipesage-export.json' ) );
+        $this->assertCount( 2, $data['posts'] );
+        $this->assertSame( 'https://example.com/pancakes', $data['posts'][0]['meta'][ App::META_SOURCE_URL ] );
+        $this->assertSame( 'Serve warm.', $data['posts'][0]['meta'][ App::META_NOTES ] );
+        $this->assertSame( [ 'Mix.', 'Cook.' ], $data['posts'][0]['meta'][ App::META_INSTRUCTIONS ] );
+        $this->assertSame( 'Breakfast', $data['terms'][0]['name'] );
+    }
+
     public function test_plain_recipe_and_top_level_array_are_accepted(): void {
         $recipe = [ '@context' => 'https://schema.org', '@type' => 'Recipe', 'name' => 'Soup' ];
         $this->assertCount( 1, $this->backups->decode_backup( json_encode( $recipe ) )['posts'] );

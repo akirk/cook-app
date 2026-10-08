@@ -37,10 +37,10 @@ class BackupService extends AbstractService {
         check_admin_referer( $action );
     }
 
-    public function export_data( int $user_id ): array {
+    public function export_data( int $user_id, bool $recipes_only = false ): array {
         $data = [ 'format' => 'cook-app-backup', 'version' => 1, 'posts' => [], 'terms' => [] ];
         $posts = get_posts( [
-            'post_type' => $this->types(), 'author' => $user_id, 'posts_per_page' => -1,
+            'post_type' => $recipes_only ? App::POST_TYPE : $this->types(), 'author' => $user_id, 'posts_per_page' => -1,
             'post_status' => [ 'publish', 'private', 'draft', 'pending', App::SHOPPING_ITEM_STATUS_CHECKED ],
             'orderby' => 'ID', 'order' => 'ASC',
         ] );
@@ -80,6 +80,43 @@ class BackupService extends AbstractService {
             'household' => $this->services->preferences()->get_user_household_ingredient_ids( $user_id ),
         ];
         return $this->to_document( $data );
+    }
+
+    /** Standalone schema.org recipes, without application-specific restore records. */
+    public function recipe_document( array $document ): array {
+        $notes = [];
+        foreach ( $document['cookApp:backup']['posts'] as $post ) {
+            if ( isset( $post['recipe'] ) ) {
+                $notes[ $post['recipe'] ] = $post['meta'][ App::META_NOTES ] ?? '';
+            }
+        }
+        $recipes = [];
+        foreach ( $document['@graph'] as $node ) {
+            $node['@context'] = 'https://schema.org';
+            $node['image'] = empty( $node['image'] ) ? [] : [ $node['image'] ];
+            $node['isBasedOn'] = $node['url'] ?? '';
+            $node['totalTime'] = 'PT' . ( (int) substr( $node['prepTime'], 2 ) + (int) substr( $node['cookTime'], 2 ) ) . 'M';
+            if ( ! empty( $notes[ $node['@id'] ] ) ) {
+                $node['comment'] = [ [ '@type' => 'Comment', 'name' => 'Author Notes', 'text' => $notes[ $node['@id'] ] ] ];
+            }
+            // Some importers only read flat HowToStep text. Keep section names in that text.
+            $steps = [];
+            foreach ( $node['recipeInstructions'] as $step ) {
+                if ( $step['@type'] === 'HowToSection' ) {
+                    foreach ( $step['itemListElement'] as $index => $child ) {
+                        if ( $index === 0 && $step['name'] !== '' ) {
+                            $child['text'] = $step['name'] . ': ' . $child['text'];
+                        }
+                        $steps[] = $child;
+                    }
+                } else {
+                    $steps[] = $step;
+                }
+            }
+            $node['recipeInstructions'] = $steps;
+            $recipes[] = $node;
+        }
+        return $recipes;
     }
 
     /** Standard recipes plus namespaced information for a lossless Cook App restore. */
@@ -131,7 +168,7 @@ class BackupService extends AbstractService {
             }
         }
         foreach ( $ingredients ?: ( $meta[ App::META_INGREDIENTS ] ?? [] ) as $ingredient ) {
-            $line = trim( ( $ingredient['amount'] ?? '' ) . ' ' . ( $ingredient['unit'] ?? '' ) . ' ' . ( $ingredient['name'] ?? '' ) );
+            $line = implode( ' ', array_filter( [ (string) ( $ingredient['amount'] ?? '' ), $ingredient['unit'] ?? '', $ingredient['name'] ?? '' ], function( $value ) { return $value !== ''; } ) );
             if ( ! empty( $ingredient['notes'] ) ) {
                 $line .= ' (' . $ingredient['notes'] . ')';
             }
@@ -155,15 +192,28 @@ class BackupService extends AbstractService {
                 App::META_SERVINGS => $recipe['servings'], App::META_PREP => $recipe['prep_time'],
                 App::META_COOK => $recipe['cook_time'], App::META_INGREDIENTS => $recipe['ingredients'],
                 App::META_INSTRUCTIONS => $recipe['instructions'], App::META_PARTS => $recipe['parts'],
-                App::META_SOURCE_URL => $recipe['source_url'],
+                App::META_SOURCE_URL => $recipe['source_url'], App::META_NOTES => $recipe['notes'] ?? '',
             ],
         ];
     }
 
     public function handle_export(): void {
         $this->authorize( 'cookbook_export_backup' );
+        $this->download( false );
+    }
+
+    public function handle_recipe_export(): void {
+        $this->authorize( 'cookbook_export_recipes' );
+        $this->download( true );
+    }
+
+    private function download( bool $recipes_only ): void {
         try {
-            $json = wp_json_encode( $this->export_data( get_current_user_id() ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+            $document = $this->export_data( get_current_user_id(), $recipes_only );
+            if ( $recipes_only ) {
+                $document = $this->recipe_document( $document );
+            }
+            $json = wp_json_encode( $document, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
         } catch ( \Throwable $error ) {
             wp_die( esc_html( $error->getMessage() ) );
         }
@@ -171,8 +221,9 @@ class BackupService extends AbstractService {
             wp_die( esc_html__( 'Could not export the backup within the 10 MB limit.', 'cook-app' ) );
         }
         nocache_headers();
+        $filename = $recipes_only ? 'cook-app-recipes.json' : 'cook-app-backup.json';
         header( 'Content-Type: application/ld+json; charset=utf-8' );
-        header( 'Content-Disposition: attachment; filename="cook-app-backup.json"' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- downloadable JSON, not HTML.
         echo $json;
         exit;

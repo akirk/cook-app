@@ -1,0 +1,178 @@
+{
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "cookApp": "https://github.com/akirk/cook-app#"
+    },
+    "@graph": [
+        {
+            "@type": "Recipe",
+            "@id": "urn:cook-app:recipe:12",
+            "name": "Scrambled eggs",
+            "description": "A quick breakfast.",
+            "recipeYield": "2",
+            "prepTime": "PT2M",
+            "cookTime": "PT5M",
+            "recipeIngredient": [
+                "4 eggs"
+            ],
+            "recipeInstructions": [
+                {
+                    "@type": "HowToStep",
+                    "text": "Beat the eggs."
+                },
+                {
+                    "@type": "HowToStep",
+                    "text": "Cook gently in a pan, stirring until set."
+                }
+            ],
+            "image": "https://example.com/scrambled-eggs.jpg",
+            "url": "https://example.com/scrambled-eggs",
+            "recipeCategory": [
+                "Breakfast"
+            ],
+            "recipeCuisine": [],
+            "keywords": []
+        }
+    ],
+    "cookApp:backup": {
+        "format": "cook-app-backup",
+        "version": 1,
+        "posts": [
+            {
+                "status": "publish",
+                "parent": 0,
+                "date": "2026-10-01 09:00:00",
+                "meta": {
+                    "_recipe_servings": "2",
+                    "_recipe_prep_time": "2",
+                    "_recipe_cook_time": "5",
+                    "_recipe_ingredients": [
+                        {
+                            "amount": "4",
+                            "unit": "",
+                            "name": "eggs",
+                            "notes": "",
+                            "term_id": 50
+                        }
+                    ],
+                    "_recipe_instructions": [
+                        "Beat the eggs.",
+                        "Cook gently in a pan, stirring until set."
+                    ],
+                    "_recipe_source_url": "https://example.com/scrambled-eggs",
+                    "_recipe_notes": "**Serve warm.**"
+                },
+                "terms": {
+                    "recipe_category": [
+                        8
+                    ],
+                    "recipe_ingredient": [
+                        50
+                    ]
+                },
+                "id": 12,
+                "type": "cb-recipes",
+                "recipe": "urn:cook-app:recipe:12"
+            },
+            {
+                "status": "publish",
+                "parent": 0,
+                "date": "2026-10-01 09:00:00",
+                "content": "",
+                "image_url": "",
+                "meta": [],
+                "terms": [],
+                "id": 20,
+                "type": "cb-shopping-list",
+                "title": "Weekend shopping"
+            },
+            {
+                "status": "cb_checked",
+                "parent": 20,
+                "date": "2026-10-01 09:00:00",
+                "content": "",
+                "image_url": "",
+                "meta": {
+                    "_cookbook_shopping_item_amount": "4",
+                    "_cookbook_shopping_item_unit": "",
+                    "_cookbook_shopping_item_notes": "",
+                    "_cookbook_shopping_item_source_recipe_id": 12,
+                    "_cookbook_shopping_item_source_recipe_title": "Scrambled eggs",
+                    "_cookbook_shopping_item_source_recipes": [
+                        {
+                            "id": 12,
+                            "title": "Scrambled eggs"
+                        }
+                    ]
+                },
+                "terms": {
+                    "recipe_ingredient": [
+                        50
+                    ]
+                },
+                "id": 21,
+                "type": "cb-shopping-list",
+                "title": "eggs"
+            },
+            {
+                "status": "publish",
+                "parent": 0,
+                "date": "2026-10-01 09:00:00",
+                "content": "",
+                "image_url": "",
+                "meta": {
+                    "_cookbook_week_start": "2026-09-28",
+                    "_cookbook_week_meals": {
+                        "2026-10-01": {
+                            "lunch": 12,
+                            "dinner": 0
+                        }
+                    }
+                },
+                "terms": [],
+                "id": 30,
+                "type": "cb-week-plan",
+                "title": "Week of 2026-09-28"
+            },
+            {
+                "status": "publish",
+                "parent": 0,
+                "date": "2026-10-01 09:00:00",
+                "content": "",
+                "image_url": "",
+                "meta": {
+                    "_cookbook_cooked_recipe_id": 12,
+                    "_cookbook_cooked_date": "2026-10-01",
+                    "_cookbook_cooked_note": "Served with toast."
+                },
+                "terms": [],
+                "id": 40,
+                "type": "cb-cooked-entry",
+                "title": "Scrambled eggs"
+            }
+        ],
+        "terms": [
+            {
+                "id": 8,
+                "taxonomy": "recipe_category",
+                "name": "Breakfast",
+                "parent": 0
+            },
+            {
+                "id": 50,
+                "taxonomy": "recipe_ingredient",
+                "name": "eggs",
+                "parent": 0
+            }
+        ],
+        "preferences": {
+            "units": "metric",
+            "household": [
+                50
+            ]
+        },
+        "@context": {
+            "@vocab": "https://github.com/akirk/cook-app#"
+        }
+    }
+}
