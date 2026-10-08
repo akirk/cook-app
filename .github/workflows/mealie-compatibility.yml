@@ -1,0 +1,67 @@
+name: Mealie compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mealie-compatibility-${{ github.event_name }}-${{ github.ref_name || github.event.pull_request.head.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mealie:
+    name: Mealie v3.28.0 recipe import
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mealie:
+        image: ghcr.io/mealie-recipes/mealie:v3.28.0
+        env:
+          ALLOW_SIGNUP: 'false'
+          DB_ENGINE: sqlite
+          TZ: UTC
+          BASE_URL: http://localhost:9925
+        ports:
+          - 9925:9000
+        options: >-
+          --health-interval 5s
+          --health-timeout 5s
+          --health-start-period 30s
+          --health-retries 24
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install Mealie's pinned schema parser
+        run: python -m pip install recipe-scrapers==15.12.0
+      - name: Generate recipes with Cook App's exporter
+        run: php tests/compatibility/export_recipes.php > "$RUNNER_TEMP/cook-app-recipes.json"
+      - name: Check Mealie's schema parser
+        run: |
+          python tests/compatibility/check_mealie.py "$RUNNER_TEMP/cook-app-recipes.json"
+          python tests/compatibility/check_mealie.py docs/examples/cook-app-recipes.json
+      - name: Import recipes into Mealie and read them back
+        run: python tests/compatibility/check_mealie_api.py "$RUNNER_TEMP/cook-app-recipes.json" --url http://localhost:9925
+      - name: Upload generated export for debugging
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mealie-compatibility-export
+          path: ${{ runner.temp }}/cook-app-recipes.json
+          if-no-files-found: ignore

@@ -18,7 +18,7 @@ Instruction section names are prefixed to the first instruction in each section 
 | Tandoor | Select the RecipeSage import integration. That integration reads an array of recipes, image arrays, and flat step text. |
 | Mealie | Its single-recipe JSON import path (`/api/recipes/create/html-or-json`). Supply one object from the exported array per import; the collection file is not a native Mealie ZIP. Tested against recipe-scrapers 15.12.0, the schema parser pinned by Mealie v3.28.0. |
 
-These checks cover recipe parsing and field mapping, not a complete round trip through running instances. Notes are read by RecipeSage using the convention above; Mealie's schema import does not map that comment convention to its notes. Some importers may omit cuisines/tags or reconstruct ingredient quantities from text. Full application state cannot be transferred through this recipe-only format.
+The Mealie compatibility workflow checks schema parsing and imports generated recipes into a disposable Mealie v3.28.0 server, then reads the saved recipes back through its API. It checks title, description, ingredients, instructions, times, servings, source URL, categories, and tags. It does not test image downloads, UI interactions, or a full application round trip. RecipeSage and Tandoor checks cover parsing and field mapping. Notes are read by RecipeSage using the convention above; Mealie's schema import does not map that comment convention to its notes. Some importers may omit cuisines/tags or reconstruct ingredient quantities from text. Full application state cannot be transferred through this recipe-only format.
 
 Implementation references used for compatibility checks:
 
@@ -26,12 +26,23 @@ Implementation references used for compatibility checks:
 - [Tandoor RecipeSage adapter](https://github.com/TandoorRecipes/recipes/blob/bb07441b3cd566dbc6c29ab09dc74b741804ef02/cookbook/integration/recipesage.py).
 - [Mealie v3.28.0 scraper](https://github.com/mealie-recipes/mealie/blob/v3.28.0/mealie/services/scraper/scraper_strategies.py) and [dependency pin](https://github.com/mealie-recipes/mealie/blob/v3.28.0/pyproject.toml).
 
-The normal PHPUnit suite checks export fields, section flattening, recipe-only re-import, and a synthetic RecipeSage-style export fixture. To independently repeat the Mealie parser check, use a temporary Python environment:
+The normal PHPUnit suite checks export fields, section flattening, recipe-only re-import, and a synthetic RecipeSage-style export fixture. [Mealie compatibility CI](../.github/workflows/mealie-compatibility.yml) runs for pull requests, pushes to main, and manual dispatches. It generates fresh exports with the PHP exporter, checks both flat and grouped recipes against the pinned parser, and verifies their stored fields in a disposable Mealie container. The saved example is also checked for parser compatibility.
+
+To independently repeat the parser check, use a temporary Python environment:
 
 ```sh
 python3 -m venv /tmp/cook-app-mealie-check
 /tmp/cook-app-mealie-check/bin/pip install recipe-scrapers==15.12.0
-/tmp/cook-app-mealie-check/bin/python tests/compatibility/check_mealie.py docs/examples/cook-app-recipes.json
+php tests/compatibility/export_recipes.php > /tmp/cook-app-recipes.json
+/tmp/cook-app-mealie-check/bin/python tests/compatibility/check_mealie.py /tmp/cook-app-recipes.json
 ```
 
 The fixture in `tests/fixtures/recipesage-export.json` is synthetic, modeled on the referenced exporter; it contains no user data.
+
+To repeat the HTTP integration check, start a **disposable** Mealie v3.28.0 instance and run:
+
+```sh
+python3 tests/compatibility/check_mealie_api.py /tmp/cook-app-recipes.json --url http://localhost:9925
+```
+
+The script creates recipes. It defaults to Mealie's initial test credentials; `MEALIE_TEST_USERNAME` and `MEALIE_TEST_PASSWORD` can override them. Do not point it at a production instance. The generated HTTP-test recipes have no photos, so the check never downloads recipe content or media from external sites.
