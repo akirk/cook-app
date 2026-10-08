@@ -30,6 +30,49 @@ class JsonLdRecipeParser extends RecipeParser {
         return $this->normalize_recipe( $recipe );
     }
 
+    /** Parse every recipe in a JSON-LD file using the same normalizer as web imports. */
+    public function parse_all( string $json ): array {
+        $data = json_decode( $json, true, 64 );
+        if ( ! is_array( $data ) || ! $this->uses_schema_vocabulary( $data ) ) {
+            return [];
+        }
+        return array_map( function( array $node ): array {
+            $recipe = $this->normalize_recipe( $node );
+            $recipe['@id'] = $this->scalar_text( $node['@id'] ?? '' );
+            $recipe['source_url'] = $this->scalar_text( $node['isBasedOn'] ?? '' ) ?: $this->scalar_text( $node['url'] ?? '' );
+            $recipe['notes'] = '';
+            foreach ( (array) ( $node['comment'] ?? [] ) as $comment ) {
+                if ( is_array( $comment ) && ( $comment['name'] ?? '' ) === 'Author Notes' ) {
+                    $recipe['notes'] = $this->scalar_text( $comment['text'] ?? '' );
+                    break;
+                }
+            }
+            foreach ( [ 'recipeCategory' => 'categories', 'recipeCuisine' => 'cuisines', 'keywords' => 'tags' ] as $field => $target ) {
+                $values = $node[ $field ] ?? [];
+                if ( is_string( $values ) ) {
+                    $values = $field === 'keywords' ? explode( ',', $values ) : [ $values ];
+                }
+                $recipe[ $target ] = is_array( $values ) ? array_values( array_filter( array_map( [ $this, 'scalar_text' ], $values ) ) ) : [];
+            }
+            return $recipe;
+        }, $this->find_recipe_nodes( $data ) );
+    }
+
+    private function find_recipe_nodes( array $node ): array {
+        foreach ( (array) ( $node['@type'] ?? [] ) as $type ) {
+            if ( is_string( $type ) && ( strcasecmp( $type, 'Recipe' ) === 0 || preg_match( '#^https?://schema\.org/Recipe$#i', $type ) ) ) {
+                return [ $node ];
+            }
+        }
+        $recipes = [];
+        foreach ( $node as $value ) {
+            if ( is_array( $value ) ) {
+                $recipes = array_merge( $recipes, $this->find_recipe_nodes( $value ) );
+            }
+        }
+        return $recipes;
+    }
+
     private function recipe_from_document( string $content_type, string $content ): ?array {
         $document_key = hash( 'sha256', $content_type . "\n" . $content );
         if ( $document_key === $this->cached_document ) {
@@ -223,7 +266,7 @@ class JsonLdRecipeParser extends RecipeParser {
                 $instructions = array_merge( $instructions, $this->instructions( $step['itemListElement'] ?? [] ) );
                 continue;
             } elseif ( is_array( $step ) ) {
-                $text = Importer::clean_step( (string) ( $step['text'] ?? ( $step['name'] ?? '' ) ) );
+                $text = Importer::clean_step( $this->scalar_text( $step['text'] ?? ( $step['name'] ?? '' ) ) );
             } else {
                 continue;
             }

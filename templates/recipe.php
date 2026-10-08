@@ -111,6 +111,8 @@ include __DIR__ . '/_header.php';
         'style' => 'max-width:100%;height:auto;border-radius:8px;margin:0.5rem 0 1rem',
         'alt'   => esc_attr( get_the_title( $post ) ),
     ] ); ?>
+<?php elseif ( get_post_meta( $id, '_cookbook_backup_image_url', true ) ) : ?>
+    <p><a href="<?php echo esc_url( get_post_meta( $id, '_cookbook_backup_image_url', true ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Original photo from backup', 'cook-app' ); ?></a></p>
 <?php endif; ?>
 
 <div class="meta">
