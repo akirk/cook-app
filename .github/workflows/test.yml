@@ -4,11 +4,20 @@ on:
   push:
     branches-ignore:
       - 'dist/**'
+    tags:
+      - '*'
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
+
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: 'Planned release tag (for example 1.2.0 or v1.2.0)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -18,6 +27,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-ready-1-1-1:
+    name: release-ready/1.1.1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # The tag ruleset requires this exact check on the commit being tagged.
+      # It must run on branch pushes, before GitHub's release UI creates a tag.
+      - name: Check readiness for 1.1.1
+        env:
+          RELEASE_TAG: '1.1.1'
+        run: php scripts/check-release-version.php
+
+  release-version:
+    name: Release version guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Check release versions
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag || (github.ref_type == 'tag' && github.ref_name) || '' }}
+        run: php scripts/check-release-version.php
+
   php:
     runs-on: ubuntu-latest
 

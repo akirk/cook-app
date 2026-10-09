@@ -5,7 +5,7 @@
 - Requires at least: 6.0
 - Requires PHP: 7.4
 - Tested up to: 7.1
-- Stable tag: 1.0.0
+- Stable tag: 1.1.1
 - License: GPL-2.0-or-later
 - License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,9 @@ Yes. The text domain is `cook-app`, and a German translation is included.
 2. The same recipe on a phone, where the navigation wraps and the photo, times and servings stack.
 
 ## Changelog
+
+### 1.1.1
+- Correct the plugin version and add release version checks.
 
 ### 1.0.0
 - Initial release.

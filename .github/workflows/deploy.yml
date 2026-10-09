@@ -30,6 +30,12 @@ jobs:
           php-version: '8.2'
           tools: composer
 
+      - name: Check release versions
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          php scripts/check-release-version.php
+
       # vendor/ is not committed, so what ships has to be built first. Building
       # from git archive lets .gitattributes export-ignore decide the contents,
       # which is the same rule the deploy action applies on its own.
