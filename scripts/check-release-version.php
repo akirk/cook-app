@@ -11,14 +11,14 @@ $plugin_version = read_version('cook-app.php', '/^\s*\*\s*Version:\s*([^\r\n]+)$
 $stable_tag = read_version('README.md', '/^- Stable tag:\s*([^\r\n]+)$/m');
 if ($plugin_version !== $stable_tag) {
     fwrite(STDERR, "Version mismatch: cook-app.php={$plugin_version}, README.md Stable tag={$stable_tag}. Update both before releasing.\n");
-    exit(1);
+    exit(2);
 }
 $release_tag = getenv('RELEASE_TAG');
 if ($release_tag !== false && $release_tag !== '') {
     $release_version = preg_replace('/^v/', '', $release_tag);
     if ($plugin_version !== $release_version) {
         fwrite(STDERR, "Version mismatch: release tag={$release_tag}, cook-app.php={$plugin_version}, README.md Stable tag={$stable_tag}. Update both files to match the release.\n");
-        exit(1);
+        exit(2);
     }
 }
 echo "Release versions match: {$plugin_version}\n";

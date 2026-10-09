@@ -3,7 +3,7 @@ name: Deploy to WordPress.org
 on:
   release:
     types:
-      - released
+      - published
   workflow_dispatch:
     inputs:
       dry-run:
@@ -16,8 +16,95 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    name: Validate release versions
+    runs-on: ubuntu-latest
+    outputs:
+      invalid_version: ${{ steps.versions.outputs.invalid_version }}
+      commit: ${{ steps.versions.outputs.commit }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Check release versions
+        id: versions
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          if php scripts/check-release-version.php; then
+            echo "invalid_version=false" >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            # Exit 2 means a confirmed mismatch. Setup/read errors must not
+            # delete anything, but still prevent deployment.
+            if [ "$status" -eq 2 ]; then
+              echo "invalid_version=true" >> "$GITHUB_OUTPUT"
+            fi
+            exit "$status"
+          fi
+
+  remove-invalid-release:
+    name: Remove mismatched release and tag
+    needs: validate
+    if: ${{ always() && github.event_name == 'release' && needs.validate.outputs.invalid_version == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Remove this release and its unchanged tag
+        uses: actions/github-script@v9
+        env:
+          VALIDATED_COMMIT: ${{ needs.validate.outputs.commit }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const eventRelease = context.payload.release;
+            const expectedCommit = process.env.VALIDATED_COMMIT;
+            if (!expectedCommit) {
+              throw new Error('Missing validated commit; refusing cleanup.');
+            }
+            const release = (await github.rest.repos.getRelease({
+              owner, repo, release_id: eventRelease.id,
+            })).data;
+            if (release.tag_name !== eventRelease.tag_name || release.draft) {
+              throw new Error('Release changed since validation; refusing cleanup.');
+            }
+            const ref = `tags/${eventRelease.tag_name}`;
+            const tag = (await github.rest.git.getRef({ owner, repo, ref })).data;
+            let object = tag.object;
+            while (object.type === 'tag') {
+              object = (await github.rest.git.getTag({
+                owner, repo, tag_sha: object.sha,
+              })).data.object;
+            }
+            if (object.type !== 'commit' || object.sha !== expectedCommit) {
+              throw new Error('Tag changed since validation; refusing cleanup.');
+            }
+            await github.rest.repos.deleteRelease({
+              owner, repo, release_id: eventRelease.id,
+            });
+            // Do not delete a tag that someone moved while cleanup was running.
+            const currentTag = (await github.rest.git.getRef({ owner, repo, ref })).data;
+            if (currentTag.object.sha !== tag.object.sha) {
+              throw new Error('Release removed, but tag moved; leaving the tag intact.');
+            }
+            await github.rest.git.deleteRef({ owner, repo, ref });
+            await core.summary
+              .addHeading('Release rejected: version mismatch')
+              .addRaw(`Removed release and tag ${eventRelease.tag_name}. Deployment did not run. Update cook-app.php and README.md to match the intended version, push the fix, then recreate the release.`)
+              .write();
+            core.setFailed('Removed the mismatched release and tag. Fix the versions before releasing again.');
+
   deploy:
     name: Deploy to WP.org
+    needs: validate
+    if: ${{ github.event_name != 'release' || !github.event.release.prerelease }}
     environment: production
     runs-on: ubuntu-latest
     steps:
@@ -29,12 +116,6 @@ jobs:
         with:
           php-version: '8.2'
           tools: composer
-
-      - name: Check release versions
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          php scripts/check-release-version.php
 
       # vendor/ is not committed, so what ships has to be built first. Building
       # from git archive lets .gitattributes export-ignore decide the contents,
