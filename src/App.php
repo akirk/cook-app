@@ -88,6 +88,8 @@ class App extends BaseApp {
     }
 
     public function init() {
+        add_action( 'template_redirect', [ $this->services->access(), 'protect_anonymous_app_request' ], 0 );
+
         $abilities        = $this->services->abilities();
         $cooked_history   = $this->services->cookedHistory();
         $imports          = $this->services->imports();

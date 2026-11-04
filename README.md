@@ -19,6 +19,10 @@ Cook App gives your WordPress site a private recipe app at `/cook-app/`. Recipes
 
 It is built for day-to-day cooking rather than public recipe blogging: save recipes from the web, scale portions while you cook, convert between metric and imperial units, track what you have cooked, plan meals for the week, and build a shopping list from the recipes you choose.
 
+### Private app access
+
+Anonymous requests to Cook App pages return an uncacheable 404 without a login link or redirect. This prevents the app from disclosing a custom login URL configured by plugins such as WPS Hide Login. Sign in through your site's usual login entry before opening Cook App. Signed-in access checks and REST API permissions still apply; this does not protect public media URLs.
+
 ### Recipe storage
 
 Each recipe is stored as a `cb-recipes` custom post type with recipe taxonomies for category, cuisine, tag, and ingredient. Shopping lists, week plans, and cooking history are stored as user-authored WordPress content so they remain tied to the signed-in user.

@@ -7,6 +7,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class AccessService extends AbstractService {
+    /**
+     * Keep the site's login URL out of anonymous Cook App responses.
+     *
+     * Run before canonical redirects and WpApp's template router. Use the
+     * resolved app query variable so subdirectory installs and plain query
+     * URLs receive the same protection as pretty permalinks.
+     */
+    public function protect_anonymous_app_request(): void {
+        if ( $this->get_url_path() !== get_query_var( 'wp_app_path' ) || is_user_logged_in() ) {
+            return;
+        }
+
+        nocache_headers();
+        wp_die(
+            esc_html__( 'Not found.', 'cook-app' ),
+            esc_html__( 'Not found', 'cook-app' ),
+            [ 'response' => 404, 'back_link' => false ]
+        );
+    }
+
     public function get_owned_post_or_die( int $post_id, string $post_type ): \WP_Post {
         $post = $post_id ? get_post( $post_id ) : null;
         if ( ! $post || $post->post_type !== $post_type ) {
