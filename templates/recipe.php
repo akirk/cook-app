@@ -327,7 +327,7 @@ include __DIR__ . '/_header.php';
 <?php endif; ?>
 
 <?php
-$render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id ) {
+$render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id, $ingredients ) {
     $rendered = Units::render_ingredient( $ing, 1.0, $preference );
     $raw_amount = isset( $ing['amount'] ) ? $ing['amount'] : '';
     $parsed_amount = Units::parse_amount( $raw_amount );
@@ -357,6 +357,20 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id )
                 <?php endif; ?>
             </span>
             <?php if ( current_user_can( 'edit_post', $id ) ) : ?>
+                <label class="ingredient-optional-control">
+                    <input type="checkbox" data-ingredient-optional
+                        data-endpoint="<?php echo esc_url( rest_url( 'cookbook/v1/ingredient-recipes/' . $id . '/' . $i ) ); ?>"
+                        data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+                        data-version="<?php echo esc_attr( hash( 'sha256', wp_json_encode( $ingredients[ $i ] ?? $ing ) ) ); ?>"
+                        data-error="<?php esc_attr_e( 'Could not save. Please try again.', 'cook-app' ); ?>"
+                        <?php checked( ! empty( $ing['optional'] ) ); ?>>
+                    <?php esc_html_e( 'Optional', 'cook-app' ); ?>
+                </label>
+                <span class="ingredient-optional-status" role="status"></span>
+            <?php elseif ( ! empty( $ing['optional'] ) ) : ?>
+                <span class="badge"><?php esc_html_e( 'Optional', 'cook-app' ); ?></span>
+            <?php endif; ?>
+            <?php if ( current_user_can( 'edit_post', $id ) ) : ?>
                 <span class="ingredient-actions">
                     <button type="button" class="ingredient-replace-toggle" data-replace-target="replace-ingredient-<?php echo (int) $i; ?>"><?php esc_html_e( 'Replace', 'cook-app' ); ?></button>
                 </span>
@@ -376,6 +390,7 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id )
                     $ing['name'] ?? ''
                 ) ); ?>" required>
                 <input type="text" name="notes" value="<?php echo esc_attr( $ing['notes'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'notes', 'cook-app' ); ?>">
+                <label class="ingredient-optional-control"><input type="checkbox" name="optional" value="1" <?php checked( ! empty( $ing['optional'] ) ); ?>> <?php esc_html_e( 'Optional', 'cook-app' ); ?></label>
                 <button class="btn fresh" type="submit"><?php esc_html_e( 'Save', 'cook-app' ); ?></button>
                 <button class="btn secondary ingredient-replace-cancel" type="button"><?php esc_html_e( 'Cancel', 'cook-app' ); ?></button>
             </form>
@@ -533,6 +548,7 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id )
                                                 <span class="cook-ingredient-amount"><?php echo esc_html( $quantity ); ?></span>
                                                 <span class="cook-ingredient-name">
                                                     <?php echo esc_html( $rendered['name'] ); ?>
+                                                    <?php if ( ! empty( $ing['optional'] ) ) : ?><span class="badge"><?php esc_html_e( 'Optional', 'cook-app' ); ?></span><?php endif; ?>
                                                     <?php if ( ! empty( $rendered['notes'] ) ) : ?>
                                                         <span class="cook-ingredient-note"> - <?php echo esc_html( $rendered['notes'] ); ?></span>
                                                     <?php endif; ?>
@@ -556,6 +572,7 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id )
                                         <span class="cook-ingredient-amount"><?php echo esc_html( $quantity ); ?></span>
                                         <span class="cook-ingredient-name">
                                             <?php echo esc_html( $rendered['name'] ); ?>
+                                                    <?php if ( ! empty( $ing['optional'] ) ) : ?><span class="badge"><?php esc_html_e( 'Optional', 'cook-app' ); ?></span><?php endif; ?>
                                             <?php if ( ! empty( $rendered['notes'] ) ) : ?>
                                                 <span class="cook-ingredient-note"> - <?php echo esc_html( $rendered['notes'] ); ?></span>
                                             <?php endif; ?>

@@ -50,6 +50,7 @@
             <input type="text" name="ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][unit]" placeholder="${strings.gram}" list="recipe-units">
             <input type="text" name="ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][name]" placeholder="${strings.ingredient}" required>
             <input type="text" name="ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][notes]" placeholder="${strings.chopped}">
+            <label class="ingredient-optional-control"><input type="checkbox" name="ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][optional]" value="1"> ${strings.optional}</label>
             <button type="button" class="remove" aria-label="${strings.remove}">×</button>
         `;
         rows.appendChild(row);
@@ -93,6 +94,7 @@
                 if (inputs[1]) inputs[1].name = `ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][unit]`;
                 if (inputs[2]) inputs[2].name = `ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][name]`;
                 if (inputs[3]) inputs[3].name = `ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][notes]`;
+                if (inputs[4]) inputs[4].name = `ingredient_parts[${sectionIndex}][ingredients][${rowIndex}][optional]`;
             });
             section.dataset.nextRowIndex = String(rowElements(rows).length);
             refreshIngredientInserters(section);

@@ -67,7 +67,7 @@ if ( ! function_exists( 'cook_app_page_head' ) ) {
             ],
             'ingredients' => [
                 'label' => __( 'Ingredients', 'cook-app' ),
-                'url'   => home_url( '/cook-app/by-ingredients' ),
+                'url'   => home_url( current_user_can( 'manage_categories' ) ? '/cook-app/manage-ingredients' : '/cook-app/by-ingredients' ),
             ],
         ];
         ?>

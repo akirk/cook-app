@@ -44,7 +44,6 @@
 			const all = document.createElement('a');
 			all.className = 'ing-chip';
 			all.href = data.all_url;
-			all.style.fontSize = '0.85rem';
 			all.textContent = data.all_label;
 			homeIngredientCloud.appendChild(all);
 
@@ -92,57 +91,204 @@ document.querySelectorAll('.ing-chip input[type="checkbox"]').forEach(cb => {
 const form    = document.getElementById('mi-form');
 const list    = document.getElementById('mi-list');
 const search  = document.getElementById('mi-search');
-const target  = document.getElementById('mi-target');
-const action  = document.getElementById('mi-action');
-const merge   = document.getElementById('mi-merge');
-const group   = document.getElementById('mi-group');
 const counter = document.getElementById('mi-count');
 const toolbar = document.getElementById('mi-toolbar');
 
 if (!form || !list) return;
 
 function refresh() {
-    const checked = list.querySelectorAll('.mi-check:checked');
-    const n = checked.length;
+    const n = list.querySelectorAll('.mi-check:checked').length;
     counter.textContent = String(n);
     toolbar.classList.toggle('is-active', n > 0);
-    const haveTarget = parseInt(target.value, 10) > 0;
-    // For "merge" the target must not be one of the checked sources.
-    let conflict = false;
-    if (haveTarget) {
-        checked.forEach(cb => { if (cb.value === target.value) conflict = true; });
-    }
-    merge.disabled = !(n > 0 && haveTarget && !conflict);
-    // "Group" allows target = 0 (top-level).
-    group.disabled = !(n > 0 && !conflict);
+    list.querySelectorAll('.mi-row').forEach(row => {
+        const button = row.querySelector('.mi-merge');
+        button.hidden = !row.querySelector('.mi-check').checked;
+        button.disabled = n < 2;
+    });
 }
-
-let lastOp = 'merge';
 list.addEventListener('change', e => {
     if (e.target.classList.contains('mi-check')) refresh();
 });
-target.addEventListener('change', refresh);
-merge.addEventListener('click', () => { lastOp = 'merge'; action.value = 'cookbook_merge_ingredients'; });
-group.addEventListener('click', () => { lastOp = 'group'; action.value = 'cookbook_group_ingredients'; });
-
-form.addEventListener('submit', e => {
-    const op = lastOp;
-    const n  = list.querySelectorAll('.mi-check:checked').length;
-    const tgt = target.options[target.selectedIndex].text.replace(/\s*\(\d+\)\s*$/, '');
-    const msg = op === 'merge'
-        ? `Merge ${n} ingredient(s) into "${tgt}"? This rewrites the linked recipes and deletes the source terms.`
-        : (parseInt(target.value, 10) > 0
-            ? `Make ${n} ingredient(s) children of "${tgt}"?`
-            : `Move ${n} ingredient(s) to top level (no parent)?`);
-    if (!window.confirm(msg)) e.preventDefault();
+list.addEventListener('click', e => {
+    const row = e.target.closest('.mi-row');
+    if (!row || row.classList.contains('is-renaming')) return;
+    if (e.target.closest('label, input, button, a, select, textarea, .mi-recipes, .mi-rename')) return;
+    row.querySelector('.mi-check').click();
+});
+let merging = false;
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const button = e.submitter;
+    if (merging || !button || !button.classList.contains('mi-merge') || button.disabled) return;
+    const targetRow = button.closest('.mi-row');
+    const targetId = Number(targetRow.dataset.id);
+    const sources = Array.from(list.querySelectorAll('.mi-check:checked')).map(input => Number(input.value)).filter(id => id !== targetId);
+    if (!sources.length) return;
+    const name = targetRow.querySelector('.mi-name').textContent;
+    if (!window.confirm(`Merge ${sources.length} ingredient(s) into "${name}"? This rewrites the linked recipes and deletes the other selected ingredients.`)) return;
+    const status = document.getElementById('mi-merge-status');
+    status.textContent = '';
+    merging = true;
+    form.setAttribute('aria-busy', 'true');
+    const controls = Array.from(form.querySelectorAll('input, button')).map(control => [control, control.disabled]);
+    controls.forEach(([control]) => { control.disabled = true; });
+    let reopenRecipes = false;
+    try {
+        const response = await fetch(form.dataset.mergeEndpoint, {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+            body: JSON.stringify({ target_id: targetId, source_ids: sources })
+        });
+        const result = await response.json();
+        if (Array.isArray(result.terms)) {
+            const terms = new Map(result.terms.map(term => [String(term.id), term]));
+            reopenRecipes = !targetRow.querySelector('.mi-recipes').hidden;
+            list.querySelectorAll('.mi-row').forEach(row => {
+                const term = terms.get(row.dataset.id);
+                if (!term) {
+                    row.remove();
+                    return;
+                }
+                row.querySelector('.mi-count').textContent = String(term.count);
+                let parent = row.querySelector('.mi-parent');
+                if (term.parent_label) {
+                    if (!parent) {
+                        parent = document.createElement('span');
+                        parent.className = 'mi-parent';
+                        row.querySelector('.mi-identity').appendChild(parent);
+                    }
+                    parent.textContent = '↳ ' + term.parent_label;
+                } else if (parent) parent.remove();
+                const panel = row.querySelector('.mi-recipes');
+                panel.hidden = true;
+                panel.textContent = '';
+                delete panel.dataset.loaded;
+                panel.dataset.generation = String(Number(panel.dataset.generation || 0) + 1);
+                delete panel.dataset.loadingRequest;
+                row.querySelector('.mi-view').setAttribute('aria-expanded', 'false');
+            });
+        }
+        if (!response.ok) throw new Error(result.message || form.dataset.mergeError);
+        list.querySelectorAll('.mi-check').forEach(input => { input.checked = false; });
+    } catch (error) {
+        status.textContent = error.message || form.dataset.mergeError;
+    } finally {
+        controls.forEach(([control, disabled]) => { control.disabled = disabled; });
+        merging = false;
+        form.removeAttribute('aria-busy');
+        refresh();
+        targetRow.querySelector('.mi-check').focus();
+        if (reopenRecipes && targetRow.isConnected) targetRow.querySelector('.mi-view').click();
+    }
+});
+list.addEventListener('click', async e => {
+    const button = e.target.closest('.mi-view');
+    if (!button) return;
+    const row = button.closest('.mi-row');
+    const panel = row.querySelector('.mi-recipes');
+    panel.hidden = !panel.hidden;
+    button.setAttribute('aria-expanded', String(!panel.hidden));
+    if (panel.hidden || panel.dataset.loaded || panel.dataset.loadingRequest) return;
+    const generation = panel.dataset.generation || '0';
+    panel.dataset.loadingRequest = 'true';
+    panel.textContent = panel.dataset.loading;
+    try {
+        const response = await fetch(form.dataset.recipesEndpoint + row.dataset.id, {
+            credentials: 'same-origin', headers: { 'X-WP-Nonce': form.dataset.restNonce }
+        });
+        if (!response.ok) throw new Error('Request failed');
+        const recipes = await response.json();
+        if ((panel.dataset.generation || '0') !== generation || !panel.isConnected) return;
+        panel.textContent = '';
+        if (!recipes.length) panel.textContent = panel.dataset.empty;
+        recipes.forEach(recipe => {
+            const item = document.createElement('div');
+            const link = document.createElement('a');
+            link.href = recipe.url;
+            link.textContent = recipe.title;
+            item.appendChild(link);
+            if (recipe.servings) {
+                const servings = document.createElement('span');
+                servings.textContent = ' · ' + form.dataset.servingsLabel + ' ' + recipe.servings;
+                item.appendChild(servings);
+            }
+            recipe.ingredients.forEach(ingredient => {
+                const editor = document.createElement('div');
+                editor.className = 'mi-recipe-ingredient';
+                const inputs = {};
+                ['amount', 'unit', 'name'].forEach(field => {
+                    const label = document.createElement('label');
+                    label.textContent = form.dataset[field + 'Label'];
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = ingredient[field];
+                    input.disabled = !recipe.editable;
+                    input.addEventListener('keydown', event => {
+                        if (event.key === 'Enter') event.preventDefault();
+                    });
+                    inputs[field] = input;
+                    label.appendChild(input);
+                    editor.appendChild(label);
+                });
+                if (recipe.editable) {
+                    const save = document.createElement('button');
+                    save.type = 'button';
+                    save.className = 'btn';
+                    save.textContent = form.dataset.saveLabel;
+                    save.setAttribute('aria-live', 'polite');
+                    const status = document.createElement('span');
+                    status.setAttribute('role', 'status');
+                    let editVersion = 0;
+                    Object.values(inputs).forEach(input => input.addEventListener('input', () => {
+                        editVersion++;
+                        save.textContent = form.dataset.saveLabel;
+                        status.textContent = '';
+                    }));
+                    save.addEventListener('click', async () => {
+                        if (!inputs.name.value.trim()) {
+                            inputs.name.focus();
+                            return;
+                        }
+                        save.disabled = true;
+                        status.textContent = '';
+                        const submittedVersion = editVersion;
+                        try {
+                            const response = await fetch(form.dataset.recipesEndpoint + recipe.id + '/' + ingredient.index, {
+                                method: 'POST', credentials: 'same-origin',
+                                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+                                body: JSON.stringify({ name: inputs.name.value, amount: inputs.amount.value, unit: inputs.unit.value, version: ingredient.version })
+                            });
+                            const result = await response.json();
+                            if (!response.ok) throw new Error(result.message || panel.dataset.error);
+                            ingredient.version = result.version;
+                            list.querySelectorAll('.mi-recipes').forEach(details => { delete details.dataset.loaded; });
+                            if (editVersion === submittedVersion) save.textContent = '✓ ' + form.dataset.savedLabel;
+                        } catch (error) {
+                            status.textContent = error.message || panel.dataset.error;
+                        } finally {
+                            save.disabled = false;
+                        }
+                    });
+                    editor.append(save, status);
+                }
+                item.appendChild(editor);
+            });
+            panel.appendChild(item);
+        });
+        panel.dataset.loaded = 'true';
+    } catch (error) {
+        if ((panel.dataset.generation || '0') === generation) panel.textContent = panel.dataset.error;
+    } finally {
+        if ((panel.dataset.generation || '0') === generation) delete panel.dataset.loadingRequest;
+    }
 });
 
-// Substring filter — case-insensitive, matches the lowercased name on data-name.
+// Match any alternative separated by a pipe or the word "or".
 search.addEventListener('input', () => {
-    const q = search.value.trim().toLowerCase();
+    const queries = search.value.toLowerCase().split(/\||\s+or\s+/i).map(value => value.trim()).filter(Boolean);
     list.querySelectorAll('.mi-row').forEach(row => {
         const name = row.getAttribute('data-name') || '';
-        row.classList.toggle('is-hidden', q !== '' && !name.includes(q));
+        row.classList.toggle('is-hidden', queries.length > 0 && !queries.some(query => name.includes(query)));
     });
 });
 
@@ -151,7 +297,7 @@ const renameForm = document.getElementById('mi-rename-form');
 list.addEventListener('click', e => {
     const row = e.target.closest('.mi-row');
     if (!row) return;
-    if (e.target.classList.contains('mi-rename-toggle')) {
+    if (e.target.closest('.mi-rename-toggle')) {
         row.classList.add('is-renaming');
         row.querySelector('.mi-rename').classList.add('is-open');
         const inp = row.querySelector('.mi-rename input');

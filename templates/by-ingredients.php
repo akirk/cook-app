@@ -49,7 +49,7 @@ if ( $has_query ) {
         $total   = 0;
         $missing = [];
         foreach ( $rows as $row ) {
-            if ( ! is_array( $row ) ) continue;
+            if ( ! is_array( $row ) || ! empty( $row['optional'] ) ) continue;
             $name = isset( $row['name'] ) ? (string) $row['name'] : '';
             if ( $name === '' ) continue;
             $total++;

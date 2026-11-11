@@ -11,6 +11,20 @@ class RecipeServiceTest extends TestCase {
         $this->recipes = ( new ReflectionClass( RecipeService::class ) )->newInstanceWithoutConstructor();
     }
 
+    public function test_optional_ingredient_survives_form_sanitization_and_named_parts(): void {
+        $rows = $this->invoke( 'sanitize_recipe_ingredient_rows', [
+            [ 'name' => 'parsley', 'amount' => '1', 'unit' => 'sprig', 'optional' => '1' ],
+            [ 'name' => 'salt', 'optional' => false ],
+        ] );
+        $this->assertTrue( $rows[0]['optional'] );
+        $this->assertArrayNotHasKey( 'optional', $rows[1] );
+        $parts = $this->invoke( 'normalize_recipe_parts_array', [
+            [ 'title' => 'Garnish', 'ingredients' => $rows ],
+        ], false );
+        $this->assertTrue( $parts[0]['ingredients'][0]['optional'] );
+        $this->assertArrayNotHasKey( 'optional', $parts[0]['ingredients'][1] );
+    }
+
     public function test_submitted_ingredient_parts_ignore_empty_sections_with_empty_ingredients(): void {
         $parts = $this->invoke( 'sanitize_submitted_ingredient_parts', [
             [

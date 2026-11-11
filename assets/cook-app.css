@@ -173,6 +173,16 @@ textarea { min-height: 8rem; }
 .recipe-part .instruction-list { margin-top: 0; }
 .ingredient-line { display: flex; gap: 0.5rem; align-items: baseline; }
 .ingredient-line .ingredient-name { flex: 1; min-width: 0; }
+.ingredient-optional-control { display: inline-flex; align-items: center; gap: 0.3rem; margin: 0; font-size: 0.85rem; font-weight: 400; white-space: nowrap; }
+.ingredient-optional-control input { width: auto; }
+.ingredient-optional-status { color: var(--muted); font-size: 0.85rem; }
+#ingredient-sections .row { grid-template-columns: 5rem 6rem minmax(0, 1fr) minmax(0, 1fr) auto auto; }
+@media (max-width: 600px) {
+    #ingredient-sections .row { grid-template-columns: 5rem 6rem minmax(0, 1fr); }
+    #ingredient-sections .row input[name$="[notes]"] { grid-column: 1 / -1; }
+    #ingredient-sections .row .remove { justify-self: end; }
+    .ingredient-line { flex-wrap: wrap; }
+}
 .ingredient-actions { opacity: 0; transition: opacity 0.1s; }
 .ingredient-row:hover .ingredient-actions,
 .ingredient-row:focus-within .ingredient-actions { opacity: 1; }
@@ -467,6 +477,7 @@ body.cook-mode-active { overflow: hidden; }
 .home-today-head h2 { margin: 0; }
 .home-today-head a { white-space: nowrap; }
 .home-ingredients[hidden] { display: none; }
+.home-ingredients .ingredient-cloud { align-items: baseline; }
 @media (max-width: 520px) { .home-search { grid-template-columns: 1fr; } .home-today-head { display: block; } .recipe-index-row { align-items: stretch; } .recipe-index-row .btn { margin-left: 0; } .recipe-view-switch { width: 100%; } .recipe-view-switch a { flex: 1; } .recipe-recent-list a { grid-template-columns: 1fr; gap: 0.1rem; } }
 
 main { max-width: 1120px; }
@@ -508,17 +519,33 @@ main { max-width: 1120px; }
 .mi-toolbar select { width: auto; min-width: 14rem; }
 .mi-search { width: 100%; max-width: 100%; }
 .mi-list { list-style: none; padding: 0; margin: 0; }
-.mi-row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); }
+.mi-row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); cursor: pointer; }
 .mi-row:hover { background: var(--card); }
 .mi-row.is-hidden { display: none; }
 .mi-row label { margin: 0; font-weight: 500; flex: 1; cursor: pointer; display: flex; align-items: baseline; gap: 0.5rem; }
+.mi-identity { display: flex; flex: 1; align-items: baseline; gap: 0.4rem; min-width: 0; }
+.mi-identity > label { flex: 0 1 auto; min-width: 0; }
+.mi-name { overflow-wrap: anywhere; }
+.mi-rename-toggle { display: inline-flex; align-items: center; flex-shrink: 0; padding: 0.2rem; border: 0; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; pointer-events: none; }
+.mi-row:hover .mi-rename-toggle,
+.mi-identity:focus-within .mi-rename-toggle { opacity: 1; pointer-events: auto; }
+.mi-rename-toggle:hover { color: var(--accent); }
+@media (hover: none) { .mi-rename-toggle { opacity: 1; pointer-events: auto; } }
 .mi-row .mi-count { color: var(--muted); font-size: 0.85rem; min-width: 2.5rem; text-align: right; }
 .mi-row .mi-parent { color: var(--muted); font-size: 0.85rem; }
 .mi-row .mi-actions { display: flex; gap: 0.4rem; }
+.mi-row .mi-actions .mi-merge[hidden] { display: none; }
+.mi-row { flex-wrap: wrap; }
+.mi-row .mi-actions { flex-wrap: wrap; }
+.mi-recipes { flex-basis: 100%; padding: 0.5rem 1rem; background: var(--card); cursor: auto; }
+.mi-recipes[hidden] { display: none; }
+.mi-recipe-ingredient { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
+.mi-recipe-ingredient label { flex: 1 1 7rem; display: block; cursor: default; }
+.mi-recipe-ingredient input { width: 100%; box-sizing: border-box; }
 .mi-row .mi-actions a, .mi-row .mi-actions button { font-size: 0.85rem; padding: 0.2rem 0.5rem; }
 .mi-rename { display: none; flex: 1; gap: 0.4rem; align-items: center; }
 .mi-rename.is-open { display: flex; }
 .mi-rename input { flex: 1; padding: 0.3rem 0.5rem; }
-.mi-row.is-renaming label { display: none; }
+.mi-row.is-renaming .mi-identity { display: none; }
 .mi-empty { color: var(--muted); padding: 1rem 0; }
 .mi-selected-count { font-weight: 600; }
