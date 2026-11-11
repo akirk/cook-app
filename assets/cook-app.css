@@ -521,6 +521,11 @@ main { max-width: 1120px; }
 .mi-list { list-style: none; padding: 0; margin: 0; }
 .mi-row { display: flex; gap: 0.6rem; align-items: center; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); cursor: pointer; }
 .mi-row:hover { background: var(--card); }
+.mi-row.is-renamed { animation: mi-renamed 2.5s ease-out; }
+@keyframes mi-renamed {
+    0%, 25% { background-color: var(--success-bg); }
+    100% { background-color: transparent; }
+}
 .mi-row.is-hidden { display: none; }
 .mi-row label { margin: 0; font-weight: 500; flex: 1; cursor: pointer; display: flex; align-items: baseline; gap: 0.5rem; }
 .mi-identity { display: flex; flex: 1; align-items: baseline; gap: 0.4rem; min-width: 0; }

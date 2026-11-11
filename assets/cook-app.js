@@ -311,7 +311,7 @@ search.addEventListener('input', () => {
 function closeRename(row) {
     row.classList.remove('is-renaming');
     row.querySelector('.mi-rename').classList.remove('is-open');
-    row.querySelector('.mi-rename-toggle').focus();
+    row.querySelector('.mi-rename-toggle').focus({ preventScroll: true });
 }
 list.addEventListener('keydown', e => {
     if (e.isComposing || !e.target.matches('.mi-rename input')) return;
@@ -365,9 +365,22 @@ list.addEventListener('click', async e => {
             list.querySelectorAll('.mi-row').forEach(child => {
                 if (child.dataset.parentId === row.dataset.id) child.querySelector('.mi-parent').textContent = '↳ ' + result.parent_label;
             });
-            Array.from(list.children).sort((a, b) => a.dataset.name.localeCompare(b.dataset.name)).forEach(item => list.appendChild(item));
+            const scrollPosition = { top: window.scrollY, left: window.scrollX };
+            const nextRow = Array.from(list.children).find(item => item !== row && row.dataset.name.localeCompare(item.dataset.name) < 0);
+            list.insertBefore(row, nextRow || null);
             search.dispatchEvent(new Event('input'));
             closeRename(row);
+            window.scrollTo({ ...scrollPosition, behavior: 'instant' });
+            if (!row.classList.contains('is-hidden')) {
+                row.classList.remove('is-renamed');
+                void row.offsetWidth;
+                row.classList.add('is-renamed');
+                row.addEventListener('animationend', () => row.classList.remove('is-renamed'), { once: true });
+                row.scrollIntoView({
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                    block: 'nearest'
+                });
+            }
         } catch (error) {
             status.textContent = error.message || form.dataset.renameError;
         } finally {
