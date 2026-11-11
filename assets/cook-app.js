@@ -102,7 +102,7 @@ function refresh() {
     toolbar.classList.toggle('is-active', n > 0);
     list.querySelectorAll('.mi-row').forEach(row => {
         const button = row.querySelector('.mi-merge');
-        button.hidden = !row.querySelector('.mi-check').checked;
+        button.hidden = n < 2 || !row.querySelector('.mi-check').checked;
         button.disabled = n < 2;
     });
 }
