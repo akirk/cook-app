@@ -30,6 +30,14 @@ def field(recipe, camel, snake):
     return recipe.get(camel, recipe.get(snake))
 
 
+def recipe_minutes(recipe, camel, snake):
+    """Mealie 3.30+ stores structured times in seconds instead of display text."""
+    seconds = field(recipe, camel + "Seconds", snake + "_seconds")
+    if seconds is not None:
+        return seconds / 60
+    return minutes(field(recipe, camel, snake))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("export", type=Path)
@@ -75,9 +83,14 @@ def main():
         assert [row.get("display") or row.get("note") for row in ingredients] == source["recipeIngredient"], f"Ingredients changed for {slug}"
         instructions = field(saved, "recipeInstructions", "recipe_instructions")
         assert [row["text"] for row in instructions] == [row["text"] for row in source["recipeInstructions"]], f"Instructions changed for {slug}"
-        assert minutes(field(saved, "prepTime", "prep_time")) == minutes(source["prepTime"]), f"Preparation time changed for {slug}"
-        assert minutes(field(saved, "performTime", "perform_time")) == minutes(source["cookTime"]), f"Cooking time changed for {slug}"
-        assert minutes(field(saved, "totalTime", "total_time")) == minutes(source["totalTime"]), f"Total time changed for {slug}"
+        for label, camel, snake, source_key in [
+            ("Preparation", "prepTime", "prep_time", "prepTime"),
+            ("Cooking", "performTime", "perform_time", "cookTime"),
+            ("Total", "totalTime", "total_time", "totalTime"),
+        ]:
+            actual = recipe_minutes(saved, camel, snake)
+            expected = minutes(source[source_key])
+            assert actual == expected, f"{label} time changed for {slug}: expected {expected} minutes, got {actual}"
         assert field(saved, "recipeServings", "recipe_servings") == float(source["recipeYield"]), f"Servings changed for {slug}"
         assert field(saved, "orgURL", "org_url") == source["url"], f"Source URL changed for {slug}"
         categories = field(saved, "recipeCategory", "recipe_category")

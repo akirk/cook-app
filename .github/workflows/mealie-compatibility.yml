@@ -55,6 +55,8 @@ jobs:
           scraper_version=$(docker exec "$MEALIE_CONTAINER" python -c 'from importlib.metadata import version; print(version("recipe-scrapers"))')
           echo "Mealie container uses recipe-scrapers $scraper_version"
           python -m pip install "recipe-scrapers==$scraper_version"
+      - name: Test Mealie API duration comparisons
+        run: python -m unittest discover -s tests/compatibility -p 'test_*.py'
       - name: Generate recipes with Cook App's exporter
         run: php tests/compatibility/export_recipes.php > "$RUNNER_TEMP/cook-app-recipes.json"
       - name: Check Mealie's schema parser
