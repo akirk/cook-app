@@ -1285,7 +1285,7 @@ class RecipeService extends AbstractService {
         }
         $this->replace_recipe_ingredient_row( $id, $index, $replacement );
         $saved = (array) get_post_meta( $id, App::META_INGREDIENTS, true );
-        return [ 'saved' => true, 'version' => hash( 'sha256', wp_json_encode( $saved[ $index ] ) ) ];
+        return [ 'saved' => true, 'version' => hash( 'sha256', wp_json_encode( $saved[ $index ] ) ), 'ingredient' => $saved[ $index ] ];
     }
 
     public function handle_replace_ingredient(): void {

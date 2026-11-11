@@ -79,6 +79,8 @@ include __DIR__ . '/_header.php';
     data-servings-label="<?php esc_attr_e( 'Servings:', 'cook-app' ); ?>"
     data-merge-endpoint="<?php echo esc_url( rest_url( 'cookbook/v1/ingredients/merge' ) ); ?>"
     data-merge-error="<?php esc_attr_e( 'Could not merge ingredients. Please try again.', 'cook-app' ); ?>"
+    data-rename-endpoint="<?php echo esc_url( rest_url( 'cookbook/v1/ingredients/' ) ); ?>"
+    data-rename-error="<?php esc_attr_e( 'Could not rename ingredient. Please try again.', 'cook-app' ); ?>"
     data-recipes-endpoint="<?php echo esc_url( rest_url( 'cookbook/v1/ingredient-recipes/' ) ); ?>"
     data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>">
     <?php wp_nonce_field( 'cookbook_manage_ingredients' ); ?>
@@ -96,7 +98,7 @@ include __DIR__ . '/_header.php';
         <?php foreach ( $all_terms as $t ) :
             $parent = $t->parent && isset( $by_id[ (int) $t->parent ] ) ? $by_id[ (int) $t->parent ] : null;
             ?>
-            <li class="mi-row" data-name="<?php echo esc_attr( mb_strtolower( $t->name ) ); ?>" data-id="<?php echo (int) $t->term_id; ?>">
+            <li class="mi-row" data-name="<?php echo esc_attr( mb_strtolower( $t->name ) ); ?>" data-id="<?php echo (int) $t->term_id; ?>" data-parent-id="<?php echo (int) $t->parent; ?>">
                 <div class="mi-identity">
                 <label>
                     <input type="checkbox" name="source_ids[]" value="<?php echo (int) $t->term_id; ?>" class="mi-check">
@@ -119,6 +121,7 @@ include __DIR__ . '/_header.php';
                     <input type="text" value="<?php echo esc_attr( $t->name ); ?>" data-original="<?php echo esc_attr( $t->name ); ?>">
                     <button type="button" class="btn mi-rename-save"><?php esc_html_e( 'Save', 'cook-app' ); ?></button>
                     <button type="button" class="btn secondary mi-rename-cancel"><?php esc_html_e( 'Cancel', 'cook-app' ); ?></button>
+                    <span class="mi-rename-status" role="status"></span>
                 </span>
                 <span class="mi-count"><?php echo (int) $t->count; ?></span>
                 <span class="mi-actions">
@@ -131,12 +134,7 @@ include __DIR__ . '/_header.php';
     </ul>
 </form>
 
-<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="mi-rename-form" style="display:none">
-    <?php wp_nonce_field( 'cookbook_manage_ingredients' ); ?>
-    <input type="hidden" name="action" value="cookbook_rename_ingredient">
-    <input type="hidden" name="term_id" id="mi-rename-term">
-    <input type="hidden" name="name" id="mi-rename-name">
-</form>
+
 
 
 

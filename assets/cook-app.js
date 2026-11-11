@@ -150,6 +150,7 @@ form.addEventListener('submit', async e => {
                     return;
                 }
                 row.querySelector('.mi-count').textContent = String(term.count);
+                row.dataset.parentId = String(term.parent_id || 0);
                 let parent = row.querySelector('.mi-parent');
                 if (term.parent_label) {
                     if (!parent) {
@@ -223,9 +224,6 @@ list.addEventListener('click', async e => {
                     input.type = 'text';
                     input.value = ingredient[field];
                     input.disabled = !recipe.editable;
-                    input.addEventListener('keydown', event => {
-                        if (event.key === 'Enter') event.preventDefault();
-                    });
                     inputs[field] = input;
                     label.appendChild(input);
                     editor.appendChild(label);
@@ -244,6 +242,21 @@ list.addEventListener('click', async e => {
                         save.textContent = form.dataset.saveLabel;
                         status.textContent = '';
                     }));
+                    editor.addEventListener('keydown', event => {
+                        if (event.isComposing || !event.target.matches('input')) return;
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            save.click();
+                        } else if (event.key === 'Escape') {
+                            event.preventDefault();
+                            if (save.disabled) return;
+                            Object.keys(inputs).forEach(field => { inputs[field].value = ingredient[field]; });
+                            editVersion++;
+                            save.textContent = form.dataset.saveLabel;
+                            status.textContent = '';
+                            event.target.blur();
+                        }
+                    });
                     save.addEventListener('click', async () => {
                         if (!inputs.name.value.trim()) {
                             inputs.name.focus();
@@ -252,14 +265,16 @@ list.addEventListener('click', async e => {
                         save.disabled = true;
                         status.textContent = '';
                         const submittedVersion = editVersion;
+                        const submitted = { name: inputs.name.value, amount: inputs.amount.value, unit: inputs.unit.value };
                         try {
                             const response = await fetch(form.dataset.recipesEndpoint + recipe.id + '/' + ingredient.index, {
                                 method: 'POST', credentials: 'same-origin',
                                 headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
-                                body: JSON.stringify({ name: inputs.name.value, amount: inputs.amount.value, unit: inputs.unit.value, version: ingredient.version })
+                                body: JSON.stringify({ ...submitted, version: ingredient.version })
                             });
                             const result = await response.json();
                             if (!response.ok) throw new Error(result.message || panel.dataset.error);
+                            Object.assign(ingredient, result.ingredient || submitted);
                             ingredient.version = result.version;
                             list.querySelectorAll('.mi-recipes').forEach(details => { delete details.dataset.loaded; });
                             if (editVersion === submittedVersion) save.textContent = '✓ ' + form.dataset.savedLabel;
@@ -292,32 +307,73 @@ search.addEventListener('input', () => {
     });
 });
 
-// Inline rename: posts via the hidden mi-rename-form so we can keep this page sticky-stateful.
-const renameForm = document.getElementById('mi-rename-form');
-list.addEventListener('click', e => {
+// Keep renaming in place and use the same actions for pointer and keyboard input.
+function closeRename(row) {
+    row.classList.remove('is-renaming');
+    row.querySelector('.mi-rename').classList.remove('is-open');
+    row.querySelector('.mi-rename-toggle').focus();
+}
+list.addEventListener('keydown', e => {
+    if (e.isComposing || !e.target.matches('.mi-rename input')) return;
+    if (e.key === 'Enter' || e.key === 'Escape') {
+        e.preventDefault();
+        const row = e.target.closest('.mi-row');
+        row.querySelector(e.key === 'Enter' ? '.mi-rename-save' : '.mi-rename-cancel').click();
+    }
+});
+list.addEventListener('click', async e => {
     const row = e.target.closest('.mi-row');
-    if (!row) return;
+    if (!row || row.dataset.saving) return;
+    const input = row.querySelector('.mi-rename input');
+    const status = row.querySelector('.mi-rename-status');
     if (e.target.closest('.mi-rename-toggle')) {
         row.classList.add('is-renaming');
         row.querySelector('.mi-rename').classList.add('is-open');
-        const inp = row.querySelector('.mi-rename input');
-        inp.focus(); inp.select();
-    } else if (e.target.classList.contains('mi-rename-cancel')) {
-        row.classList.remove('is-renaming');
-        row.querySelector('.mi-rename').classList.remove('is-open');
-        const inp = row.querySelector('.mi-rename input');
-        inp.value = inp.getAttribute('data-original') || '';
-    } else if (e.target.classList.contains('mi-rename-save')) {
-        const inp = row.querySelector('.mi-rename input');
-        const name = inp.value.trim();
-        if (name === '' || name === inp.getAttribute('data-original')) {
-            row.classList.remove('is-renaming');
-            row.querySelector('.mi-rename').classList.remove('is-open');
+        status.textContent = '';
+        input.focus(); input.select();
+    } else if (e.target.closest('.mi-rename-cancel')) {
+        input.value = input.dataset.original || '';
+        status.textContent = '';
+        closeRename(row);
+    } else if (e.target.closest('.mi-rename-save')) {
+        const name = input.value.trim();
+        if (!name) {
+            input.focus();
             return;
         }
-        document.getElementById('mi-rename-term').value = row.getAttribute('data-id');
-        document.getElementById('mi-rename-name').value = name;
-        renameForm.submit();
+        if (name === input.dataset.original) {
+            closeRename(row);
+            return;
+        }
+        row.dataset.saving = 'true';
+        const controls = row.querySelectorAll('.mi-rename input, .mi-rename button');
+        controls.forEach(control => { control.disabled = true; });
+        status.textContent = '';
+        try {
+            const response = await fetch(form.dataset.renameEndpoint + row.dataset.id, {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+                body: JSON.stringify({ name })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || form.dataset.renameError);
+            row.querySelector('.mi-name').textContent = result.term.name;
+            row.dataset.name = result.term.name.toLowerCase();
+            input.value = result.term.name;
+            input.dataset.original = result.term.name;
+            row.querySelector('.mi-rename-toggle').setAttribute('aria-label', result.rename_label);
+            list.querySelectorAll('.mi-row').forEach(child => {
+                if (child.dataset.parentId === row.dataset.id) child.querySelector('.mi-parent').textContent = '↳ ' + result.parent_label;
+            });
+            Array.from(list.children).sort((a, b) => a.dataset.name.localeCompare(b.dataset.name)).forEach(item => list.appendChild(item));
+            search.dispatchEvent(new Event('input'));
+            closeRename(row);
+        } catch (error) {
+            status.textContent = error.message || form.dataset.renameError;
+        } finally {
+            controls.forEach(control => { control.disabled = false; });
+            delete row.dataset.saving;
+        }
     }
 });
 

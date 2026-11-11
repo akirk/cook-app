@@ -352,6 +352,14 @@ class RegistryService extends AbstractService {
     }
 
     public function register_rest_routes(): void {
+        register_rest_route( 'cookbook/v1', '/ingredients/(?P<term_id>\d+)', [
+            'methods' => \WP_REST_Server::EDITABLE,
+            'callback' => [ $this, 'rest_rename_ingredient' ],
+            'permission_callback' => function() {
+                return current_user_can( 'manage_categories' );
+            },
+            'args' => [ 'name' => [ 'type' => 'string', 'minLength' => 1, 'required' => true ] ],
+        ] );
         register_rest_route( 'cookbook/v1', '/ingredients/merge', [
             'methods' => \WP_REST_Server::CREATABLE,
             'callback' => [ $this, 'rest_merge_ingredients' ],
@@ -393,6 +401,18 @@ class RegistryService extends AbstractService {
         ] );
     }
 
+    public function rest_rename_ingredient( \WP_REST_Request $request ) {
+        $result = ( new TermAbilitiesService() )->update_term( [
+            'type' => 'ingredients', 'id' => $request['term_id'], 'name' => $request['name'],
+        ] );
+        if ( is_wp_error( $result ) ) return $result;
+        /* translators: %s: ingredient name */
+        $result['rename_label'] = sprintf( __( 'Rename %s', 'cook-app' ), $result['term']['name'] );
+        /* translators: %s: parent ingredient name */
+        $result['parent_label'] = sprintf( __( 'child of %s', 'cook-app' ), $result['term']['name'] );
+        return $result;
+    }
+
     public function rest_merge_ingredients( \WP_REST_Request $request ) {
         $result = ( new TermAbilitiesService() )->merge_terms( [
             'type' => 'ingredients',
@@ -409,6 +429,7 @@ class RegistryService extends AbstractService {
             $state[] = [
                 'id' => (int) $term->term_id,
                 'count' => (int) $term->count,
+                'parent_id' => (int) $term->parent,
                 'parent_label' => $term->parent && isset( $names[ $term->parent ] )
                     /* translators: %s: parent ingredient name */
                     ? sprintf( __( 'child of %s', 'cook-app' ), $names[ $term->parent ] ) : '',
