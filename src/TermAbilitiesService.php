@@ -237,7 +237,7 @@ class TermAbilitiesService {
         return $changed;
     }
 
-    private function ingredient_reference_post_ids( int $id ): array {
+    private function ingredient_reference_post_ids( int $id, bool $include_revisions = true ): array {
         global $wpdb;
         // Serialized ingredient rows cannot be searched reliably with a meta query.
         // This one-time scan is needed to catch references without taxonomy assignments.
@@ -251,9 +251,20 @@ class TermAbilitiesService {
         $ids = [];
         foreach ( $rows as $row ) {
             $value = maybe_unserialize( $row->meta_value );
+            if ( ! $include_revisions && wp_is_post_revision( (int) $row->post_id ) ) continue;
             if ( is_array( $value ) && $this->contains_ingredient_id( $value, $id ) ) $ids[] = (int) $row->post_id;
         }
         return array_values( array_unique( $ids ) );
+    }
+
+    /** Remove a term abandoned by a recipe correction, preserving other live references. */
+    public function delete_unused_ingredient_term( int $id ): void {
+        $assigned = get_objects_in_term( $id, App::TAX_INGREDIENT );
+        if ( is_wp_error( $assigned ) || $assigned ) return;
+        $children = get_term_children( $id, App::TAX_INGREDIENT );
+        if ( is_wp_error( $children ) || $children ) return;
+        if ( $this->ingredient_reference_post_ids( $id, false ) || $this->ingredient_id_in_preferences( $id ) ) return;
+        wp_delete_term( $id, App::TAX_INGREDIENT );
     }
 
     private function contains_ingredient_id( array $rows, int $id ): bool {

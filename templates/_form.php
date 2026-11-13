@@ -218,6 +218,7 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
                             <input type="text" name="ingredient_parts[<?php echo (int) $section_index; ?>][ingredients][<?php echo (int) $i; ?>][unit]" value="<?php echo esc_attr( $row['unit'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'g', 'cook-app' ); ?>" list="recipe-units">
                             <input type="text" name="ingredient_parts[<?php echo (int) $section_index; ?>][ingredients][<?php echo (int) $i; ?>][name]" value="<?php echo esc_attr( $row['name'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'ingredient', 'cook-app' ); ?>" required>
                             <input type="text" name="ingredient_parts[<?php echo (int) $section_index; ?>][ingredients][<?php echo (int) $i; ?>][notes]" value="<?php echo esc_attr( $row['notes'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'chopped', 'cook-app' ); ?>">
+                            <label class="ingredient-optional-control"><input type="checkbox" name="ingredient_parts[<?php echo (int) $section_index; ?>][ingredients][<?php echo (int) $i; ?>][optional]" value="1" <?php checked( ! empty( $row['optional'] ) ); ?>> <?php esc_html_e( 'Optional', 'cook-app' ); ?></label>
                             <button type="button" class="remove" aria-label="<?php esc_attr_e( 'Remove', 'cook-app' ); ?>">×</button>
                         </div>
                     <?php endforeach; ?>
@@ -305,6 +306,7 @@ $unit_options = Units::COMMON_UNITS[ $pref ];
                         'gram'                      => __( 'g', 'cook-app' ),
                         'ingredient'                => __( 'ingredient', 'cook-app' ),
                         'chopped'                   => __( 'chopped', 'cook-app' ),
+                        'optional'                  => __( 'Optional', 'cook-app' ),
                         'remove'                    => __( 'Remove', 'cook-app' ),
                         'ingredientShort'           => __( 'Ingredient', 'cook-app' ),
                         'sectionShort'              => __( 'Section', 'cook-app' ),

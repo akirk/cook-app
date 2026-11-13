@@ -1,4 +1,30 @@
 (function () {
+    document.querySelectorAll('[data-ingredient-optional]').forEach(checkbox => {
+        checkbox.addEventListener('change', async () => {
+            const status = checkbox.closest('.ingredient-line').querySelector('.ingredient-optional-status');
+            const optional = checkbox.checked;
+            checkbox.disabled = true;
+            status.textContent = '';
+            try {
+                const response = await fetch(checkbox.dataset.endpoint, {
+                    method: 'POST', credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': checkbox.dataset.nonce },
+                    body: JSON.stringify({ optional, version: checkbox.dataset.version })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || checkbox.dataset.error);
+                checkbox.dataset.version = result.version;
+                const row = checkbox.closest('.ingredient-row');
+                const replacementOptional = row.querySelector('input[name="optional"]');
+                if (replacementOptional) replacementOptional.checked = optional;
+            } catch (error) {
+                checkbox.checked = !optional;
+                status.textContent = error.message || checkbox.dataset.error;
+            } finally {
+                checkbox.disabled = false;
+            }
+        });
+    });
     const ingredients = document.getElementById('ingredients');
     const servingsInput = document.getElementById('servings');
     const shoppingServings = document.getElementById('shopping-servings');

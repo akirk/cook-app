@@ -44,7 +44,6 @@
 			const all = document.createElement('a');
 			all.className = 'ing-chip';
 			all.href = data.all_url;
-			all.style.fontSize = '0.85rem';
 			all.textContent = data.all_label;
 			homeIngredientCloud.appendChild(all);
 
@@ -92,86 +91,302 @@ document.querySelectorAll('.ing-chip input[type="checkbox"]').forEach(cb => {
 const form    = document.getElementById('mi-form');
 const list    = document.getElementById('mi-list');
 const search  = document.getElementById('mi-search');
-const target  = document.getElementById('mi-target');
-const action  = document.getElementById('mi-action');
-const merge   = document.getElementById('mi-merge');
-const group   = document.getElementById('mi-group');
 const counter = document.getElementById('mi-count');
 const toolbar = document.getElementById('mi-toolbar');
 
 if (!form || !list) return;
 
 function refresh() {
-    const checked = list.querySelectorAll('.mi-check:checked');
-    const n = checked.length;
+    const n = list.querySelectorAll('.mi-check:checked').length;
     counter.textContent = String(n);
     toolbar.classList.toggle('is-active', n > 0);
-    const haveTarget = parseInt(target.value, 10) > 0;
-    // For "merge" the target must not be one of the checked sources.
-    let conflict = false;
-    if (haveTarget) {
-        checked.forEach(cb => { if (cb.value === target.value) conflict = true; });
-    }
-    merge.disabled = !(n > 0 && haveTarget && !conflict);
-    // "Group" allows target = 0 (top-level).
-    group.disabled = !(n > 0 && !conflict);
+    list.querySelectorAll('.mi-row').forEach(row => {
+        const button = row.querySelector('.mi-merge');
+        button.hidden = n < 2 || !row.querySelector('.mi-check').checked;
+        button.disabled = n < 2;
+    });
 }
-
-let lastOp = 'merge';
 list.addEventListener('change', e => {
     if (e.target.classList.contains('mi-check')) refresh();
 });
-target.addEventListener('change', refresh);
-merge.addEventListener('click', () => { lastOp = 'merge'; action.value = 'cookbook_merge_ingredients'; });
-group.addEventListener('click', () => { lastOp = 'group'; action.value = 'cookbook_group_ingredients'; });
-
-form.addEventListener('submit', e => {
-    const op = lastOp;
-    const n  = list.querySelectorAll('.mi-check:checked').length;
-    const tgt = target.options[target.selectedIndex].text.replace(/\s*\(\d+\)\s*$/, '');
-    const msg = op === 'merge'
-        ? `Merge ${n} ingredient(s) into "${tgt}"? This rewrites the linked recipes and deletes the source terms.`
-        : (parseInt(target.value, 10) > 0
-            ? `Make ${n} ingredient(s) children of "${tgt}"?`
-            : `Move ${n} ingredient(s) to top level (no parent)?`);
-    if (!window.confirm(msg)) e.preventDefault();
+list.addEventListener('click', e => {
+    const row = e.target.closest('.mi-row');
+    if (!row || row.classList.contains('is-renaming')) return;
+    if (e.target.closest('label, input, button, a, select, textarea, .mi-recipes, .mi-rename')) return;
+    row.querySelector('.mi-check').click();
+});
+let merging = false;
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const button = e.submitter;
+    if (merging || !button || !button.classList.contains('mi-merge') || button.disabled) return;
+    const targetRow = button.closest('.mi-row');
+    const targetId = Number(targetRow.dataset.id);
+    const sources = Array.from(list.querySelectorAll('.mi-check:checked')).map(input => Number(input.value)).filter(id => id !== targetId);
+    if (!sources.length) return;
+    const name = targetRow.querySelector('.mi-name').textContent;
+    if (!window.confirm(`Merge ${sources.length} ingredient(s) into "${name}"? This rewrites the linked recipes and deletes the other selected ingredients.`)) return;
+    const status = document.getElementById('mi-merge-status');
+    status.textContent = '';
+    merging = true;
+    form.setAttribute('aria-busy', 'true');
+    const controls = Array.from(form.querySelectorAll('input, button')).map(control => [control, control.disabled]);
+    controls.forEach(([control]) => { control.disabled = true; });
+    let reopenRecipes = false;
+    try {
+        const response = await fetch(form.dataset.mergeEndpoint, {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+            body: JSON.stringify({ target_id: targetId, source_ids: sources })
+        });
+        const result = await response.json();
+        if (Array.isArray(result.terms)) {
+            const terms = new Map(result.terms.map(term => [String(term.id), term]));
+            reopenRecipes = !targetRow.querySelector('.mi-recipes').hidden;
+            list.querySelectorAll('.mi-row').forEach(row => {
+                const term = terms.get(row.dataset.id);
+                if (!term) {
+                    row.remove();
+                    return;
+                }
+                row.querySelector('.mi-count').textContent = String(term.count);
+                row.dataset.parentId = String(term.parent_id || 0);
+                let parent = row.querySelector('.mi-parent');
+                if (term.parent_label) {
+                    if (!parent) {
+                        parent = document.createElement('span');
+                        parent.className = 'mi-parent';
+                        row.querySelector('.mi-identity').appendChild(parent);
+                    }
+                    parent.textContent = '↳ ' + term.parent_label;
+                } else if (parent) parent.remove();
+                const panel = row.querySelector('.mi-recipes');
+                panel.hidden = true;
+                panel.textContent = '';
+                delete panel.dataset.loaded;
+                panel.dataset.generation = String(Number(panel.dataset.generation || 0) + 1);
+                delete panel.dataset.loadingRequest;
+                row.querySelector('.mi-view').setAttribute('aria-expanded', 'false');
+            });
+        }
+        if (!response.ok) throw new Error(result.message || form.dataset.mergeError);
+        list.querySelectorAll('.mi-check').forEach(input => { input.checked = false; });
+    } catch (error) {
+        status.textContent = error.message || form.dataset.mergeError;
+    } finally {
+        controls.forEach(([control, disabled]) => { control.disabled = disabled; });
+        merging = false;
+        form.removeAttribute('aria-busy');
+        refresh();
+        targetRow.querySelector('.mi-check').focus();
+        if (reopenRecipes && targetRow.isConnected) targetRow.querySelector('.mi-view').click();
+    }
+});
+list.addEventListener('click', async e => {
+    const button = e.target.closest('.mi-view');
+    if (!button) return;
+    const row = button.closest('.mi-row');
+    const panel = row.querySelector('.mi-recipes');
+    panel.hidden = !panel.hidden;
+    button.setAttribute('aria-expanded', String(!panel.hidden));
+    if (panel.hidden || panel.dataset.loaded || panel.dataset.loadingRequest) return;
+    const generation = panel.dataset.generation || '0';
+    panel.dataset.loadingRequest = 'true';
+    panel.textContent = panel.dataset.loading;
+    try {
+        const response = await fetch(form.dataset.recipesEndpoint + row.dataset.id, {
+            credentials: 'same-origin', headers: { 'X-WP-Nonce': form.dataset.restNonce }
+        });
+        if (!response.ok) throw new Error('Request failed');
+        const recipes = await response.json();
+        if ((panel.dataset.generation || '0') !== generation || !panel.isConnected) return;
+        panel.textContent = '';
+        if (!recipes.length) panel.textContent = panel.dataset.empty;
+        recipes.forEach(recipe => {
+            const item = document.createElement('div');
+            const link = document.createElement('a');
+            link.href = recipe.url;
+            link.textContent = recipe.title;
+            item.appendChild(link);
+            if (recipe.servings) {
+                const servings = document.createElement('span');
+                servings.textContent = ' · ' + form.dataset.servingsLabel + ' ' + recipe.servings;
+                item.appendChild(servings);
+            }
+            recipe.ingredients.forEach(ingredient => {
+                const editor = document.createElement('div');
+                editor.className = 'mi-recipe-ingredient';
+                const inputs = {};
+                ['amount', 'unit', 'name'].forEach(field => {
+                    const label = document.createElement('label');
+                    label.textContent = form.dataset[field + 'Label'];
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = ingredient[field];
+                    input.disabled = !recipe.editable;
+                    inputs[field] = input;
+                    label.appendChild(input);
+                    editor.appendChild(label);
+                });
+                if (recipe.editable) {
+                    const save = document.createElement('button');
+                    save.type = 'button';
+                    save.className = 'btn';
+                    save.textContent = form.dataset.saveLabel;
+                    save.setAttribute('aria-live', 'polite');
+                    const status = document.createElement('span');
+                    status.setAttribute('role', 'status');
+                    let editVersion = 0;
+                    Object.values(inputs).forEach(input => input.addEventListener('input', () => {
+                        editVersion++;
+                        save.textContent = form.dataset.saveLabel;
+                        status.textContent = '';
+                    }));
+                    editor.addEventListener('keydown', event => {
+                        if (event.isComposing || !event.target.matches('input')) return;
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            save.click();
+                        } else if (event.key === 'Escape') {
+                            event.preventDefault();
+                            if (save.disabled) return;
+                            Object.keys(inputs).forEach(field => { inputs[field].value = ingredient[field]; });
+                            editVersion++;
+                            save.textContent = form.dataset.saveLabel;
+                            status.textContent = '';
+                            event.target.blur();
+                        }
+                    });
+                    save.addEventListener('click', async () => {
+                        if (!inputs.name.value.trim()) {
+                            inputs.name.focus();
+                            return;
+                        }
+                        save.disabled = true;
+                        status.textContent = '';
+                        const submittedVersion = editVersion;
+                        const submitted = { name: inputs.name.value, amount: inputs.amount.value, unit: inputs.unit.value };
+                        try {
+                            const response = await fetch(form.dataset.recipesEndpoint + recipe.id + '/' + ingredient.index, {
+                                method: 'POST', credentials: 'same-origin',
+                                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+                                body: JSON.stringify({ ...submitted, version: ingredient.version })
+                            });
+                            const result = await response.json();
+                            if (!response.ok) throw new Error(result.message || panel.dataset.error);
+                            Object.assign(ingredient, result.ingredient || submitted);
+                            ingredient.version = result.version;
+                            list.querySelectorAll('.mi-recipes').forEach(details => { delete details.dataset.loaded; });
+                            if (editVersion === submittedVersion) save.textContent = '✓ ' + form.dataset.savedLabel;
+                        } catch (error) {
+                            status.textContent = error.message || panel.dataset.error;
+                        } finally {
+                            save.disabled = false;
+                        }
+                    });
+                    editor.append(save, status);
+                }
+                item.appendChild(editor);
+            });
+            panel.appendChild(item);
+        });
+        panel.dataset.loaded = 'true';
+    } catch (error) {
+        if ((panel.dataset.generation || '0') === generation) panel.textContent = panel.dataset.error;
+    } finally {
+        if ((panel.dataset.generation || '0') === generation) delete panel.dataset.loadingRequest;
+    }
 });
 
-// Substring filter — case-insensitive, matches the lowercased name on data-name.
+// Match any alternative separated by a pipe or the word "or".
 search.addEventListener('input', () => {
-    const q = search.value.trim().toLowerCase();
+    const queries = search.value.toLowerCase().split(/\||\s+or\s+/i).map(value => value.trim()).filter(Boolean);
     list.querySelectorAll('.mi-row').forEach(row => {
         const name = row.getAttribute('data-name') || '';
-        row.classList.toggle('is-hidden', q !== '' && !name.includes(q));
+        row.classList.toggle('is-hidden', queries.length > 0 && !queries.some(query => name.includes(query)));
     });
 });
 
-// Inline rename: posts via the hidden mi-rename-form so we can keep this page sticky-stateful.
-const renameForm = document.getElementById('mi-rename-form');
-list.addEventListener('click', e => {
+// Keep renaming in place and use the same actions for pointer and keyboard input.
+function closeRename(row) {
+    row.classList.remove('is-renaming');
+    row.querySelector('.mi-rename').classList.remove('is-open');
+    row.querySelector('.mi-rename-toggle').focus({ preventScroll: true });
+}
+list.addEventListener('keydown', e => {
+    if (e.isComposing || !e.target.matches('.mi-rename input')) return;
+    if (e.key === 'Enter' || e.key === 'Escape') {
+        e.preventDefault();
+        const row = e.target.closest('.mi-row');
+        row.querySelector(e.key === 'Enter' ? '.mi-rename-save' : '.mi-rename-cancel').click();
+    }
+});
+list.addEventListener('click', async e => {
     const row = e.target.closest('.mi-row');
-    if (!row) return;
-    if (e.target.classList.contains('mi-rename-toggle')) {
+    if (!row || row.dataset.saving) return;
+    const input = row.querySelector('.mi-rename input');
+    const status = row.querySelector('.mi-rename-status');
+    if (e.target.closest('.mi-rename-toggle')) {
         row.classList.add('is-renaming');
         row.querySelector('.mi-rename').classList.add('is-open');
-        const inp = row.querySelector('.mi-rename input');
-        inp.focus(); inp.select();
-    } else if (e.target.classList.contains('mi-rename-cancel')) {
-        row.classList.remove('is-renaming');
-        row.querySelector('.mi-rename').classList.remove('is-open');
-        const inp = row.querySelector('.mi-rename input');
-        inp.value = inp.getAttribute('data-original') || '';
-    } else if (e.target.classList.contains('mi-rename-save')) {
-        const inp = row.querySelector('.mi-rename input');
-        const name = inp.value.trim();
-        if (name === '' || name === inp.getAttribute('data-original')) {
-            row.classList.remove('is-renaming');
-            row.querySelector('.mi-rename').classList.remove('is-open');
+        status.textContent = '';
+        input.focus(); input.select();
+    } else if (e.target.closest('.mi-rename-cancel')) {
+        input.value = input.dataset.original || '';
+        status.textContent = '';
+        closeRename(row);
+    } else if (e.target.closest('.mi-rename-save')) {
+        const name = input.value.trim();
+        if (!name) {
+            input.focus();
             return;
         }
-        document.getElementById('mi-rename-term').value = row.getAttribute('data-id');
-        document.getElementById('mi-rename-name').value = name;
-        renameForm.submit();
+        if (name === input.dataset.original) {
+            closeRename(row);
+            return;
+        }
+        row.dataset.saving = 'true';
+        const controls = row.querySelectorAll('.mi-rename input, .mi-rename button');
+        controls.forEach(control => { control.disabled = true; });
+        status.textContent = '';
+        try {
+            const response = await fetch(form.dataset.renameEndpoint + row.dataset.id, {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': form.dataset.restNonce },
+                body: JSON.stringify({ name })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || form.dataset.renameError);
+            row.querySelector('.mi-name').textContent = result.term.name;
+            row.dataset.name = result.term.name.toLowerCase();
+            input.value = result.term.name;
+            input.dataset.original = result.term.name;
+            row.querySelector('.mi-rename-toggle').setAttribute('aria-label', result.rename_label);
+            list.querySelectorAll('.mi-row').forEach(child => {
+                if (child.dataset.parentId === row.dataset.id) child.querySelector('.mi-parent').textContent = '↳ ' + result.parent_label;
+            });
+            const scrollPosition = { top: window.scrollY, left: window.scrollX };
+            const nextRow = Array.from(list.children).find(item => item !== row && row.dataset.name.localeCompare(item.dataset.name) < 0);
+            list.insertBefore(row, nextRow || null);
+            search.dispatchEvent(new Event('input'));
+            closeRename(row);
+            window.scrollTo({ ...scrollPosition, behavior: 'instant' });
+            if (!row.classList.contains('is-hidden')) {
+                row.classList.remove('is-renamed');
+                void row.offsetWidth;
+                row.classList.add('is-renamed');
+                row.addEventListener('animationend', () => row.classList.remove('is-renamed'), { once: true });
+                row.scrollIntoView({
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                    block: 'nearest'
+                });
+            }
+        } catch (error) {
+            status.textContent = error.message || form.dataset.renameError;
+        } finally {
+            controls.forEach(control => { control.disabled = false; });
+            delete row.dataset.saving;
+        }
     }
 });
 

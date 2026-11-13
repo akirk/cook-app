@@ -435,7 +435,7 @@ class RecipeService extends AbstractService {
                 'unit'   => $unit,
                 'name'   => $name,
                 'notes'  => $notes,
-            ];
+            ] + ( ! empty( $row['optional'] ) ? [ 'optional' => true ] : [] );
         }
 
         return $ingredients;
@@ -1037,7 +1037,7 @@ class RecipeService extends AbstractService {
                 'name'    => $name,
                 'notes'   => isset( $row['notes'] ) ? (string) $row['notes'] : '',
                 'term_id' => $term_id ?: 0,
-            ];
+            ] + ( ! empty( $row['optional'] ) ? [ 'optional' => true ] : [] );
             if ( $term_id ) {
                 $term_ids[ $term_id ] = true;
             }
@@ -1094,7 +1094,7 @@ class RecipeService extends AbstractService {
                     'name'    => $name,
                     'notes'   => isset( $row['notes'] ) ? sanitize_text_field( (string) $row['notes'] ) : '',
                     'term_id' => $term_id,
-                ];
+                ] + ( ! empty( $row['optional'] ) ? [ 'optional' => true ] : [] );
             }
 
             $instructions = [];
@@ -1144,6 +1144,10 @@ class RecipeService extends AbstractService {
 
         $term = get_term_by( 'slug', $slug, App::TAX_INGREDIENT );
         if ( $term && ! is_wp_error( $term ) ) {
+            // Slugs discard list markers. Correct the display name as well when removing one.
+            if ( isset( $term->name ) && $term->name !== $name && preg_replace( '/^[\s\p{Pd}•]+/u', '', $term->name ) === $name ) {
+                wp_update_term( (int) $term->term_id, App::TAX_INGREDIENT, [ 'name' => $name ] );
+            }
             return (int) $term->term_id;
         }
         $created = wp_insert_term( $name, App::TAX_INGREDIENT, [ 'slug' => $slug ] );
@@ -1213,6 +1217,77 @@ class RecipeService extends AbstractService {
         exit;
     }
 
+    /** Update one ingredient in both the flat rows and named recipe sections. */
+    public function replace_recipe_ingredient_row( int $id, int $index, array $replacement ): void {
+        $ingredients = (array) get_post_meta( $id, App::META_INGREDIENTS, true );
+        $original = $ingredients[ $index ];
+        $replacement['term_id'] = $replacement['name'] === $original['name'] && ! empty( $original['term_id'] )
+            ? (int) $original['term_id']
+            : ( $this->resolve_ingredient_term( $replacement['name'] ) ?: 0 );
+        $ingredients[ $index ] = $replacement;
+
+        $this->save_recipe_revision_snapshot( $id );
+        update_post_meta( $id, App::META_INGREDIENTS, $ingredients );
+        // Keep existing canonical links on other rows, including previously merged ingredients.
+        $term_ids = [];
+        foreach ( $ingredients as $ingredient ) {
+            if ( ! empty( $ingredient['term_id'] ) ) {
+                $term_ids[] = (int) $ingredient['term_id'];
+            }
+        }
+        wp_set_object_terms( $id, array_values( array_unique( $term_ids ) ), App::TAX_INGREDIENT, false );
+        $parts = $this->get_recipe_parts( $id );
+        if ( $parts ) {
+            $part_index = 0;
+            foreach ( $parts as &$part ) {
+                foreach ( $part['ingredients'] as &$part_ingredient ) {
+                    if ( $part_index === $index ) {
+                        $part_ingredient = $replacement;
+                        break 2;
+                    }
+                    $part_index++;
+                }
+            }
+            unset( $part, $part_ingredient );
+            update_post_meta( $id, App::META_PARTS, $parts );
+        }
+        $this->save_recipe_revision_snapshot( $id );
+        $old_term_id = (int) ( $original['term_id'] ?? 0 );
+        if ( $old_term_id && $old_term_id !== $replacement['term_id'] ) {
+            ( new TermAbilitiesService() )->delete_unused_ingredient_term( $old_term_id );
+        }
+    }
+
+    public function rest_update_ingredient_row( \WP_REST_Request $request ) {
+        $id = (int) $request['recipe_id'];
+        $index = (int) $request['index'];
+        $post = get_post( $id );
+        if ( ! $post || $post->post_type !== App::POST_TYPE ) {
+            return new \WP_Error( 'not_found', __( 'Recipe not found.', 'cook-app' ), [ 'status' => 404 ] );
+        }
+        $rows = (array) get_post_meta( $id, App::META_INGREDIENTS, true );
+        if ( ! isset( $rows[ $index ] ) || ! is_array( $rows[ $index ] ) ) {
+            return new \WP_Error( 'not_found', __( 'Ingredient not found.', 'cook-app' ), [ 'status' => 404 ] );
+        }
+        if ( ! hash_equals( hash( 'sha256', wp_json_encode( $rows[ $index ] ) ), (string) $request['version'] ) ) {
+            return new \WP_Error( 'conflict', __( 'This recipe changed. Close and reopen its ingredients before saving.', 'cook-app' ), [ 'status' => 409 ] );
+        }
+        $replacement = $rows[ $index ];
+        foreach ( [ 'name', 'amount', 'unit' ] as $field ) {
+            if ( $request->has_param( $field ) ) $replacement[ $field ] = sanitize_text_field( (string) $request[ $field ] );
+        }
+        if ( $request->has_param( 'optional' ) ) {
+            unset( $replacement['optional'] );
+            if ( $request['optional'] ) $replacement['optional'] = true;
+        }
+        if ( $replacement['name'] === '' ) {
+            return new \WP_Error( 'invalid_name', __( 'Replacement ingredient is required.', 'cook-app' ), [ 'status' => 400 ] );
+        }
+        $this->replace_recipe_ingredient_row( $id, $index, $replacement );
+        $saved = (array) get_post_meta( $id, App::META_INGREDIENTS, true );
+        return [ 'saved' => true, 'version' => hash( 'sha256', wp_json_encode( $saved[ $index ] ) ), 'ingredient' => $saved[ $index ] ];
+    }
+
     public function handle_replace_ingredient(): void {
         if ( ! is_user_logged_in() ) {
             wp_die( esc_html__( 'Not allowed.', 'cook-app' ), 403 );
@@ -1246,26 +1321,9 @@ class RecipeService extends AbstractService {
             'name'   => $name,
             'notes'  => isset( $_POST['notes'] ) ? sanitize_text_field( wp_unslash( $_POST['notes'] ) ) : '',
         ];
-        $ingredients[ $index ] = $replacement;
+        if ( ! empty( $_POST['optional'] ) ) $replacement['optional'] = true;
 
-        $this->save_recipe_revision_snapshot( $id );
-        $this->persist_ingredients( $id, $ingredients );
-        $parts = $this->get_recipe_parts( $id );
-        if ( $parts ) {
-            $part_index = 0;
-            foreach ( $parts as &$part ) {
-                foreach ( $part['ingredients'] as &$part_ingredient ) {
-                    if ( $part_index === $index ) {
-                        $part_ingredient = $replacement;
-                        break 2;
-                    }
-                    $part_index++;
-                }
-            }
-            unset( $part, $part_ingredient );
-            $this->persist_recipe_parts( $id, $parts );
-        }
-        $this->save_recipe_revision_snapshot( $id );
+        $this->replace_recipe_ingredient_row( $id, $index, $replacement );
 
         wp_safe_redirect( add_query_arg( 'replaced', '1', home_url( '/' . $this->get_url_path() . '/recipe/' . $id . '#ingredients' ) ) );
         exit;

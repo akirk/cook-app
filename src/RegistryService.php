@@ -352,6 +352,46 @@ class RegistryService extends AbstractService {
     }
 
     public function register_rest_routes(): void {
+        register_rest_route( 'cookbook/v1', '/ingredients/(?P<term_id>\d+)', [
+            'methods' => \WP_REST_Server::EDITABLE,
+            'callback' => [ $this, 'rest_rename_ingredient' ],
+            'permission_callback' => function() {
+                return current_user_can( 'manage_categories' );
+            },
+            'args' => [ 'name' => [ 'type' => 'string', 'minLength' => 1, 'required' => true ] ],
+        ] );
+        register_rest_route( 'cookbook/v1', '/ingredients/merge', [
+            'methods' => \WP_REST_Server::CREATABLE,
+            'callback' => [ $this, 'rest_merge_ingredients' ],
+            'permission_callback' => function() {
+                return current_user_can( 'manage_categories' );
+            },
+            'args' => [
+                'target_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
+                'source_ids' => [ 'type' => 'array', 'items' => [ 'type' => 'integer', 'minimum' => 1 ], 'minItems' => 1, 'required' => true ],
+            ],
+        ] );
+        register_rest_route( 'cookbook/v1', '/ingredient-recipes/(?P<term_id>\d+)', [
+            'methods' => \WP_REST_Server::READABLE,
+            'callback' => [ $this, 'rest_ingredient_recipes' ],
+            'permission_callback' => function() {
+                return current_user_can( 'manage_categories' );
+            },
+        ] );
+        register_rest_route( 'cookbook/v1', '/ingredient-recipes/(?P<recipe_id>\d+)/(?P<index>\d+)', [
+            'methods' => \WP_REST_Server::EDITABLE,
+            'callback' => [ $this->services->recipes(), 'rest_update_ingredient_row' ],
+            'permission_callback' => function( $request ) {
+                return current_user_can( 'edit_post', (int) $request['recipe_id'] );
+            },
+            'args' => [
+                'name' => [ 'type' => 'string' ],
+                'amount' => [ 'type' => 'string' ],
+                'unit' => [ 'type' => 'string' ],
+                'version' => [ 'type' => 'string', 'required' => true ],
+                'optional' => [ 'type' => 'boolean' ],
+            ],
+        ] );
         register_rest_route( 'cookbook/v1', '/home-ingredients', [
             'methods'             => \WP_REST_Server::READABLE,
             'callback'            => [ $this, 'rest_home_ingredients' ],
@@ -359,6 +399,84 @@ class RegistryService extends AbstractService {
                 return is_user_logged_in();
             },
         ] );
+    }
+
+    public function rest_rename_ingredient( \WP_REST_Request $request ) {
+        $result = ( new TermAbilitiesService() )->update_term( [
+            'type' => 'ingredients', 'id' => $request['term_id'], 'name' => $request['name'],
+        ] );
+        if ( is_wp_error( $result ) ) return $result;
+        /* translators: %s: ingredient name */
+        $result['rename_label'] = sprintf( __( 'Rename %s', 'cook-app' ), $result['term']['name'] );
+        /* translators: %s: parent ingredient name */
+        $result['parent_label'] = sprintf( __( 'child of %s', 'cook-app' ), $result['term']['name'] );
+        return $result;
+    }
+
+    public function rest_merge_ingredients( \WP_REST_Request $request ) {
+        $result = ( new TermAbilitiesService() )->merge_terms( [
+            'type' => 'ingredients',
+            'target_id' => $request['target_id'],
+            'source_ids' => $request['source_ids'],
+        ] );
+        // Return the current state even if a later source failed after others were merged.
+        $terms = get_terms( [ 'taxonomy' => App::TAX_INGREDIENT, 'hide_empty' => false ] );
+        if ( is_wp_error( $terms ) ) return $terms;
+        $names = [];
+        foreach ( $terms as $term ) $names[ $term->term_id ] = $term->name;
+        $state = [];
+        foreach ( $terms as $term ) {
+            $state[] = [
+                'id' => (int) $term->term_id,
+                'count' => (int) $term->count,
+                'parent_id' => (int) $term->parent,
+                'parent_label' => $term->parent && isset( $names[ $term->parent ] )
+                    /* translators: %s: parent ingredient name */
+                    ? sprintf( __( 'child of %s', 'cook-app' ), $names[ $term->parent ] ) : '',
+            ];
+        }
+        if ( is_wp_error( $result ) ) {
+            return new \WP_REST_Response( [ 'message' => $result->get_error_message(), 'terms' => $state ], 400 );
+        }
+        $result['terms'] = $state;
+        return $result;
+    }
+
+    public function rest_ingredient_recipes( \WP_REST_Request $request ): array {
+        $term_id = (int) $request['term_id'];
+        $posts = get_posts( [
+            'post_type' => App::POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- exact ingredient lookup requested by the manager.
+            'tax_query' => [ [ 'taxonomy' => App::TAX_INGREDIENT, 'field' => 'term_id', 'terms' => $term_id, 'include_children' => false ] ],
+        ] );
+        $recipes = [];
+        foreach ( $posts as $post ) {
+            if ( ! current_user_can( 'read_post', $post->ID ) ) continue;
+            $ingredients = [];
+            foreach ( (array) get_post_meta( $post->ID, App::META_INGREDIENTS, true ) as $index => $row ) {
+                if ( ! is_array( $row ) || (int) ( $row['term_id'] ?? 0 ) !== $term_id ) continue;
+                $ingredients[] = [
+                    'index' => $index,
+                    'name' => (string) ( $row['name'] ?? '' ),
+                    'amount' => (string) ( $row['amount'] ?? '' ),
+                    'unit' => (string) ( $row['unit'] ?? '' ),
+                    'version' => hash( 'sha256', wp_json_encode( $row ) ),
+                ];
+            }
+            $recipes[] = [
+                'id' => $post->ID,
+                'title' => get_the_title( $post ),
+                'url' => home_url( '/cook-app/recipe/' . $post->ID ),
+                'servings' => (string) get_post_meta( $post->ID, App::META_SERVINGS, true ),
+                'editable' => current_user_can( 'edit_post', $post->ID ),
+                'ingredients' => $ingredients,
+            ];
+        }
+        return $recipes;
     }
 
     public function rest_home_ingredients(): array {
@@ -372,7 +490,7 @@ class RegistryService extends AbstractService {
                 (int) $stats['count']
             ),
             'terms'       => $stats['top_terms'],
-            'all_url'     => home_url( '/cook-app/by-ingredients' ),
+            'all_url'     => home_url( current_user_can( 'manage_categories' ) ? '/cook-app/manage-ingredients' : '/cook-app/by-ingredients' ),
             'all_label'   => __( 'all ingredients →', 'cook-app' ),
         ];
     }
