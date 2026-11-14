@@ -115,7 +115,7 @@ class AbilitiesService extends AbstractService {
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. Pass {} or only limit to list recent recipes (default 10). Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
+                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. An empty search will return recent recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
