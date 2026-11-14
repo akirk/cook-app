@@ -157,17 +157,17 @@ Yes. The text domain is `cook-app`, and a German translation is included.
 
 When available, Cook App registers these abilities:
 
-- `cookbook/search-recipes`
-- `cookbook/get-recipe`
-- `cookbook/save-recipe`
-- `cookbook/import-recipe`
-- `cookbook/create-recipe-variation`
-- `cookbook/get-week-plan`
-- `cookbook/save-week-plan`
-- `cookbook/list-recipe-terms`
-- `cookbook/merge-recipe-terms`
-- `cookbook/update-recipe-term`
-- `cookbook/delete-recipe-terms`
+- `cook-app/search-recipes`
+- `cook-app/get-recipe`
+- `cook-app/save-recipe`
+- `cook-app/import-recipe`
+- `cook-app/create-recipe-variation`
+- `cook-app/get-week-plan`
+- `cook-app/save-week-plan`
+- `cook-app/list-recipe-terms`
+- `cook-app/merge-recipe-terms`
+- `cook-app/update-recipe-term`
+- `cook-app/delete-recipe-terms`
 
 The four term abilities take `type` as `ingredients`, `categories`, `cuisines`, or `tags`. Merging ingredients updates saved ingredient IDs while keeping each recipe's original wording. Deletion accepts only unused entries.
 

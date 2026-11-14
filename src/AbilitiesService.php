@@ -59,19 +59,19 @@ class AbilitiesService extends AbstractService {
      * @return string
      */
     public function ability_result_instructions( string $instructions, string $ability_id, array $args, $result ): string {
-        if ( strpos( $ability_id, 'cookbook/' ) !== 0 || empty( $result ) ) {
+        if ( strpos( $ability_id, 'cook-app/' ) !== 0 || empty( $result ) ) {
             return $instructions;
         }
 
-        if ( in_array( $ability_id, [ 'cookbook/get-recipe', 'cookbook/save-recipe', 'cookbook/import-recipe', 'cookbook/create-recipe-variation' ], true ) ) {
+        if ( in_array( $ability_id, [ 'cook-app/get-recipe', 'cook-app/save-recipe', 'cook-app/import-recipe', 'cook-app/create-recipe-variation' ], true ) ) {
             return __( 'When presenting Cook App recipes, include the recipe title and link it with view_url when present.', 'cook-app' );
         }
 
-        if ( $ability_id === 'cookbook/search-recipes' ) {
+        if ( $ability_id === 'cook-app/search-recipes' ) {
             return __( 'When presenting Cook App search results, show concise recipe matches and link each recipe with view_url when present. If no recipes match, say that no Cook App recipe was found instead of guessing from the database.', 'cook-app' );
         }
 
-        if ( in_array( $ability_id, [ 'cookbook/get-week-plan', 'cookbook/save-week-plan' ], true ) ) {
+        if ( in_array( $ability_id, [ 'cook-app/get-week-plan', 'cook-app/save-week-plan' ], true ) ) {
             return __( 'When presenting Cook App week plans, summarize planned meals by day and meal slot. Link planned recipes with their view_url when present, and link to the planner using the returned url.', 'cook-app' );
         }
 
@@ -104,10 +104,10 @@ class AbilitiesService extends AbstractService {
         }
 
         wp_register_ability(
-            'cookbook/search-recipes',
+            'cook-app/search-recipes',
             [
                 'label'               => __( 'Search Cook App Recipes', 'cook-app' ),
-                'description'         => __( 'Searches Cook App recipes and returns matching recipe summaries.', 'cook-app' ),
+                'description'         => __( 'Searches Cook App recipes and returns matching or recent recipe summaries.', 'cook-app' ),
                 'category'            => 'cook-app',
                 'input_schema'        => $this->recipe_search_input_schema(),
                 'output_schema'       => $this->recipe_search_output_schema(),
@@ -115,7 +115,7 @@ class AbilitiesService extends AbstractService {
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. Call without input to list the latest 10 recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
+                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. An empty search will return recent recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -126,7 +126,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/get-recipe',
+            'cook-app/get-recipe',
             [
                 'label'               => __( 'Get Cook App Recipe', 'cook-app' ),
                 'description'         => __( 'Returns one structured Cook App recipe by ID.', 'cook-app' ),
@@ -158,7 +158,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/save-recipe',
+            'cook-app/save-recipe',
             [
                 'label'               => __( 'Save Cook App Recipe', 'cook-app' ),
                 'description'         => __( 'Creates a structured Cook App recipe, or updates an existing recipe when an ID is provided.', 'cook-app' ),
@@ -180,7 +180,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/import-recipe',
+            'cook-app/import-recipe',
             [
                 'label'               => __( 'Import Cook App Recipe', 'cook-app' ),
                 'description'         => __( 'Imports a recipe from source_url or pasted recipe text and publishes it.', 'cook-app' ),
@@ -219,7 +219,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/create-recipe-variation',
+            'cook-app/create-recipe-variation',
             [
                 'label'               => __( 'Create Cook App Recipe Variation', 'cook-app' ),
                 'description'         => __( 'Creates a child recipe variation from an existing Cook App recipe, copying omitted fields from the source.', 'cook-app' ),
@@ -241,7 +241,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/get-week-plan',
+            'cook-app/get-week-plan',
             [
                 'label'               => __( 'Get Cook App Week Plan', 'cook-app' ),
                 'description'         => __( 'Returns the signed-in user\'s week planner for a normalized week.', 'cook-app' ),
@@ -263,7 +263,7 @@ class AbilitiesService extends AbstractService {
         );
 
         wp_register_ability(
-            'cookbook/save-week-plan',
+            'cook-app/save-week-plan',
             [
                 'label'               => __( 'Save Cook App Week Plan', 'cook-app' ),
                 'description'         => __( 'Saves recipe IDs into the signed-in user\'s week planner meal slots.', 'cook-app' ),
