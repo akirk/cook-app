@@ -107,7 +107,7 @@ class AbilitiesService extends AbstractService {
             'cook-app/search-recipes',
             [
                 'label'               => __( 'Search Cook App Recipes', 'cook-app' ),
-                'description'         => __( 'Searches Cook App recipes and returns matching recipe summaries.', 'cook-app' ),
+                'description'         => __( 'Searches Cook App recipes or lists the latest recipes when no filters are supplied. All input fields are optional; pass {} for the latest 10 recipes or {"limit": 5} for the latest 5. Returns recipe summaries.', 'cook-app' ),
                 'category'            => 'cook-app',
                 'input_schema'        => $this->recipe_search_input_schema(),
                 'output_schema'       => $this->recipe_search_output_schema(),
@@ -115,7 +115,7 @@ class AbilitiesService extends AbstractService {
                 'permission_callback' => [ $this, 'can_read_abilities' ],
                 'meta'                => [
                     'annotations'  => [
-                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. Call without input to list the latest 10 recipes. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
+                        'instructions' => __( 'Use this when the user asks to find, list, filter, or choose Cook App recipes. To browse recent recipes, pass an empty object {} for the latest 10 recipes, or only limit, for example {"limit": 5}, for the latest 5. No search text is required. With no search, category, tag, or ingredient filters, results are ordered newest first. Return recipe IDs for follow-up get-recipe calls, and use view_url when linking results to the user.', 'cook-app' ),
                         'readonly'    => true,
                         'destructive' => false,
                         'idempotent'  => true,
@@ -557,7 +557,7 @@ class AbilitiesService extends AbstractService {
             'properties'           => [
                 'search'     => [
                     'type'        => 'string',
-                    'description' => __( 'Optional search text for recipe title and content.', 'cook-app' ),
+                    'description' => __( 'Optional search text for recipe title and content. Omit or leave empty to list the latest recipes when no other filters are supplied.', 'cook-app' ),
                 ],
                 'category'   => [
                     'type'        => 'string',
@@ -573,7 +573,7 @@ class AbilitiesService extends AbstractService {
                 ],
                 'limit'      => [
                     'type'        => 'integer',
-                    'description' => __( 'Maximum number of recipes to return, from 1 to 100. Defaults to 10 when no search filters are supplied, otherwise 20.', 'cook-app' ),
+                    'description' => __( 'Maximum number of recipes to return, from 1 to 100. Can be the only input field to retrieve the latest recipes, newest first. Defaults to 10 when no search filters are supplied, otherwise 20.', 'cook-app' ),
                     'minimum'     => 1,
                     'maximum'     => 100,
                 ],
