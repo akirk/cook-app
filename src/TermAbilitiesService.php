@@ -71,7 +71,7 @@ class TermAbilitiesService {
         ];
 
         foreach ( $definitions as $name => $definition ) {
-            wp_register_ability( 'cookbook/' . $name, [
+            wp_register_ability( 'cook-app/' . $name, [
                 'label'               => $definition['label'],
                 'description'         => $definition['description'],
                 'category'            => 'cook-app',
