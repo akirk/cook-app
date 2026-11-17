@@ -304,50 +304,58 @@ class RegistryService extends AbstractService {
 
     public function register_taxonomies(): void {
         register_taxonomy( App::TAX_CATEGORY, App::POST_TYPE, [
-            'labels' => [
+            'labels'             => [
                 'name'          => __( 'Categories', 'cook-app' ),
                 'singular_name' => __( 'Category', 'cook-app' ),
             ],
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_in_rest'      => true,
-            'show_admin_column' => true,
-            'rewrite'           => false,
+            'hierarchical'       => true,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_rest'       => true,
+            'show_admin_column'  => true,
+            'rewrite'            => false,
         ] );
         register_taxonomy( App::TAX_CUISINE, App::POST_TYPE, [
-            'labels' => [
+            'labels'             => [
                 'name'          => __( 'Cuisines', 'cook-app' ),
                 'singular_name' => __( 'Cuisine', 'cook-app' ),
             ],
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_in_rest'      => true,
-            'show_admin_column' => true,
-            'rewrite'           => false,
+            'hierarchical'       => true,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_rest'       => true,
+            'show_admin_column'  => true,
+            'rewrite'            => false,
         ] );
         register_taxonomy( App::TAX_TAG, App::POST_TYPE, [
-            'labels' => [
+            'labels'             => [
                 'name'          => __( 'Tags', 'cook-app' ),
                 'singular_name' => __( 'Tag', 'cook-app' ),
             ],
-            'hierarchical'      => false,
-            'show_ui'           => true,
-            'show_in_rest'      => true,
-            'show_admin_column' => true,
-            'rewrite'           => false,
+            'hierarchical'       => false,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_rest'       => true,
+            'show_admin_column'  => true,
+            'rewrite'            => false,
         ] );
         register_taxonomy( App::TAX_INGREDIENT, [ App::POST_TYPE, App::SHOPPING_LIST_POST_TYPE ], [
-            'labels' => [
+            'labels'             => [
                 'name'          => __( 'Ingredients', 'cook-app' ),
                 'singular_name' => __( 'Ingredient', 'cook-app' ),
             ],
             // Hierarchical so users can manually group similar ingredients
             // ("cherry tomato" as a child of "tomato") via the standard WP UI.
-            'hierarchical'      => true,
-            'show_ui'           => true,
-            'show_in_rest'      => true,
-            'show_admin_column' => false,
-            'rewrite'           => false,
+            'hierarchical'       => true,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_rest'       => true,
+            'show_admin_column'  => false,
+            'rewrite'            => false,
         ] );
     }
 
