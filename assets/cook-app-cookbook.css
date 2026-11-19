@@ -1,0 +1,85 @@
+/* Optional Cookbook layout; Classic uses cook-app.css alone. */
+
+:root {
+    --bg: light-dark(#f3f5f2, #151c19);
+    --fg: light-dark(#233b31, #e5eee7);
+    --muted: light-dark(#5d6d63, #a9b9ae);
+    --line: light-dark(#d8e1d9, #36483d);
+    --accent: light-dark(#286347, #98d6b1);
+    --accent-hover: light-dark(#19472f, #b5e8c9);
+    --accent-fg: light-dark(#fff, #152d20);
+    --accent-highlight: var(--accent);
+    --card: light-dark(#fff, #1e2a23);
+    --input-bg: var(--card);
+    --input-border: var(--line);
+    --secondary-bg: light-dark(#e6ede6, #2b3c31);
+    --secondary-fg: var(--fg);
+    --notice-bg: var(--secondary-bg);
+    --notice-bd: var(--line);
+}
+body { font-size: 1rem; -webkit-font-smoothing: antialiased; }
+main { max-width: 1120px; padding: 0 2rem 5rem; margin: 3rem auto; }
+h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 500; letter-spacing: -0.035em; line-height: 1.12; overflow-wrap: anywhere; }
+h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.6rem; font-weight: 500; border-bottom: 0; margin-top: 2rem; }
+.page-head { margin-bottom: 2rem; align-items: center; }
+.page-head-main { gap: 0.65rem; }
+.page-head .subtitle { margin: 0; font-size: 1.05rem; }
+.page-head-nav { gap: 0.35rem; margin: 0; line-height: 1.4; }
+.page-head-nav a { padding: 0.65rem 0.9rem; border-radius: 0.6rem; color: var(--muted); }
+.page-head-nav a:hover, .page-head-nav a:focus-visible { text-decoration: none; background: var(--secondary-bg); color: var(--fg); }
+.page-head-nav a[aria-current="page"] { background: var(--secondary-bg); color: var(--accent); }
+.page-head-nav .cookbook-brand { display: none; }
+.cookbook-brand-mark { font-size: 2rem; color: #c6e2ab; line-height: 1; }
+.btn, button.btn, input[type="submit"].btn { border-radius: 0.6rem; padding: 0.65rem 1rem; font-weight: 600; line-height: 1.45; }
+.badge { padding: 0.3rem 0.7rem; font-size: 0.875rem; margin-right: 0; }
+a.badge:hover { border-color: var(--accent); background: var(--secondary-bg); }
+input[type="text"], input[type="number"], input[type="url"], input[type="date"], input[type="file"], textarea, select { border-radius: 0.6rem; padding: 0.65rem 0.75rem; }
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.home-search { margin: 0 0 1.75rem; padding: 0.65rem; background: var(--card); border: 1px solid var(--line); border-radius: 1rem; box-shadow: 0 6px 24px #152d2006; }
+.home-search input[type="text"] { border: 0; background: transparent; padding: 0.7rem; }
+.home-today-plan { padding: 1.35rem; border-radius: 1rem; background: var(--secondary-bg); border: 0; }
+.home-today-head h2 { font-size: 1.5rem; }
+.recipe-index-row { gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 1.5rem 0; }
+.recipe-index { gap: 0.2rem; }
+.recipe-index .badge { min-width: 1.8rem; padding: 0.25rem; border: 0; background: transparent; }
+.recipe-view-switch { padding: 0.25rem; background: var(--secondary-bg); border-radius: 0.65rem; }
+.recipe-view-switch a { min-height: 2.25rem; border-radius: 0.45rem; }
+.recipe-view-switch a.is-active { background: var(--card); color: var(--accent); box-shadow: 0 1px 4px #152d2010; }
+.recipe-alpha-section { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; margin-top: 1.5rem; scroll-margin-top: calc(var(--cookbook-masterbar-height) + 1rem); }
+.recipe-alpha-heading { font-family: Georgia, 'Times New Roman', serif; font-size: 2rem; font-weight: 400; border: 0; color: var(--accent); }
+.recipe-alpha-list li, .recipe-recent-list li { border-bottom: 1px solid var(--line); }
+.recipe-alpha-list a, .recipe-recent-list a { padding: 0.85rem 0.65rem; border-radius: 0.45rem; }
+.recipe-alpha-list a:hover, .recipe-recent-list a:hover { background: var(--secondary-bg); }
+.recipe-photo-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+.recipe-photo-card { aspect-ratio: 4 / 3; border: 0; border-radius: 1rem; box-shadow: 0 4px 16px #152d2010; }
+.recipe-photo-title { padding: 3rem 1.1rem 1.1rem; font-family: Georgia, 'Times New Roman', serif; font-size: 1.35rem; font-weight: 400; }
+.recipe-card, .soft-panel, .variation-panel, .recipe-toolbar { border-radius: 0.85rem; }
+.recipe-card { padding: 1.25rem; }
+.recipe-toolbar { padding: 0.85rem; }
+@media (min-width: 1100px) {
+    body:has(.page-head-nav) main { margin-left: max(250px, calc((100vw - 1120px + 220px) / 2)); margin-right: auto; padding-left: 2.5rem; padding-right: 2.5rem; max-width: 1120px; box-sizing: border-box; }
+    .page-head-nav { position: fixed; top: var(--cookbook-masterbar-height); bottom: 0; left: 0; width: 220px; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem; padding: 2rem 1rem; background: #203d30; color: #c9dbce; overflow-y: auto; z-index: 30; }
+    body.wp-app-body main .page-head-nav a, body.wp-app-body main .page-head-nav a:visited { color: #c9dbce; padding: 0.85rem 1rem; }
+    body.wp-app-body main .page-head-nav a:hover, body.wp-app-body main .page-head-nav a:focus-visible { background: #304f3f; color: #fff; }
+    body.wp-app-body main .page-head-nav a[aria-current="page"] { background: #d8ebcb; color: #203d30; }
+    body.wp-app-body main .page-head-nav .cookbook-brand { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 2rem; padding: 0.5rem 0.75rem; color: #fff; font-family: Georgia, 'Times New Roman', serif; font-size: 1.6rem; }
+}
+@media (max-width: 1099px) {
+    .page-head-main { width: 100%; }
+    .page-head-nav { order: -1; padding-bottom: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--line); }
+    .page-head-nav a { padding: 0.55rem 0.7rem; }
+}
+@media (max-width: 640px) {
+    main { margin-top: 1.25rem; padding: 0 1rem 3rem; }
+    .page-head { margin-bottom: 1.5rem; }
+    .page-head-nav { gap: 0.15rem; font-size: 0.875rem; }
+    .page-head-nav a { padding: 0.55rem; }
+    .recipe-alpha-section { grid-template-columns: 2rem minmax(0, 1fr); gap: 0.5rem; }
+    .home-search { grid-template-columns: minmax(0, 1fr) auto; gap: 0.25rem; padding: 0.4rem; }
+    .home-search .btn { padding: 0.65rem; }
+    .home-today-plan { padding: 1rem; }
+}
+@media print {
+    .page-head-nav, .cookbook-skip-link { display: none; }
+    body:has(.page-head-nav) main { margin: 0; max-width: none; padding: 0; }
+}

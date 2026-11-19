@@ -101,6 +101,11 @@ $last_cooked_date = $cooked_entries
     ? (string) get_post_meta( $cooked_entries[0]->ID, App::META_COOKED_DATE, true )
     : '';
 $recent_cooked_entries = array_slice( $cooked_entries, 0, 5 );
+$recent_cooked_by_month = [];
+foreach ( $recent_cooked_entries as $entry ) {
+    $entry_date = App::sanitize_cooked_date( (string) get_post_meta( $entry->ID, App::META_COOKED_DATE, true ) );
+    $recent_cooked_by_month[ substr( $entry_date, 0, 7 ) ][] = $entry;
+}
 
 include __DIR__ . '/_header.php';
 ?>
@@ -483,8 +488,11 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id, 
         ) );
         ?>
     </p>
+    <?php foreach ( $recent_cooked_by_month as $month => $month_entries ) : ?>
+    <section class="cooked-month-section">
+        <h3><?php echo esc_html( App::format_cooked_date( $month . '-01', 'F Y' ) ); ?></h3>
     <ul class="cooked-history-list">
-        <?php foreach ( $recent_cooked_entries as $entry ) :
+        <?php foreach ( $month_entries as $entry ) :
             $entry_date = (string) get_post_meta( $entry->ID, App::META_COOKED_DATE, true );
             $entry_note = (string) get_post_meta( $entry->ID, App::META_COOKED_NOTE, true );
             ?>
@@ -513,6 +521,8 @@ $render_ingredient_row = function( array $ing, int $i ) use ( $preference, $id, 
             </li>
         <?php endforeach; ?>
     </ul>
+    </section>
+    <?php endforeach; ?>
 <?php endif; ?>
 
 <?php if ( $has_clean_instructions ) : ?>

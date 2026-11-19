@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use CookApp\App;
 
 $entries = App::get_user_cooked_entries();
-$entries_by_date = [];
+$entries_by_month = [];
 $today_date = wp_date( 'Y-m-d' );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flash code.
 $cooked_status = isset( $_GET['cooked'] ) ? sanitize_text_field( wp_unslash( $_GET['cooked'] ) ) : '';
@@ -18,11 +18,12 @@ foreach ( $entries as $entry ) {
     $date      = App::sanitize_cooked_date( (string) get_post_meta( $entry->ID, App::META_COOKED_DATE, true ) );
     $recipe    = $recipe_id ? get_post( $recipe_id ) : null;
 
-    if ( ! isset( $entries_by_date[ $date ] ) ) {
-        $entries_by_date[ $date ] = [];
+    $month = substr( $date, 0, 7 );
+    if ( ! isset( $entries_by_month[ $month ] ) ) {
+        $entries_by_month[ $month ] = [];
     }
 
-    $entries_by_date[ $date ][] = [
+    $entries_by_month[ $month ][] = [
         'entry'     => $entry,
         'recipe'    => $recipe && $recipe->post_type === App::POST_TYPE ? $recipe : null,
         'recipe_id' => $recipe_id,
@@ -47,25 +48,25 @@ include __DIR__ . '/_header.php';
     </div>
 <?php endif; ?>
 
-<?php if ( ! $entries_by_date ) : ?>
+<?php if ( ! $entries_by_month ) : ?>
     <div class="notice"><?php esc_html_e( 'No cooking history yet. Save a cooked date from any recipe page.', 'cook-app' ); ?></div>
 <?php else : ?>
-    <?php foreach ( $entries_by_date as $date => $date_entries ) : ?>
-        <section class="recipe-alpha-section">
+    <?php foreach ( $entries_by_month as $month => $month_entries ) : ?>
+        <section class="cooked-month-section">
             <h2>
-                <?php echo esc_html( App::format_cooked_date( $date ) ); ?>
+                <?php echo esc_html( App::format_cooked_date( $month . '-01', 'F Y' ) ); ?>
                 <span class="cooked-count">
                     <?php
                     echo esc_html( sprintf(
-                        /* translators: %d: cooked-history entries on this date */
-                        _n( '%d recipe', '%d recipes', count( $date_entries ), 'cook-app' ),
-                        count( $date_entries )
+                        /* translators: %d: cooked-history entries in this month */
+                        _n( '%d recipe', '%d recipes', count( $month_entries ), 'cook-app' ),
+                        count( $month_entries )
                     ) );
                     ?>
                 </span>
             </h2>
             <ul class="cooked-day-list">
-                <?php foreach ( $date_entries as $item ) :
+                <?php foreach ( $month_entries as $item ) :
                     $recipe = $item['recipe'];
                     $entry_date = App::sanitize_cooked_date( (string) get_post_meta( $item['entry']->ID, App::META_COOKED_DATE, true ) );
                     ?>
@@ -81,7 +82,7 @@ include __DIR__ . '/_header.php';
                             <?php endif; ?>
                             <button class="cooked-edit-toggle" type="button" aria-expanded="false" aria-controls="cooked-edit-<?php echo (int) $item['entry']->ID; ?>"><?php esc_html_e( 'Edit', 'cook-app' ); ?></button>
                         </span>
-                        <time datetime="<?php echo esc_attr( $date ); ?>"><?php echo esc_html( App::format_cooked_date( $date ) ); ?></time>
+                        <time datetime="<?php echo esc_attr( $entry_date ); ?>"><?php echo esc_html( App::format_cooked_date( $entry_date ) ); ?></time>
                         <div class="cooked-edit" id="cooked-edit-<?php echo (int) $item['entry']->ID; ?>" hidden>
                             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                                 <?php wp_nonce_field( 'cookbook_update_cooked' ); ?>

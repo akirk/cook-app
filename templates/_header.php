@@ -76,6 +76,7 @@ if ( ! function_exists( 'cook_app_page_head' ) ) {
                 <h1><?php echo esc_html( $title ); ?></h1>
                 <?php if ( $show_nav ) : ?>
                     <nav class="page-head-nav" aria-label="<?php esc_attr_e( 'Cook App sections', 'cook-app' ); ?>">
+                        <a class="cookbook-brand" href="<?php echo esc_url( home_url( '/cook-app/' ) ); ?>"><span class="cookbook-brand-mark" aria-hidden="true">✳</span><?php esc_html_e( 'Cook App', 'cook-app' ); ?></a>
                         <?php foreach ( $sections as $section_key => $section ) : ?>
                             <a href="<?php echo esc_url( $section['url'] ); ?>"<?php echo $current_section === $section_key ? ' aria-current="page"' : ''; ?>>
                                 <?php echo esc_html( $section['label'] ); ?>
@@ -109,6 +110,16 @@ wp_app_enqueue_style(
     filemtime( dirname( __DIR__ ) . '/assets/cook-app.css' ),
     'cook-app'
 );
+$cookbook_theme = apply_filters( 'cook_app_selected_theme', 'default' ) === 'classic' ? 'classic' : 'cookbook';
+if ( $cookbook_theme === 'cookbook' ) {
+    wp_app_enqueue_style(
+        'cook-app-cookbook',
+        COOK_APP_PLUGIN_URL . 'assets/cook-app-cookbook.css',
+        array( 'cook-app' ),
+        filemtime( dirname( __DIR__ ) . '/assets/cook-app-cookbook.css' ),
+        'cook-app'
+    );
+}
 ?>
 <!DOCTYPE html>
 <html <?php wp_app_language_attributes(); ?>>
@@ -120,5 +131,6 @@ wp_app_enqueue_style(
 
 </head>
 <body class="wp-app-body">
+    <a class="cookbook-skip-link" href="#cookbook-main"><?php esc_html_e( 'Skip to content', 'cook-app' ); ?></a>
     <?php wp_app_body_open(); ?>
-    <main>
+    <main id="cookbook-main">
