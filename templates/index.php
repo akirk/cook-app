@@ -7,10 +7,16 @@ use CookApp\App;
 
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- idempotent read-only search.
 $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- idempotent read-only display preference.
-$view = isset( $_GET['view'] ) ? sanitize_key( wp_unslash( $_GET['view'] ) ) : 'compact';
-if ( ! in_array( $view, [ 'images', 'compact', 'recent' ], true ) ) {
-    $view = 'compact';
+$recipe_views = [ 'images', 'compact', 'recent' ];
+$saved_view = get_user_meta( get_current_user_id(), App::USER_PREF_RECIPE_VIEW, true );
+$view = in_array( $saved_view, $recipe_views, true ) ? $saved_view : 'compact';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Validated, user-local display preference.
+$requested_view = isset( $_GET['view'] ) ? sanitize_key( wp_unslash( $_GET['view'] ) ) : '';
+if ( in_array( $requested_view, $recipe_views, true ) ) {
+    $view = $requested_view;
+    if ( is_user_logged_in() && $view !== $saved_view ) {
+        update_user_meta( get_current_user_id(), App::USER_PREF_RECIPE_VIEW, $view );
+    }
 }
 
 // If the user pasted a URL into the search box, redirect to the import flow.
@@ -142,9 +148,13 @@ $page_title = __( 'Cook App', 'cook-app' );
 include __DIR__ . '/_header.php';
 ?>
 
-<?php cook_app_page_head( __( 'Cook App', 'cook-app' ), [ 'current_section' => 'recipes' ] ); ?>
+<?php cook_app_page_head( $cookbook_theme === 'classic' ? __( 'Cook App', 'cook-app' ) : __( 'Your recipe collection', 'cook-app' ), [
+    'current_section' => 'recipes',
+    'subtitle' => $cookbook_theme === 'classic' ? '' : __( 'Good food, gathered in one place.', 'cook-app' ),
+] ); ?>
 
 <form method="get" action="" class="home-search">
+    <label class="screen-reader-text" for="cookbook-search"><?php esc_html_e( 'Search recipes', 'cook-app' ); ?></label>
     <input id="cookbook-search" type="text" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search recipes or paste a URL to import…', 'cook-app' ); ?>">
     <input type="hidden" name="view" value="<?php echo esc_attr( $view ); ?>">
     <button class="btn" type="submit"><?php esc_html_e( 'Search', 'cook-app' ); ?></button>

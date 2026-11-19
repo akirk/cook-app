@@ -44,6 +44,7 @@ class App extends BaseApp {
     const META_COOKED_DATE      = '_cookbook_cooked_date';
     const META_COOKED_NOTE      = '_cookbook_cooked_note';
 
+    const USER_PREF_RECIPE_VIEW = 'cookbook_recipe_view';
     const USER_PREF_UNITS = 'cookbook_unit_preference';
     const USER_HOUSEHOLD_INGREDIENTS = 'cookbook_household_ingredient_ids';
     const HOME_INGREDIENT_STATS_TRANSIENT = 'cookbook_home_ingredient_stats_v1';
@@ -77,6 +78,18 @@ class App extends BaseApp {
                 self::TAX_INGREDIENT,
             ],
         ] );
+        add_filter( 'wp_app_init_cook-app', [ $this, 'register_themes' ] );
+        add_filter( 'cook_app_selected_theme', [ $this, 'get_selected_theme' ] );
+    }
+
+    public function register_themes( WpApp $app ): WpApp {
+        $app->register_theme( 'default', __( 'Cookbook', 'cook-app' ), $this->get_template_dir() );
+        $app->register_theme( 'classic', __( 'Classic', 'cook-app' ) );
+        return $app;
+    }
+
+    public function get_selected_theme(): string {
+        return $this->app->get_selected_theme();
     }
 
     protected function get_url_path(): string {
@@ -146,12 +159,10 @@ class App extends BaseApp {
 
         parent::init();
 
-        // BaseApp defers setup_menu() to the app's own init filter, which WpApp
-        // applies from an init callback it adds at priority 10 -- the priority
-        // whose iteration we are inside right now, so that callback is never
-        // reached and the menu stays empty. Build it directly instead, for the
-        // same reason the post type and taxonomies are registered above.
-        $this->setup_menu();
+        // WpApp schedules its init filter at the priority we are already inside.
+        // Run the full filter now so themes, menus, and app metadata all initialize.
+        remove_action( 'init', [ $this->app, 'apply_init_filter' ] );
+        $this->app->apply_init_filter();
     }
 
     protected function setup_database(): void {
