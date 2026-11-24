@@ -74,7 +74,20 @@ class BackupServiceRestoreTest extends TestCase {
 
     public function test_failed_restore_removes_new_entries_and_terms(): void {
         $backups = ( new ServiceContainer() )->backups();
-        $data = $backups->decode_backup( json_encode( $backups->to_document( $this->data() ) ) );
+        $GLOBALS['backup_meta'][99] = [ App::META_NOTES => 'Existing recipe notes' ];
+        $GLOBALS['backup_terms'] = [ 88 => [ 'name' => 'flour', 'taxonomy' => App::TAX_INGREDIENT ] ];
+        $GLOBALS['backup_users'][7] = [ App::USER_PREF_UNITS => 'metric', App::USER_HOUSEHOLD_INGREDIENTS => [ 88 ] ];
+        $before = [
+            'posts' => $GLOBALS['backup_posts'],
+            'meta' => $GLOBALS['backup_meta'],
+            'terms' => $GLOBALS['backup_terms'],
+            'users' => $GLOBALS['backup_users'],
+        ];
+        $data = $this->data();
+        // Reuse the existing flour term, but create a new category that must be rolled back.
+        $data['terms'][] = [ 'id' => 9, 'taxonomy' => App::TAX_CATEGORY, 'name' => 'Dinner', 'parent' => 0 ];
+        $data['posts'][0]['terms'][App::TAX_CATEGORY] = [ 9 ];
+        $data = $backups->decode_backup( json_encode( $backups->to_document( $data ) ) );
         $GLOBALS['backup_fail_terms'] = true;
         try {
             $backups->restore_data( $data, 7 );
@@ -82,8 +95,9 @@ class BackupServiceRestoreTest extends TestCase {
         } catch ( RuntimeException $error ) {
             $this->assertSame( 'Simulated taxonomy failure', $error->getMessage() );
         }
-        $this->assertSame( [ 99 ], array_keys( $GLOBALS['backup_posts'] ) );
-        $this->assertSame( [], $GLOBALS['backup_terms'] );
-        $this->assertSame( [], $GLOBALS['backup_users'] );
+        $this->assertSame( $before['posts'], $GLOBALS['backup_posts'] );
+        $this->assertSame( $before['meta'], $GLOBALS['backup_meta'] );
+        $this->assertSame( $before['terms'], $GLOBALS['backup_terms'] );
+        $this->assertSame( $before['users'], $GLOBALS['backup_users'] );
     }
 }
