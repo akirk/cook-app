@@ -74,6 +74,7 @@ class BackupServiceRestoreTest extends TestCase {
 
     public function test_failed_restore_removes_new_entries_and_terms(): void {
         $backups = ( new ServiceContainer() )->backups();
+        $GLOBALS['backup_posts'][99]['post_content'] = 'Existing recipe body';
         $GLOBALS['backup_meta'][99] = [ App::META_NOTES => 'Existing recipe notes' ];
         $GLOBALS['backup_terms'] = [ 88 => [ 'name' => 'flour', 'taxonomy' => App::TAX_INGREDIENT ] ];
         $GLOBALS['backup_users'][7] = [ App::USER_PREF_UNITS => 'metric', App::USER_HOUSEHOLD_INGREDIENTS => [ 88 ] ];

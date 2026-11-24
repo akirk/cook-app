@@ -476,7 +476,7 @@ class BackupService extends AbstractService {
                 }
                 $id = (int) ( is_array( $result ) ? $result['term_id'] : $result );
                 $term_map[ $term['id'] ] = $id;
-                if ( true ) {
+                if ( ! $existing ) {
                     $created_terms[ $term['id'] ] = $term;
                 }
             }
