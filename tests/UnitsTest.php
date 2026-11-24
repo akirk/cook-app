@@ -75,23 +75,18 @@ class UnitsTest extends TestCase {
         $this->assertLessThan(  14.5, $amount );
     }
 
-    public function test_tsp_passes_through_metric_preference(): void {
-        // "1 TL Salz" from chefkoch.de must stay 1 tsp, not collapse to 5 ml.
-        $out = Units::to_preference( 1, 'tsp', 'metric' );
-        $this->assertSame( 'tsp', $out['unit'] );
-        $this->assertSame( '1', $out['amount'] );
+    /** @dataProvider kitchen_measure_preferences */
+    public function test_kitchen_measures_keep_their_unit( int $amount, string $unit, string $preference, array $expected ): void {
+        $this->assertSame( $expected, Units::to_preference( $amount, $unit, $preference ) );
     }
 
-    public function test_tbsp_passes_through_metric_preference(): void {
-        $out = Units::to_preference( 2, 'tbsp', 'metric' );
-        $this->assertSame( 'tbsp', $out['unit'] );
-        $this->assertSame( '2', $out['amount'] );
-    }
-
-    public function test_tsp_passes_through_imperial_preference(): void {
-        $out = Units::to_preference( 1, 'tsp', 'imperial' );
-        $this->assertSame( 'tsp', $out['unit'] );
-        $this->assertSame( '1', $out['amount'] );
+    public static function kitchen_measure_preferences(): array {
+        return [
+            // "1 TL Salz" must stay 1 tsp instead of becoming 5 ml.
+            'teaspoon in metric' => [ 1, 'tsp', 'metric', [ 'amount' => '1', 'unit' => 'tsp' ] ],
+            'tablespoon in metric' => [ 2, 'tbsp', 'metric', [ 'amount' => '2', 'unit' => 'tbsp' ] ],
+            'teaspoon in imperial' => [ 1, 'tsp', 'imperial', [ 'amount' => '1', 'unit' => 'tsp' ] ],
+        ];
     }
 
     public function test_ml_to_imperial_still_chooses_tsp_for_small_amounts(): void {
